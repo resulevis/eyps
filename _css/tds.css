@@ -1,0 +1,55 @@
+.profile-user-img-personel-listesi {
+	border: 1px solid #adb5bd;
+	margin: 0 auto;
+	padding: 1px;
+	width: 40px;
+}
+
+.input-group .input-group-prepend.personel-ekle {
+	flex: 0 0 50%;
+}
+
+.input-group .input-group-text.personel-ekle {
+	width: 100%;
+}
+
+div.dt-button-collection div.dropdown-menu {
+	display: block !important;
+	z-index: 2002 !important;
+	min-width: 100% !important;
+	max-height: 500px !important;
+	overflow-y: scroll !important;
+}
+.tab-container{
+	justify-content: space-evenly;
+}
+.tab-container li{
+	text-align: center;
+	width: 24%;
+}.tab-container li a{
+	background-color: #ff4343;
+	width: 100%;
+	color: #fff !important;
+}
+.tab-container .nav-link:not(.active):hover {
+    color: #fff;
+    font-weight: bold;
+}
+.tab-container .nav-link.active {
+    border: none;
+}
+.layout-fixed .personel-bilgileri-kapsa{
+    width: 300px;
+    transition: right 0.3s ease-in-out, display 0.3s ease-in-out;
+}
+.bilgiTablosu table tr td, .bilgiTablosu table tr th{
+	border: 0 !important;
+	padding: 3px !important;
+}
+.bolumTablo th, .bolumTablo td{
+	vertical-align: inherit;
+	padding: 0;
+}
+.bolumTablo tr{
+	height: 40px;
+}
