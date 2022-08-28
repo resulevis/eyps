@@ -51,7 +51,8 @@ SELECT
 	dd.ders_id,
 	dd.teorik_ders_saati,
 	dd.uygulama_ders_saati,
-	d.adi
+	d.adi,
+	d.ders_kodu
 FROM  
 	tb_donem_dersleri as dd
 LEFT JOIN tb_dersler  as d ON d.id = dd.ders_id
@@ -151,29 +152,29 @@ $programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' 
 	</div>
 	<!--/.col (left) -->
 	<div class="col-md-7">
-		<div class="card card-secondary">
+		<div class="card card-success">
 			<div class="card-header">
 				<h3 class="card-title">Dönem Dersleri</h3>
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
 
-				<ul class="tree">
+				<ul class="tree ">
 				<?php  
 					/*DERS Yılıllarını Getiriyoruz*/
 					$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION[ "universite_id" ] ) )[2];
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
-						<li><div class="sticky"><?php  echo $ders_yili[ "adi" ]; ?></div>
-						<ul>
+						<li><div class="ders-kapsa bg-secondary"><?php  echo $ders_yili[ "adi" ]; ?></div>
+						<ul class="ders-ul" >
 				<?php 
 						/*Programların  Listesi*/
 						$programlar = $vt->select( $SQL_programlar, array( $_SESSION[ "universite_id" ] ) )[2];
 						foreach ($programlar as $program) { ?>
 							
 							<!-- Programlar -->
-							<li><div class="sticky"><?php echo $program[ "adi" ] ?></div> <!-- Second level node -->
+							<li><div class="ders-kapsa bg-danger"><?php echo $program[ "adi" ] ?></div> <!-- Second level node -->
 							<ul class="ders-ul">
 				<?php 		
 							/*Dönemler Listesi*/
@@ -181,16 +182,16 @@ $programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' 
 							foreach ( $donemler AS $donem ){ ?>
 								<!--Dönemler-->
 								<li>
-									<div class="ders-kapsa">
-										<?php echo $donem[ "adi" ]  ?>
-										<a href="?modul=donemDersleri&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
+									<div class="ders-kapsa bg-lightblue">
+										<?php echo $donem[ "adi" ]  ?> 
+										<a href="?modul=donemDersleri&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>
 									</div>
 								<ul class="ders-ul">
 				<?php 
 								/*Ders Listesi*/
 								$dersler = $vt->select( $SQL_dersler_getir, array( $ders_yili[ "id" ], $program[ "id" ], $donem[ "id" ] ) )[2];
 								foreach ( $dersler as $ders ) { ?>
-									<li><div class="ders-kapsa"><?php echo $ders[ "adi" ];   ?></div></li>				
+									<li><div class="ders-kapsa bg-light"><?php echo $ders[ "adi" ]; ?> <span class="float-right">(<?php echo $ders[ "ders_kodu" ]  ?>)</span></div></li>				
 				<?php			
 								}
 								echo '</ul></li>';

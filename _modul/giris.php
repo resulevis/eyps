@@ -1,5 +1,5 @@
-<body class="hold-transition login-page" style="background-image: url('img/bg3.jpg');background-size: cover;">
-<div class="login-box">
+<body class="hold-transition login-page" style="background-image: url('img/bg.jpg');background-size: cover;">
+<div class="login-box ">
 		<?php
 			if( array_key_exists( 'giris_var', $_SESSION ) ) {
 				if( $_SESSION[ 'giris_var' ] == 'hayir' ) {
@@ -13,10 +13,17 @@
 			} }
 		?>
   <!-- /.login-logo -->
-  <div class="card card-outline card-warning">
+  <div class="card card-outline card-success">
     <div class="card-header text-center">
-		<!--img src="img/wowlogo.jfif" width="100%"-->
-      <a href="../../index2.html" class="h1">Tesis Denetim Sistemi</b></a>
+      <div class="row">
+        <div class="col-md-9 my-auto">
+          <h2><b>Eğitim Yönetim Planlama Sistemi</b></h2>
+          <h6>Van Yüzüncü Yıl Üniversitesi</h6>
+        </div>
+        <div class="col-md-3 my-auto">
+          <img src="img/yyu_logo.png" class="img-fluid" style="width:200px">
+        </div>
+      </div>
     </div>
     <div class="card-body">
       <p class="login-box-msg">Kullanıcı adı ve şifrenizle giriş yapınız.</p>
@@ -49,7 +56,7 @@
           </div>
           <!-- /.col -->
           <div class="col-4">
-            <button type="submit" class="btn btn-warning btn-block">Devam</button>
+            <button type="submit" class="btn btn-success btn-block">Devam</button>
           </div>
           <!-- /.col -->
         </div>

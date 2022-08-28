@@ -140,7 +140,7 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <script src="plugins/toastr/toastr.min.js"></script>
 <script src="_js/mesaj.js"></script>
 <script src="_js/dropzoneYukle.js"></script>
-
+<script src="dist/js/pages/dashboard2.js"></script>
 </head>
 <?php 
 	$SQL_modul_klasor = <<< SQL

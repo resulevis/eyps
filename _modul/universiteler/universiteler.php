@@ -117,38 +117,38 @@ $universiteler			= $vt->select( $SQL_tum_universiteler, array( ) )[ 2 ];
 				</div>
 			</div>
 			<div class="col-md-6">
-				<div class="card <?php if( $universite_id == 0 ) echo 'card-secondary' ?>">
-					<div class="card-header p-2">
-						<ul class="nav nav-pills tab-container">
-							<?php if( $universite_id > 0 ) { ?>
-								<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Üniversiteyi Düzenle</h6>
-							<?php } else {
-								echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Üniversite Ekle</h6>";
-								}
-							?>
-							
-						</ul>
-					</div>
-					<div class="card-body">
-						<div class="tab-content">
-							<!-- GENEL BİLGİLER -->
-							<div class="tab-pane active" id="_genel">
-								<form class="form-horizontal" action = "_modul/universiteler/universitelerSEG.php" method = "POST" enctype="multipart/form-data">
+				<form class="form-horizontal" action = "_modul/universiteler/universitelerSEG.php" method = "POST" enctype="multipart/form-data">
+					<div class="card <?php if( $universite_id == 0 ) echo 'card-secondary' ?>">
+						<div class="card-header p-2">
+							<ul class="nav nav-pills tab-container">
+								<?php if( $universite_id > 0 ) { ?>
+									<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Üniversiteyi Düzenle</h6>
+								<?php } else {
+									echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Üniversite Ekle</h6>";
+									}
+								?>
+								
+							</ul>
+						</div>
+						<div class="card-body">
+							<div class="tab-content">
+								<!-- GENEL BİLGİLER -->
+								<div class="tab-pane active" id="_genel">
 									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
 									<input type = "hidden" name = "universite_id" value = "<?php echo $universite_id; ?>">
 									<h3 class="profile-username text-center"><b> </b></h3>
 									<div class="form-group">
-										<label class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_universite[ "adi" ]; ?>"  autocomplete="off">
+										<label class="control-label">Üniversite Adı</label>
+										<input required type="text" class="form-control form-control-sm" name ="adi" value = "<?php echo $tek_universite[ "adi" ]; ?>"  autocomplete="off">
 									</div>
-									<div class="card-footer">
-										<button modul= 'universite' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
-									</div>
-								</form>
+								</div>
 							</div>
 						</div>
+						<div class="card-footer">
+							<button modul= 'universite' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+						</div>
 					</div>
-				</div>
+				</form>
 			</div>
 		</div>
 	</div>
