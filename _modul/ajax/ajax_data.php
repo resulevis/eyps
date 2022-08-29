@@ -144,15 +144,16 @@ WHERE
  	aktif = 1
 SQL;
 
-$SQL_donemler_getir = <<< SQL
+$SQL_ders_yili_donemler_getir = <<< SQL
 SELECT
-	*
+	 dyd.id
+	,d.adi
 FROM
-	tb_donemler
+	tb_ders_yili_donemleri AS dyd
+LEFT JOIN tb_donemler AS d ON d.id = dyd.donem_id
 WHERE 
-	universite_id = ? AND
-	program_id 	  = ? AND
- 	aktif = 1
+	dyd.program_id			= ? AND
+	dyd.ders_yili_id		= ? 
 SQL;
 
 /*Programa ait dersler*/
@@ -202,20 +203,20 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 
 	case 'donemListesi':
-		$donemler = $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_REQUEST[ "program_id" ] ) )[ 2 ];
+		$ders_yili_donemler = $vt->select( $SQL_ders_yili_donemler_getir, array( $_REQUEST[ "program_id" ], $_REQUEST[ "ders_yili_id" ] ) )[ 2 ];
 		$option = '';
-		foreach( $donemler AS $donem ) {
+		foreach( $ders_yili_donemler AS $ders_yili_donem ) {
 			$option .="
-				<option value='$donem[id]'>$donem[adi]</option>
+				<option value='$ders_yili_donem[id]'>$ders_yili_donem[adi]</option>
 			";
 		}
 		$select = '<label  class="control-label">Dönem</label>
-					<select class="form-control select2" name = "donem_id" id="donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
+					<select class="form-control select2" name = "ders_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
 						<option>Seçiniz...</option>
 						'.$option.'
 					</select>
 					<script>
-						$("#donemler").on("change", function(e) {
+						$("#ders_yili_donemler").on("change", function(e) {
 							var program_id 		= $("#program-sec").val();
 							var data_islem 		= $(this).data("islem");
 						    var data_url 		= $(this).data("url");
