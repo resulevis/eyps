@@ -139,62 +139,40 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 				</div>
 			</div>
 			<div class="col-md-6">
-				<div class="card <?php if( $ders_yili_donem_id == 0 ) echo 'card-secondary' ?>">
-					<div class="card-header p-2">
-						<ul class="nav nav-pills tab-container">
-							<?php if( $ders_yili_donem_id > 0 ) { ?>
-								<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Dönem Düzenle</h6>
-							<?php } else {
-								echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Dönem Ekle</h6>";
+		<div class="card card-secondary">
+			<div class="card-header">
+				<h3 class="card-title">Dönem Dersi Ekle / Güncelle</h3>
+			</div>
+			<!-- /.card-header -->
+			<!-- form start -->
+			<form id = "kayit_formu" action = "_modul/donemDersleri/donemDersleriSEG.php" method = "POST">
+				<div class="card-body">
+					<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
+					<div class="form-group">
+						<label  class="control-label">Program</label>
+						<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" required>
+							<option>Seçiniz...</option>
+							<?php 
+								foreach( $programlar AS $program ){
+									echo '<option value="'.$program[ "id" ].'" '.($program[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
 								}
+
 							?>
-							
-						</ul>
+						</select>
 					</div>
-					<div class="card-body">
-						<div class="tab-content">
-							<!-- GENEL BİLGİLER -->
-							<div class="tab-pane active" id="_genel">
-								<form class="form-horizontal" action = "_modul/donemler/donemlerSEG.php" method = "POST" enctype="multipart/form-data">
-									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
-									<input type = "hidden" name = "ders_yili_donem_id" value = "<?php echo $ders_yili_donem_id; ?>">
-									<h3 class="profile-username text-center"><b> </b></h3>
-									<div class="form-group">
-										<label  class="control-label">Program</label>
-										<select class="form-control select2" name = "program_id" required>
-											<option>Seçiniz...</option>
-											<?php 
-												foreach( $programlar AS $program ){
-													echo '<option value="'.$program[ "id" ].'" '.( $tek_ders_yili_donem[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
-												}
+					<div class="form-group" id="dersYillari"> </div>
+					<div class="form-group" id="donemListesi"> </div>
+					<div class="form-group" id="dersler"> </div>
 
-											?>
-										</select>
-									</div>
-									<div class="form-group">
-										<label  class="control-label">Ders Yılları</label>
-										<select class="form-control select2" name = "ders_yili_id" required>
-											<option>Seçiniz...</option>
-											<?php 
-												foreach( $ders_yillari AS $ders_yili ){
-													echo '<option value="'.$ders_yili[ "id" ].'" '.( $tek_ders_yili_donem[ "ders_yili_id" ] == $ders_yili[ "id" ] ? "selected" : null) .'>'.$ders_yili[ "adi" ].'</option>';
-												}
-
-											?>
-										</select>
-									</div>
-									<div class="form-group">
-										<label class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_donem[ "adi" ]; ?>"  autocomplete="off">
-									</div>
-									<div class="card-footer">
-										<button modul= 'fakulte' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
+					
 				</div>
+				<!-- /.card-body -->
+				<div class="card-footer">
+					<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+					<button onclick="window.location.href = '?modul=programlar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+				</div>
+			</form>
+		</div>
 			</div>
 		</div>
 	</div>
