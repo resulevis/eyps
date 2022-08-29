@@ -150,7 +150,7 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 							<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
 							<div class="form-group">
 								<label  class="control-label">Program</label>
-								<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" required>
+								<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" data-modul="<?php echo $_REQUEST['modul'] ?>" required>
 									<option>Seçiniz...</option>
 									<?php 
 										foreach( $programlar AS $program ){

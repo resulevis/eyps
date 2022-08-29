@@ -136,7 +136,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 					<div class="card-body">
 						<div class="form-group">
 							<label  class="control-label">Program</label>
-							<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" required>
+							<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" data-modul="<?php echo $_REQUEST['modul'] ?>" required>
 								<option>Seçiniz...</option>
 								<?php 
 									foreach( $programlar AS $program ){
@@ -288,11 +288,12 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 <script type="text/javascript">
 	
 	$('#program-sec').on("change", function(e) { 
-	    var $program_id 		= $(this).val();
+	    var $program_id = $(this).val();
 	    var $data_islem = $(this).data("islem");
 	    var $data_url 	= $(this).data("url");
+	    var $data_modul	= $(this).data("url");
 	    $("#dersYillari").empty();
-	    $.post($data_url, { islem : $data_islem,program_id : $program_id}, function (response) {
+	    $.post($data_url, { islem : $data_islem, program_id : $program_id, modul : $data_modul }, function (response) {
 	        $("#dersYillari").append(response);
 	    });
 	});	
