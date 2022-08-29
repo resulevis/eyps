@@ -3,6 +3,9 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
+var_dump($_REQUEST);
+exit;
+
 $islem				= array_key_exists( 'islem', $_REQUEST )			? $_REQUEST[ 'islem' ]			: 'ekle';
 $donem_id			= array_key_exists( 'donem_id', $_REQUEST )	? $_REQUEST[ 'donem_id' ]	: 0;
 $alanlar			= array();

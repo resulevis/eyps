@@ -25,9 +25,15 @@ $kaydet_buton_cls		= $ders_yili_donem_id > 0	? 'btn btn-warning btn-sm pull-righ
 /*Tüm Ders Yılını Okuma*/
 $SQL_tum_ders_yili_donemler = <<< SQL
 SELECT 
-	*
+	 dyd.id
+	,p.adi AS program_adi
+	,dy.adi AS ders_yili_adi
+	,d.adi AS donem_adi
 FROM 
-	tb_ders_yili_donemleri
+	tb_ders_yili_donemleri AS dyd
+LEFT JOIN tb_programlar AS p ON dyd.program_id = p.id 
+LEFT JOIN tb_ders_yillari AS dy ON dyd.ders_yili_id = dy.id 
+LEFT JOIN tb_donemler AS d ON dyd.donem_id = d.id
 SQL;
 
 /*Tek Ders Yılı Okuma*/
@@ -113,7 +119,9 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 							<thead>
 								<tr>
 									<th style="width: 15px">#</th>
-									<th>Adı</th>
+									<th>Program</th>
+									<th>Ders Yılı</th>
+									<th>Dönem</th>
 									<th data-priority="1" style="width: 20px">Düzenle</th>
 									<th data-priority="1" style="width: 20px">Sil</th>
 								</tr>
@@ -122,14 +130,16 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 								<?php $sayi = 1; foreach( $ders_yili_donemler AS $ders_yili_donem ) { ?>
 								<tr oncontextmenu="fun();" class ="fakulte-Tr <?php if( $ders_yili_donem[ 'id' ] == $ders_yili_donem_id ) echo $satir_renk; ?>" data-id="<?php echo $ders_yili_donem[ 'id' ]; ?>">
 									<td><?php echo $sayi++; ?></td>
-									<td><?php echo $ders_yili_donem[ 'adi' ]; ?></td>
+									<td><?php echo $ders_yili_donem[ 'program_adi' ]; ?></td>
+									<td><?php echo $ders_yili_donem[ 'ders_yili_adi' ]; ?></td>
+									<td><?php echo $ders_yili_donem[ 'donem_adi' ]; ?></td>
 									<td align = "center">
-										<a modul = 'donemler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=donemler&islem=guncelle&ders_yili_donem_id=<?php echo $ders_yili_donem[ 'id' ]; ?>" >
+										<a modul = 'dersYiliDonemler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=dersYiliDonemler&islem=guncelle&ders_yili_donem_id=<?php echo $ders_yili_donem[ 'id' ]; ?>" >
 											Düzenle
 										</a>
 									</td>
 									<td align = "center">
-										<button modul= 'donemler' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/donemler/donemlerSEG.php?islem=sil&ders_yili_donem_id=<?php echo $ders_yili_donem[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
+										<button modul= 'dersYiliDonemler' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/dersYiliDonemler/dersYiliDonemlerSEG.php?islem=sil&ders_yili_donem_id=<?php echo $ders_yili_donem[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -162,14 +172,11 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 							</div>
 							<div class="form-group" id="dersYillari"> </div>
 							<div class="form-group" id="donemListesi"> </div>
-							<div class="form-group" id="dersler"> </div>
-
-							
 						</div>
 						<!-- /.card-body -->
 						<div class="card-footer">
-							<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-							<button onclick="window.location.href = '?modul=programlar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+							<button modul= 'dersYiliDonemler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+							<button onclick="window.location.href = '?modul=dersYiliDonemler&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 						</div>
 					</form>
 				</div>
@@ -267,4 +274,5 @@ $('#card_donemler').on('minimized.lte.cardwidget', function() {
 	        $("#dersYillari").append(response);
 	    });
 	});	
+
 </script>

@@ -156,6 +156,16 @@ WHERE
 	dyd.ders_yili_id		= ? 
 SQL;
 
+$SQL_donemler_getir = <<< SQL
+SELECT
+	*
+FROM
+	tb_donemler
+WHERE 
+	universite_id		= ? AND
+	program_id			= ? 
+SQL;
+
 /*Programa ait dersler*/
 $SQL_dersler_getir = <<< SQL
 SELECT
@@ -205,14 +215,14 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 
 	case 'donemListesi':
-		$ders_yili_donemler = $vt->select( $SQL_ders_yili_donemler_getir, array( $_REQUEST[ "program_id" ], $_REQUEST[ "ders_yili_id" ] ) )[ 2 ];
-		$option = '';
-		foreach( $ders_yili_donemler AS $ders_yili_donem ) {
-			$option .="
-				<option value='$ders_yili_donem[id]'>$ders_yili_donem[adi]</option>
-			";
-		}
 		if( $_REQUEST[ 'modul' ] == "donemDersleri" ){
+			$ders_yili_donemler = $vt->select( $SQL_ders_yili_donemler_getir, array( $_REQUEST[ "program_id" ], $_REQUEST[ "ders_yili_id" ] ) )[ 2 ];
+			$option = '';
+			foreach( $ders_yili_donemler AS $ders_yili_donem ) {
+				$option .="
+					<option value='$ders_yili_donem[id]'>$ders_yili_donem[adi]</option>
+				";
+			}
 			$select = '<label  class="control-label">Dönem</label>
 						<select class="form-control select2" name = "ders_yili_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
 							<option>Seçiniz...</option>
@@ -233,11 +243,22 @@ switch( $_POST[ 'islem' ] ) {
 						</script>';
 		}
 		if( $_REQUEST[ 'modul' ] == "dersYiliDonemler" ){
+			$donemler = $vt->select( $SQL_ders_yili_donemler_getir, array( $_SESSION['universite_id'], $_REQUEST[ "program_id" ]) )[ 2 ];
+			$option = '';
+			foreach( $donemler AS $donem ) {
+				$option .="
+					<option value='$donem[id]'>$donem[adi]</option>
+				";
+			}
+
 			$select = '<label  class="control-label">Dönem</label>
-						<select class="form-control select2" name = "ders_donem_id" id="ders_yili_donemler" required>
+						<select class="form-control select2" name = "donem_id" id="donemler" required>
 							<option>Seçiniz...</option>
 							'.$option.'
-						</select>';
+						</select>
+						<script>
+						$(".select2").select2();
+						</script>';
 		}
 		echo $select;
 	break;
