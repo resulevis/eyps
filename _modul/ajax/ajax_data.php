@@ -252,10 +252,13 @@ switch( $_POST[ 'islem' ] ) {
 			}
 
 			$select = '<label  class="control-label">Dönem</label>
-						<select class="form-control select2" name = "donem_id" id="donemler"  multiple="multiple" required>
+						<select class="form-control select2" name = "donem_id" id="donemler" required>
 							<option>Seçiniz...</option>
 							'.$option.'
-						</select>';
+						</select>
+						<script>
+						$(".select2").select2();
+						</script>';
 		}
 		echo $select;
 	break;
