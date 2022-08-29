@@ -1,7 +1,14 @@
 <?php
 $fn = new Fonksiyonlar();
 
-$islem          					= array_key_exists( 'islem', $_REQUEST )  ? $_REQUEST[ 'islem' ] 	: 'ekle';
+$islem          					= array_key_exists( 'islem', $_REQUEST )  		? $_REQUEST[ 'islem' ] 	    	: 'ekle';
+$ders_yili_id          				= array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: 'ekle';
+$program_id          				= array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: 'ekle';
+$donem_id          					= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		: 'ekle';
+
+$kaydet_buton_yazi		= $islem == "guncelle"	? 'Güncelle'							: 'Kaydet';
+$kaydet_buton_cls		= $islem == "guncelle"	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
+
 
 /* SEG dosyalarından gelen mesaj */
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
@@ -48,27 +55,27 @@ SQL;
 
 $SQL_dersler_getir = <<< SQL
 SELECT 
+	dd.id,
 	dd.ders_id,
 	dd.teorik_ders_saati,
 	dd.uygulama_ders_saati,
-	d.adi
+	d.adi,
+	d.ders_kodu
 FROM  
 	tb_donem_dersleri as dd
 LEFT JOIN tb_dersler  as d ON d.id = dd.ders_id
 LEFT JOIN tb_ders_yili_donemleri as dyd ON dyd.id = dd.ders_yili_donem_id
 WHERE 
-	dyd.ders_yili_id  	=? AND
+	dyd.ders_yili_id  	= ? AND
 	dyd.program_id 		= ? AND 
-	dyd.donem_id 		= ?
+	dyd.donem_id 		= ? AND
+	dd.aktif 				= 1
 SQL;
-
-
-
-
 		
-
+$donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program_id ) )[2];
 $ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
 $programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ] ) )[ 2 ];
+$dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, $donem_id ) )[ 2 ];
 
 ?>
 <!-- UYARI MESAJI VE BUTONU-->
@@ -120,31 +127,101 @@ $programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' 
 			<!-- /.card-header -->
 			<!-- form start -->
 			<form id = "kayit_formu" action = "_modul/donemDersleri/donemDersleriSEG.php" method = "POST">
-				<div class="card-body">
-					<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
-					<div class="form-group">
-						<label  class="control-label">Program</label>
-						<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" required>
-							<option>Seçiniz...</option>
-							<?php 
-								foreach( $programlar AS $program ){
-									echo '<option value="'.$program[ "id" ].'" '.($program[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
-								}
+				<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
+				<input type = "hidden" name = "ders_yili_id" value = "<?php echo $ders_yili_id; ?>">
+				<input type = "hidden" name = "program_id" value = "<?php echo $program_id; ?>">
+				<input type = "hidden" name = "donem_id" value = "<?php echo $donem_id; ?>">
+				<?php if ( $islem == "ekle") { ?>
+					<div class="card-body">
+						<div class="form-group">
+							<label  class="control-label">Program</label>
+							<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" required>
+								<option>Seçiniz...</option>
+								<?php 
+									foreach( $programlar AS $program ){
+										echo '<option value="'.$program[ "id" ].'" '.($program[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
+									}
 
-							?>
-						</select>
+								?>
+							</select>
+						</div>
+						<div class="form-group" id="dersYillari"> </div>
+						<div class="form-group" id="donemListesi"> </div>
+						<div class="form-group" id="dersler"> </div>
 					</div>
-					<div class="form-group" id="dersYillari"> </div>
-					<div class="form-group" id="donemListesi"> </div>
-					<div class="form-group" id="dersler"> </div>
-
+					<!-- /.card-body -->
 					
-				</div>
-				<!-- /.card-body -->
-				<div class="card-footer">
-					<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-					<button onclick="window.location.href = '?modul=programlar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
-				</div>
+				<?php }else{ ?>
+					<div class="card-body">
+						<div class="form-group">
+							<label  class="control-label">Ders Yılı</label>
+							<select class="form-control select2" disabled required>
+								<option>Seçiniz...</option>
+								<?php 
+									foreach( $ders_yillari AS $ders_yili ){
+										echo '<option value="'.$ders_yili[ "id" ].'" '.($ders_yili[ "id" ] == $ders_yili_id ? "selected" : null) .'>'.$ders_yili[ "adi" ].'</option>';
+									}
+								?>
+							</select>
+						</div>
+						
+						<div class="form-group">
+							<label  class="control-label">Program</label>
+							<select class="form-control select2" disabled required>
+								<option>Seçiniz...</option>
+								<?php 
+									foreach( $programlar AS $program ){
+										echo '<option value="'.$program[ "id" ].'" '.($program[ "id" ] == $program_id ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
+									}
+
+								?>
+							</select>
+						</div>
+						<div class="form-group">
+							<label  class="control-label">Dönem</label>
+							<select class="form-control select2"  disabled required>
+								<option>Seçiniz...</option>
+								<?php 
+									foreach( $donemler AS $donem ){
+										echo '<option value="'.$donem[ "id" ].'" '.($donem[ "id" ] == $donem_id ? "selected" : null) .'>'.$donem[ "adi" ].'</option>';
+									}
+								?>
+							</select>
+						</div>
+
+						
+					</div>
+					<div class="col-sm-12">
+						<div class="form-group " style="display: flex; align-items: center;">
+							<div class="custom-control custom-checkbox col-sm-7 float-left">
+								<b>Ders</b>
+							</div>
+							<div class="col-sm-2 float-left"><b>Teaorik D.S.</b></div>
+							<div class="col-sm-2 float-left"><b>Uygulama D.S.</b></div>
+							<div class="col-sm-1 float-left"><b>Sil</b></div>
+						</div>
+						<?php 
+						foreach ($dersler as $ders) {
+								echo '
+								<div class="form-group " style="display: flex; align-items: center;">
+									<div class="custom-control custom-checkbox col-sm-7 float-left">
+										<input name="ders_id[]" type="hidden" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
+										<label for="'.$ders[ "id" ].'">'.$ders[ "ders_kodu" ].' - '.$ders[ "adi" ].'</label>
+									</div>
+									<input  type="number" class="form-control col-sm-2 float-left" name ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off" value="'.$ders[ "teorik_ders_saati" ].'">
+									<input  type="number" class="form-control col-sm-2 float-left m-1" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off" value="'.$ders[ "uygulama_ders_saati" ].'">
+									<a href="" class="btn btn-sm btn-danger m-1" modul= "donemDersleri" yetki_islem="sil" data-href="_modul/donemDersleri/donemDersleriSEG.php?islem=sil&donem_ders_id='.$ders[ "id" ].'&ders_yili_id='.$ders_yili_id.'&program_id='.$program_id.'&donem_id='.$donem_id.'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
+								</div><hr>';
+							}
+						?>
+
+					</div>
+					
+				<?php } ?>
+					<div class="card-footer">
+						<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
+						<button onclick="window.location.href = '?modul=donemDersleri&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+					</div>
 			</form>
 		</div>
 		<!-- /.card -->
@@ -183,7 +260,7 @@ $programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' 
 								<li>
 									<div class="ders-kapsa">
 										<?php echo $donem[ "adi" ]  ?>
-										<a href="?modul=donemDersleri&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
+										<a href="?modul=donemDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
 									</div>
 								<ul class="ders-ul">
 				<?php 
