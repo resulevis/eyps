@@ -2,9 +2,9 @@
 $fn = new Fonksiyonlar();
 
 $islem          					= array_key_exists( 'islem', $_REQUEST )  		? $_REQUEST[ 'islem' ] 	    	: 'ekle';
-$ders_yili_id          				= array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: 'ekle';
-$program_id          				= array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: 'ekle';
-$donem_id          					= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		: 'ekle';
+$ders_yili_id          				= array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: 0;
+$program_id          				= array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: 0;
+$donem_id          					= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		: 0;
 
 $kaydet_buton_yazi		= $islem == "guncelle"	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $islem == "guncelle"	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
@@ -70,6 +70,8 @@ WHERE
 	dyd.program_id 		= ? AND 
 	dyd.donem_id 		= ?
 SQL;
+
+
 		
 $donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program_id ) )[2];
 $ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];

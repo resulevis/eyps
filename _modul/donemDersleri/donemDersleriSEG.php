@@ -5,32 +5,11 @@ $fn		= new Fonksiyonlar();
 
 
 
-$islem				= array_key_exists( 'islem', $_REQUEST )		? $_REQUEST[ 'islem' ]			: 'ekle';
-$ders_yili_id		= array_key_exists( 'ders_yili_id', $_REQUEST )	? $_REQUEST[ 'ders_yili_id' ]	: 0;
-$program_id			= array_key_exists( 'program_id', $_REQUEST )	? $_REQUEST[ 'program_id' ]		: 0;
-$donem_id			= array_key_exists( 'donem_id', $_REQUEST )		? $_REQUEST[ 'donem_id' ]		: 0;
-
-/**/
-$SQL_ders_yili_donem_oku = <<< SQL
-SELECT 
-	*
-FROM 
-	tb_ders_yili_donemleri
-WHERE 
-	program_id 		= ? AND
-	ders_yili_id 	= ? AND
-	donem_id		= ?
-SQL;
-
-/*Ders Yılı Domei Ekleme*/
-$SQL_ders_yili_donem_ekle = <<< SQL
-INSERT INTO 
-	tb_ders_yili_donemleri 
-SET
-	program_id 		= ?,
-	ders_yili_id 	= ?,
-	donem_id		= ?
-SQL;
+$islem				= array_key_exists( 'islem', $_REQUEST )				? $_REQUEST[ 'islem' ]				: 'ekle';
+$ders_yili_donem_id = array_key_exists( 'ders_yili_donem_id', $_REQUEST )	? $_REQUEST[ 'ders_yili_donem_id' ]	: 0;
+$ders_yili_id		= array_key_exists( 'ders_yili_id', $_REQUEST )			? $_REQUEST[ 'ders_yili_id' ]	 	: 0;
+$program_id			= array_key_exists( 'program_id', $_REQUEST )			? $_REQUEST[ 'program_id' ]			: 0;
+$donem_id			= array_key_exists( 'donem_id', $_REQUEST )				? $_REQUEST[ 'donem_id' ]			: 0;
 
 
 /*DERSSLERİ EKLEME İŞLEMİ*/
@@ -92,7 +71,9 @@ WHERE
 	id = ?
 SQL;
 
-
+echo '<pre>';
+print_r($_REQUEST);
+die();
 
 
 $ders_degerler = array();
@@ -100,21 +81,7 @@ $ders_degerler = array();
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 switch( $islem ) {
 	case 'ekle':
-		/*Programın Önceden eklenip eklenmediğini kontrol ediyoruz*/
-		$donem_degerler = array( $program_id, $ders_yili_id, $donem_id );
-
-		$ders_yili_donem_oku = $vt->select( $SQL_ders_yili_donem_oku, $donem_degerler )[2];
-
-		if ( count($ders_yili_donem_oku) > 0) {
-			$ders_yili_donem_id = $ders_yili_donem_oku[0][ "id" ];
-		}else{
-
-			$sonuc = $vt->insert( $SQL_ders_yili_donem_ekle, $donem_degerler );
-			if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
-			else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
-			$ders_yili_donem_id	= $sonuc[ 2 ]; 
-		}
-
+		
 		foreach ($_REQUEST['ders_id'] as $ders_id) {
 
 			/*Döneme Ait ders Önceden eklenmis ise eklenmesine izin verilmeyecek*/
