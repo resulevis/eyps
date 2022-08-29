@@ -162,14 +162,23 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 							</div>
 							<div class="form-group" id="dersYillari"> </div>
 							<div class="form-group" id="donemListesi"> </div>
-							<div class="form-group" id="dersler"> </div>
+							<div class="form-group" id="donemListesi"> 
+								<label  class="control-label">Dönem</label>
+						<select class="form-control select2" name = "donem_idler[]" id="donemler"  multiple="multiple" required>
+							<option>Seçiniz...</option>
+							<option>Seçiniz...</option>
+							<option>Seçiniz...</option>
+							<option>Seçiniz...</option>
+
+						</select>
+							</div>
 
 							
 						</div>
 						<!-- /.card-body -->
 						<div class="card-footer">
-							<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-							<button onclick="window.location.href = '?modul=programlar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+							<button modul= 'dersYiliDonemler' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+							<button onclick="window.location.href = '?modul=dersYiliDonemler&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 						</div>
 					</form>
 				</div>
