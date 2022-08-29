@@ -213,7 +213,7 @@ switch( $_POST[ 'islem' ] ) {
 		}
 		if( $_REQUEST[ 'modul' ] == "donemDersleri" ){
 			$select = '<label  class="control-label">Dönem</label>
-						<select class="form-control select2" name = "ders_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
+						<select class="form-control select2" name = "ders_yili_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
 							<option>Seçiniz...</option>
 							'.$option.'
 						</select>
@@ -232,7 +232,7 @@ switch( $_POST[ 'islem' ] ) {
 		}
 		if( $_REQUEST[ 'modul' ] == "dersYiliDonemler" ){
 			$select = '<label  class="control-label">Dönem</label>
-						<select class="form-control select2" name = "ders_donem_id" id="ders_yili_donemler" required>
+						<select class="form-control select2" name = "ders_yili_donem_id" id="ders_yili_donemler" required>
 							<option>Seçiniz...</option>
 							'.$option.'
 						</select>';
