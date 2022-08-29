@@ -188,6 +188,7 @@ switch( $_POST[ 'islem' ] ) {
 						'.$option.'
 					</select>
 					<script>
+						$(".select2").select2();
 						$("#ders-yili-sec").on("change", function(e) { 
 					    var program_id 		= $("#program-sec").val();
 					    var ders_yili_id 	= $(this).val();
@@ -213,20 +214,21 @@ switch( $_POST[ 'islem' ] ) {
 		}
 		if( $_REQUEST[ 'modul' ] == "donemDersleri" ){
 			$select = '<label  class="control-label">Dönem</label>
-						<select class="form-control select2" name = "ders_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
+						<select class="form-control select2" name = "ders_yili_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
 							<option>Seçiniz...</option>
 							'.$option.'
 						</select>
 						<script>
+						$(".select2").select2();
 							$("#ders_yili_donemler").on("change", function(e) {
 								var program_id 		= $("#program-sec").val();
 								var data_islem 		= $(this).data("islem");
-								var data_url 		= $(this).data("url");
-								var modul	 		= $("#program-sec").data("modul");
-								$("#dersler").empty();
-								$.post(data_url, { islem : data_islem,program_id : program_id}, function (response) {
-									$("#dersler").append(response);
-								});
+							    var data_url 		= $(this).data("url");
+							    var modul	 		= $("#program-sec").data("modul");
+							    $("#dersler").empty();
+							    $.post(data_url, { islem : data_islem,program_id : program_id}, function (response) {
+							        $("#dersler").append(response);
+							    });
 							});
 						</script>';
 		}

@@ -2,9 +2,8 @@
 $fn = new Fonksiyonlar();
 
 $islem          					= array_key_exists( 'islem', $_REQUEST )  		? $_REQUEST[ 'islem' ] 	    	: 'ekle';
-$ders_yili_id          				= array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: 0;
-$program_id          				= array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: 0;
-$donem_id          					= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		: 0;
+$ders_yili_donem_id          		= array_key_exists( 'ders_yili_donem_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_donem_id' ] 	: 0;
+
 
 $kaydet_buton_yazi		= $islem == "guncelle"	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $islem == "guncelle"	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
@@ -17,7 +16,6 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
-
 
 $donem_desleri_id	= array_key_exists( 'donem_desleri_id'	,$_REQUEST ) ? $_REQUEST[ 'donem_desleri_id' ]	: 0;
 
@@ -71,8 +69,22 @@ WHERE
 	dyd.donem_id 		= ?
 SQL;
 
+$SQL_ders_yili_donem_oku = <<< SQL
+SELECT 
+	*
+FROM  
+	tb_ders_yili_donemleri
+WHERE 
+	id 		= ?
+SQL;
 
-		
+
+$ders_yili_donemi   = $vt->select( $SQL_ders_yili_donem_oku, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[2][0]; 
+
+$ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: $ders_yili_donemi[ "ders_yili_id" ];
+$program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: $ders_yili_donemi[ "program_id" ];
+$donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		:$ders_yili_donemi[ "donem_id" ];
+
 $donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program_id ) )[2];
 $ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
 $programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ] ) )[ 2 ];
@@ -153,6 +165,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 					<!-- /.card-body -->
 					
 				<?php }else{ ?>
+					<input type = "hidden" name = "ders_yili_donem_id" value = "<?php echo $ders_yili_donem_id; ?>">
 					<div class="card-body">
 						<div class="form-group">
 							<label  class="control-label">Ders Yılı</label>
