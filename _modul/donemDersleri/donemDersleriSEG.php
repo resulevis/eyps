@@ -7,9 +7,6 @@ $fn		= new Fonksiyonlar();
 
 $islem				= array_key_exists( 'islem', $_REQUEST )				? $_REQUEST[ 'islem' ]				: 'ekle';
 $ders_yili_donem_id = array_key_exists( 'ders_yili_donem_id', $_REQUEST )	? $_REQUEST[ 'ders_yili_donem_id' ]	: 0;
-$ders_yili_id		= array_key_exists( 'ders_yili_id', $_REQUEST )			? $_REQUEST[ 'ders_yili_id' ]	 	: 0;
-$program_id			= array_key_exists( 'program_id', $_REQUEST )			? $_REQUEST[ 'program_id' ]			: 0;
-$donem_id			= array_key_exists( 'donem_id', $_REQUEST )				? $_REQUEST[ 'donem_id' ]			: 0;
 
 
 /*DERSSLERİ EKLEME İŞLEMİ*/
@@ -46,7 +43,8 @@ SELECT
 FROM 
 	tb_donem_dersleri as dd
 WHERE 
-	dd.id 			= ? 
+	dd.id 			= ? AND 
+	dd.ders_yili_donem_id = ?
 SQL;
 
 $SQL_donem_dersleri_guncelle = <<< SQL
@@ -71,9 +69,20 @@ WHERE
 	id = ?
 SQL;
 
-echo '<pre>';
-print_r($_REQUEST);
-die();
+$SQL_ders_yili_donem_oku = <<< SQL
+SELECT 
+	*
+FROM  
+	tb_ders_yili_donemleri
+WHERE 
+	id 		= ?
+SQL;
+
+$ders_yili_donemi   = $vt->select( $SQL_ders_yili_donem_oku, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[2][0]; 
+
+$ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: $ders_yili_donemi[ "ders_yili_id" ];
+$program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: $ders_yili_donemi[ "program_id" ];
+$donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		: $ders_yili_donemi[ "donem_id" ];
 
 
 $ders_degerler = array();
@@ -86,9 +95,9 @@ switch( $islem ) {
 
 			/*Döneme Ait ders Önceden eklenmis ise eklenmesine izin verilmeyecek*/
 
-			$ders_varmi = $vt->select( $SQL_donem_ders_oku, array( $ders_id ))[2];
+			$ders_varmi = $vt->select( $SQL_donem_ders_oku, array( $ders_id, $ders_yili_donem_id ))[2];
 
-			if ( count( $ders_varmi ) < 0 ){
+			if ( count( $ders_varmi ) < 1 ){
 
 				$ders_degerler[] = $ders_yili_donem_id;
 				$ders_degerler[] = $ders_id;
