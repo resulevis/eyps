@@ -68,8 +68,7 @@ LEFT JOIN tb_ders_yili_donemleri as dyd ON dyd.id = dd.ders_yili_donem_id
 WHERE 
 	dyd.ders_yili_id  	= ? AND
 	dyd.program_id 		= ? AND 
-	dyd.donem_id 		= ? AND
-	dd.aktif 				= 1
+	dyd.donem_id 		= ?
 SQL;
 		
 $donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program_id ) )[2];

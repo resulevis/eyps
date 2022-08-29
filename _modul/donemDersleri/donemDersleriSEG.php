@@ -73,8 +73,7 @@ WHERE
 	dyd.ders_yili_id  	= ? AND
 	dyd.program_id 		= ? AND 
 	dyd.donem_id 		= ? AND
-	dd.id 				= ? AND
-	dd.aktif 			= 1
+	dd.id 				= ?
 SQL;
 
 $SQL_sil = <<< SQL
