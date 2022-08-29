@@ -57,8 +57,17 @@ LEFT JOIN
 
 WHERE 
 	universite_id 	= ? AND
-	dd.id 			= ? AND
-	dd.aktif 		= 1 
+	dd.id 			= ?
+SQL;
+
+/*Yeni eklenecek dersin önceden  eklenip eklenmediğini kontrol etme*/
+$SQL_donem_ders_oku = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_donem_dersleri as dd
+WHERE 
+	dd.id 			= ? 
 SQL;
 
 $SQL_donem_dersleri_guncelle = <<< SQL
@@ -77,26 +86,29 @@ WHERE
 SQL;
 
 $SQL_sil = <<< SQL
-UPDATE
+DELETE FROM
 	tb_donem_dersleri
-SET
-	aktif = 0
 WHERE
 	id = ?
 SQL;
 
 
-$donem_degerler = array( $program_id, $ders_yili_id, $donem_id );
+
+
+$ders_degerler = array();
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 switch( $islem ) {
 	case 'ekle':
 		/*Programın Önceden eklenip eklenmediğini kontrol ediyoruz*/
+		$donem_degerler = array( $program_id, $ders_yili_id, $donem_id );
+
 		$ders_yili_donem_oku = $vt->select( $SQL_ders_yili_donem_oku, $donem_degerler )[2];
 
 		if ( count($ders_yili_donem_oku) > 0) {
 			$ders_yili_donem_id = $ders_yili_donem_oku[0][ "id" ];
 		}else{
+
 			$sonuc = $vt->insert( $SQL_ders_yili_donem_ekle, $donem_degerler );
 			if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
 			else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
@@ -104,20 +116,27 @@ switch( $islem ) {
 		}
 
 		foreach ($_REQUEST['ders_id'] as $ders_id) {
-			$ders_degerler[] = $ders_yili_donem_id;
-			$ders_degerler[] = $ders_id;
-			$ders_degerler[] = $_REQUEST['teorik_ders_saati-'.$ders_id];
-			$ders_degerler[] = $_REQUEST['uygulama_ders_saati-'.$ders_id];
 
-			$sonuc = $vt->insert( $SQL_donem_dersleri, $ders_degerler );
+			/*Döneme Ait ders Önceden eklenmis ise eklenmesine izin verilmeyecek*/
 
-			$ders_degerler = array();
+			$ders_varmi = $vt->select( $SQL_donem_ders_oku, array( $ders_id ))[2];
+
+			if ( count( $ders_varmi ) < 0 ){
+
+				$ders_degerler[] = $ders_yili_donem_id;
+				$ders_degerler[] = $ders_id;
+				$ders_degerler[] = $_REQUEST['teorik_ders_saati-'.$ders_id];
+				$ders_degerler[] = $_REQUEST['uygulama_ders_saati-'.$ders_id];
+
+				$sonuc = $vt->insert( $SQL_donem_dersleri, $ders_degerler );
+
+				$ders_degerler = array();
+			}
+				
 		}
 
 	break;
 	case 'guncelle':
-	
-		$ders_degerler = array();
 		
 		foreach ($_REQUEST['ders_id'] as $ders_id) {
 			$ders_degerler[] = $_REQUEST['teorik_ders_saati-'.$ders_id];
@@ -135,6 +154,7 @@ switch( $islem ) {
 
 	break;
 	case 'sil':
+
 		//Silinecek olan tarife giriş yapılan firmaya mı ait oldugu kontrol ediliyor Eger firmaya ait ise silinecektir.
 		$tek_donem_ders_oku = $vt->select( $SQL_tek_donem_ders_oku, array( $_SESSION[ "universite_id" ], $_REQUEST[ "donem_ders_id" ] ) ) [ 2 ];
 		if (count( $tek_donem_ders_oku ) > 0) {
@@ -143,6 +163,7 @@ switch( $islem ) {
 		}
 	break;
 }
+
 
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
 header( "Location:../../index.php?modul=donemDersleri&islem=guncelle&ders_yili_id=$ders_yili_id&program_id=$program_id&donem_id=$donem_id");
