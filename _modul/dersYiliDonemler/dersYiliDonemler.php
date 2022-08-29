@@ -139,40 +139,40 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 				</div>
 			</div>
 			<div class="col-md-6">
-		<div class="card card-secondary">
-			<div class="card-header">
-				<h3 class="card-title">Dönem Dersi Ekle / Güncelle</h3>
-			</div>
-			<!-- /.card-header -->
-			<!-- form start -->
-			<form id = "kayit_formu" action = "_modul/donemDersleri/donemDersleriSEG.php" method = "POST">
-				<div class="card-body">
-					<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
-					<div class="form-group">
-						<label  class="control-label">Program</label>
-						<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" required>
-							<option>Seçiniz...</option>
-							<?php 
-								foreach( $programlar AS $program ){
-									echo '<option value="'.$program[ "id" ].'" '.($program[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
-								}
-
-							?>
-						</select>
+				<div class="card card-secondary">
+					<div class="card-header">
+						<h3 class="card-title">Dönem Dersi Ekle / Güncelle</h3>
 					</div>
-					<div class="form-group" id="dersYillari"> </div>
-					<div class="form-group" id="donemListesi"> </div>
-					<div class="form-group" id="dersler"> </div>
+					<!-- /.card-header -->
+					<!-- form start -->
+					<form id = "kayit_formu" action = "_modul/donemDersleri/donemDersleriSEG.php" method = "POST">
+						<div class="card-body">
+							<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
+							<div class="form-group">
+								<label  class="control-label">Program</label>
+								<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" required>
+									<option>Seçiniz...</option>
+									<?php 
+										foreach( $programlar AS $program ){
+											echo '<option value="'.$program[ "id" ].'" '.($program[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
+										}
 
-					
+									?>
+								</select>
+							</div>
+							<div class="form-group" id="dersYillari"> </div>
+							<div class="form-group" id="donemListesi"> </div>
+							<div class="form-group" id="dersler"> </div>
+
+							
+						</div>
+						<!-- /.card-body -->
+						<div class="card-footer">
+							<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
+							<button onclick="window.location.href = '?modul=programlar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+						</div>
+					</form>
 				</div>
-				<!-- /.card-body -->
-				<div class="card-footer">
-					<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="btn btn-success btn-sm pull-right"><span class="fa fa-save"></span> Kaydet</button>
-					<button onclick="window.location.href = '?modul=programlar&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
-				</div>
-			</form>
-		</div>
 			</div>
 		</div>
 	</div>
@@ -255,4 +255,16 @@ $('#card_donemler').on('minimized.lte.cardwidget', function() {
 
 
 
+</script>
+<script type="text/javascript">
+	
+	$('#program-sec').on("change", function(e) { 
+	    var $program_id 		= $(this).val();
+	    var $data_islem = $(this).data("islem");
+	    var $data_url 	= $(this).data("url");
+	    $("#dersYillari").empty();
+	    $.post($data_url, { islem : $data_islem,program_id : $program_id}, function (response) {
+	        $("#dersYillari").append(response);
+	    });
+	});	
 </script>

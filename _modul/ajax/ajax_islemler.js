@@ -107,8 +107,8 @@ $( document ).ready( function() {
 			}
 		} );
 	}
-	bildrim_getir();
-	var sss = setInterval( bildrim_getir,10000 );
+	//bildrim_getir();
+	//var sss = setInterval( bildrim_getir,10000 );
 	/* Bildirim deneme !!!SON!!!*/
 	
 	/* Sipariş güzergah yükleme modülü*/
