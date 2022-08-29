@@ -67,8 +67,8 @@ UPDATE
 LEFT JOIN tb_dersler  as d ON d.id = dd.ders_id
 LEFT JOIN tb_ders_yili_donemleri as dyd ON dyd.id = dd.ders_yili_donem_id
 SET
-	teorik_ders_saati 	= ?,
-	uygulama_ders_saati = ?
+	dd.teorik_ders_saati 	= ?,
+	dd.uygulama_ders_saati  = ?
 WHERE
 	dyd.ders_yili_id  	= ? AND
 	dyd.program_id 		= ? AND 
@@ -85,8 +85,6 @@ SET
 WHERE
 	id = ?
 SQL;
-
-
 
 
 $donem_degerler = array( $program_id, $ders_yili_id, $donem_id );
@@ -128,7 +126,7 @@ switch( $islem ) {
 			$ders_degerler[] = $ders_yili_id;
 			$ders_degerler[] = $program_id;
 			$ders_degerler[] = $donem_id;
-			$ders_degerler[] = $id;
+			$ders_degerler[] = $ders_id;
 
 			$sonuc = $vt->update( $SQL_donem_dersleri_guncelle, $ders_degerler );
 
