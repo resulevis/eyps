@@ -260,7 +260,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 								<li>
 									<div class="ders-kapsa">
 										<?php echo $donem[ "adi" ]  ?>
-										<a href="?modul=donemDersleri&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
+										<a href="?modul=donemDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
 									</div>
 								<ul class="ders-ul">
 				<?php 
