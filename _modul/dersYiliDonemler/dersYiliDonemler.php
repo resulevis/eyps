@@ -106,12 +106,12 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="card card-secondary" id = "card_donemler">
+				<div class="card card-success " id = "card_donemler">
 					<div class="card-header">
-						<h3 class="card-title">Dönemler</h3>
+						<h3 class="card-title">Ders Yılı Açık Dönemler( Sınıflar )</h3>
 						<div class = "card-tools">
 							<button type="button" data-toggle = "tooltip" title = "Tam sayfa göster" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
-							<a id = "yeni_fakulte" data-toggle = "tooltip" title = "Yeni Üviversite Ekle" href = "?modul=donemler&islem=ekle" class="btn btn-tool" ><i class="fas fa-plus fa-lg"></i></a>
+							<a id = "yeni_fakulte" data-toggle = "tooltip" title = "Yeni Üviversite Ekle" href = "?modul=dersYiliDonemler&islem=ekle" class="btn btn-tool" ><i class="fas fa-plus fa-lg"></i></a>
 						</div>
 					</div>
 					<div class="card-body">
@@ -134,12 +134,12 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 									<td><?php echo $ders_yili_donem[ 'ders_yili_adi' ]; ?></td>
 									<td><?php echo $ders_yili_donem[ 'donem_adi' ]; ?></td>
 									<td align = "center">
-										<a modul = 'dersYiliDonemler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=dersYiliDonemler&islem=guncelle&ders_yili_donem_id=<?php echo $ders_yili_donem[ 'id' ]; ?>" >
+										<a modul = 'dersYiliDonemler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=dersYiliDonemler&islem=guncelle&id=<?php echo $ders_yili_donem[ 'id' ]; ?>" >
 											Düzenle
 										</a>
 									</td>
 									<td align = "center">
-										<button modul= 'dersYiliDonemler' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/dersYiliDonemler/dersYiliDonemlerSEG.php?islem=sil&ders_yili_donem_id=<?php echo $ders_yili_donem[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
+										<button modul= 'dersYiliDonemler' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/dersYiliDonemler/dersYiliDonemlerSEG.php?islem=sil&id=<?php echo $ders_yili_donem[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -149,13 +149,13 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 				</div>
 			</div>
 			<div class="col-md-6">
-				<div class="card card-secondary">
+				<div class="card card-orange">
 					<div class="card-header">
-						<h3 class="card-title">Dönem Dersi Ekle / Güncelle</h3>
+						<h3 class="card-title text-white">Ders Yılı Açık Dönem( Sınıf ) Ekle / Güncelle</h3>
 					</div>
 					<!-- /.card-header -->
 					<!-- form start -->
-					<form id = "kayit_formu" action = "_modul/donemDersleri/donemDersleriSEG.php" method = "POST">
+					<form id = "kayit_formu" action = "_modul/dersYiliDonemler/dersYiliDonemlerSEG.php" method = "POST">
 						<div class="card-body">
 							<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
 							<div class="form-group">
