@@ -79,7 +79,7 @@ $dersKategorileri	= $vt->select( $SQL_tum_ders_kategorileri, array( $_SESSION[ '
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="card card-secondary" id = "card_dersKategorileri">
+				<div class="card card-success" id = "card_dersKategorileri">
 					<div class="card-header">
 						<h3 class="card-title">Ders Kategorileri</h3>
 						<div class = "card-tools">
