@@ -156,14 +156,13 @@ WHERE
 	dyd.ders_yili_id		= ? 
 SQL;
 
-$SQL_donemler_getir = <<< SQL
+$SQL_komiteler_getir = <<< SQL
 SELECT
 	*
 FROM
-	tb_donemler
+	tb_komiteler
 WHERE 
-	universite_id		= ? AND
-	program_id			= ? 
+	ders_yili_donem_id	= ? 
 SQL;
 
 /*Programa ait dersler*/
@@ -178,6 +177,21 @@ WHERE
 	program_id 	  = ? AND
  	aktif = 1
 SQL;
+
+/*Donem yılına ait dersler listesi*/
+$SQL_donem_dersleri_getir = <<< SQL
+select
+	dd.ders_id as id,
+	d.adi,
+	d.ders_kodu 
+from 
+	tb_donem_dersleri AS dd
+LEFT JOIN 
+	tb_dersler AS d ON dd.ders_id = d.id
+WHERE 
+	dd.ders_yili_donem_id = ?
+SQL;
+
 
 
 
@@ -206,6 +220,8 @@ switch( $_POST[ 'islem' ] ) {
 					    var data_url 		= $(this).data("url");
 					    var modul	 		= $("#program-sec").data("modul");
 					    $("#donemListesi").empty();
+					    $("#dersler").empty();
+					    $("#komiteler").empty();
 					    $.post(data_url, { islem : data_islem,ders_yili_id : ders_yili_id,program_id : program_id,modul : modul}, function (response) {
 					        $("#donemListesi").append(response);
 					    });
@@ -215,33 +231,36 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 
 	case 'donemListesi': 
-		if( $_REQUEST[ 'modul' ] == "donemDersleri" OR $_REQUEST[ 'modul' ] == "komiteler"   ){
+		if( $_REQUEST[ 'modul' ] == "donemDersleri" OR $_REQUEST[ 'modul' ] == "komiteler" OR $_REQUEST[ 'modul' ] == "komiteDersleri" ){
 			$ders_yili_donemler = $vt->select( $SQL_ders_yili_donemler_getir, array( $_REQUEST[ "program_id" ], $_REQUEST[ "ders_yili_id" ] ) )[ 2 ];
 			$option = '';
+			$append = $_REQUEST['modul'] == "komiteDersleri" ? "komiteler" :  "dersler";
 			foreach( $ders_yili_donemler AS $ders_yili_donem ) {
 				$option .="
 					<option value='$ders_yili_donem[id]'>$ders_yili_donem[adi]</option>
 				";
 			}
 			$select = '<label  class="control-label">Dönem</label>
-						<select class="form-control select2" name = "ders_yili_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
+						<select class="form-control select2" name = "ders_yili_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="'.$append.'" required>
 							<option>Seçiniz...</option>
 							'.$option.'
 						</select>
 						<script>
 						$(".select2").select2();
 							$("#ders_yili_donemler").on("change", function(e) {
-								var program_id 		= $("#program-sec").val();
-								var data_islem 		= $(this).data("islem");
-							    var data_url 		= $(this).data("url");
-							    var modul	 		= $("#program-sec").data("modul");
+								var program_id 		   = $("#program-sec").val();
+								var data_islem 		   = $(this).data("islem");
+							    var data_url 		   = $(this).data("url");
+							    var ders_yili_donem_id = $("#ders_yili_donemler").val();
+							    var modul	 		   = $("#program-sec").data("modul");
 								if ( modul == "komiteler" ) {
 									document.getElementById("komiteEkleBtn").style.display = "inline";
 									komiteEkle();
-								}else if (  modul == "donemDersleri" ){
+								}else{
+									$("#'.$append.'").empty();
 									$("#dersler").empty();
-									$.post(data_url, { islem : data_islem,program_id : program_id,modul : modul}, function (response) {
-										$("#dersler").append(response);
+									$.post(data_url, { islem : data_islem,program_id : program_id,modul : modul,ders_yili_donem_id : ders_yili_donem_id}, function (response) {
+										$("#'.$append.'").append(response);
 									});
 								}	
 							});
@@ -267,11 +286,46 @@ switch( $_POST[ 'islem' ] ) {
 		}
 		echo $select;
 	break;
+
+	case 'komiteler': 
+		if( $_REQUEST[ 'modul' ] == "komiteDersleri" ){
+
+			$komiteler = $vt->select( $SQL_komiteler_getir, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[ 2 ];
+			$option = '';
+			foreach( $komiteler AS $komite ) {
+				$option .="
+					<option value='$komite[id]'>$komite[adi]</option>
+				";
+			}
+			$select = '<label  class="control-label">Komite</label>
+						<select class="form-control select2" name = "komite_id" id="komitelerIslemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
+							<option>Seçiniz...</option>
+							'.$option.'
+						</select>
+						<script>
+						$(".select2").select2();
+							$("#komitelerIslemler").on("change", function(e) {
+								var program_id 		= $("#program-sec").val();
+								var data_islem 		= $(this).data("islem");
+							    var data_url 		= $(this).data("url");
+							    var ders_yili_donem_id = $("#ders_yili_donemler").val();
+							    var modul	 		= $("#program-sec").data("modul");
+								$("#dersler").empty();
+								$.post(data_url, { islem : data_islem,program_id : program_id,modul : modul,ders_yili_donem_id : ders_yili_donem_id}, function (response) {
+									$("#dersler").append(response);
+								});	
+							});
+						</script>';
+		}
+		$hata  = '<div class="alert alert-danger text-center">Dönem İçin Komite Eklenmemiş !!!</div>';
+		
+		echo count( $komiteler) > 0 ? $select : $hata;
+	break;
 	
 
 	case 'dersler':
 		$dersSonuc 		= "";
-		if ( $_REQUEST['modul'] == "donemDersleri") {
+		if ( $_REQUEST['modul'] == "donemDersleri" ) {
 			$dersler 	= $vt->select( $SQL_dersler_getir, array( $_REQUEST[ "program_id" ] ) )[ 2 ];
 			foreach ($dersler as $ders) {
 				$dersSonuc .= '
@@ -284,17 +338,33 @@ switch( $_POST[ 'islem' ] ) {
 						<input  type="number" class="form-control col-sm-2 float-left" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
 					</div><hr>';
 			}
+		}else if( $_REQUEST['modul'] == "komiteDersleri" ){
+			$dersler  	= $vt->select( $SQL_donem_dersleri_getir, array( $_REQUEST[ "ders_yili_donem_id" ]  ) )[2];
 
-			$sonuc =  '
+			foreach ($dersler as $ders) {
+				$dersSonuc .= '
+					<div class="form-group " style="display: flex; align-items: center;">
+						<div class="custom-control custom-checkbox col-sm-7 float-left">
+							<input class="custom-control-input " name="ders_id[]" type="checkbox" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
+							<label for="'.$ders[ "id" ].'" class="custom-control-label">'.$ders[ "ders_kodu" ].' - '.$ders[ "adi" ].'</label>
+						</div>
+						<input  type="number" min="0" class="form-control col-sm-2 float-left m-1" name ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+						<input  type="number" min="0" class="form-control col-sm-2 float-left m-1" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+						<input  type="number" min="0" class="form-control col-sm-1 float-left m-1" name ="soru_sayisi-'.$ders[ "id" ].'"  autocomplete="off">
+					</div><hr>';
+			}
+
+		}	
+		$sonuc =  '
 				<hr>
 				<div class="col-sm-12">
 					<div class="form-group " style="display: flex; align-items: center;">
-						<div class="custom-control custom-checkbox col-sm-8 float-left">
+						<div class="custom-control custom-checkbox col-sm-'.($_REQUEST['modul'] == "komiteDersleri" ? '7': '8').' float-left">
 							<b>Ders</b>
 						</div>
-						<div class="col-sm-2 float-left"><b>Teaorik D.S.</b></div>
-						<div class="col-sm-2 float-left"><b>Uygulama D.S.</b></div>
-						
+						<div class="col-sm-2 float-left m1"><b>Teaorik D.S.</b></div>
+						<div class="col-sm-2 float-left m1"><b>Uygulama D.S.</b></div>
+						'.($_REQUEST['modul'] == "komiteDersleri" ? '<div class="col-sm-1 float-left m1"><b>Soru</b></div>': null).'
 					</div>
 				</div>
 
@@ -306,11 +376,8 @@ switch( $_POST[ 'islem' ] ) {
 						
 					});
 				</script>';
-		}
-		if ( $_REQUEST['modul'] == "komiteler" ){
-			
-		}	
-		echo $sonuc;
+			$hata  = '<div class="alert alert-danger text-center">Dönem İçin Ders Eklenmemiş !!!</div>';
+		echo count( $dersler) > 0 ? $sonuc : $hata;
 	break;
 	
 	case 'ilce_ver':
