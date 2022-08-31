@@ -78,7 +78,7 @@ WHERE
 SQL;
 
 
-$ders_yili_donemi   = $vt->select( $SQL_ders_yili_donem_oku, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[2][0]; 
+@$ders_yili_donemi   = $vt->select( $SQL_ders_yili_donem_oku, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[2][0]; 
 
 $ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: $ders_yili_donemi[ "ders_yili_id" ];
 $program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: $ders_yili_donemi[ "program_id" ];
@@ -160,10 +160,11 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 						<div class="form-group" id="dersYillari"> </div>
 						<div class="form-group" id="donemListesi"> </div>
 						<div class="form-group" id="dersler"> </div>
+						<div id="komite-kapsa"></div>
 					</div>
 					<!-- /.card-body -->
 					
-				<?php }else{ ?>
+				<?php }else if ( $islem == "guncelle"){ ?>
 					<input type = "hidden" name = "ders_yili_donem_id" value = "<?php echo $ders_yili_donem_id; ?>">
 					<div class="card-body">
 						<div class="form-group">
@@ -202,48 +203,42 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 							</select>
 						</div><br>
 						<?php  
-							if ( $islem == "guncelle" ) { 
-								foreach ($komiteler as $komite) { ?>
+							foreach ($komiteler as $komite) { ?>
 							<hr>
 							<div>
+								<input type="hidden" name="komite_id[]" value="<?php echo $komite[ 'id' ] ?>" required>
 								<div class=" col-sm-11 float-left p-0 m-0" >
 									<div class=" col-sm-4 float-left">
-										<input type="text" name="ders_kodu" class="form-control" placeholder="Ders Kodu" value="<?php echo $komite[ 'ders_kodu' ] ?>">
+										<input type="text" name="ders_kodu[]" class="form-control" placeholder="Ders Kodu" value="<?php echo $komite[ 'ders_kodu' ] ?>" required>
 									</div>
 									<div class="form-group  col-sm-8 float-left">
-										<input type="text" name="adi[]" class="form-control" placeholder="Ders Adı"  value="<?php echo $komite[ 'adi' ] ?>">
+										<input type="text" name="adi[]" class="form-control" placeholder="Ders Adı"  value="<?php echo $komite[ 'adi' ] ?>" required>
 									</div>
 									
 									<div class="form-group col-sm-4 float-left">
-										<input type="text" name="baslangic_tarihi[]"   class="form-control " data-toggle="datetimepicker" id="datetimepicker1" placeholder="Başlangıç Tarihi" required value="<?php echo $fn->tarihFormatiDuzelt($komite[ 'baslangic_tarihi' ]) ?>">
+										<input type="date" name="baslangic_tarihi[]"   class="form-control " data-toggle="" id="1" placeholder="Başlangıç Tarihi" required value="<?php echo $komite[ 'baslangic_tarihi' ]; ?>">
 									</div>
 									<div class="form-group col-sm-4 float-left">
-										<input type="text" name="bitis_tarihi[]" class="form-control " placeholder="Bitiş Tarihi" data-toggle="datetimepicker"  id="datetimepicker2" required value="<?php echo $fn->tarihFormatiDuzelt($komite[ 'bitis_tarihi' ]) ?>">
+										<input type="date" name="bitis_tarihi[]" class="form-control " placeholder="Bitiş Tarihi" data-toggle=""  id="2" required value="<?php echo $komite[ 'bitis_tarihi' ]; ?>">
 									</div>
 									<div class="form-group col-sm-4 float-left">
-										<input type="text" name="sinav_tarihi[]" class="form-control" placeholder="Sınav Tarihi" data-toggle="datetimepicker"  id="datetimepicker3" required value="<?php echo $fn->tarihFormatiDuzelt($komite[ 'sinav_tarihi' ]) ?>">
+										<input type="date" name="sinav_tarihi[]" class="form-control" placeholder="Sınav Tarihi" data-toggle=""  id="3" required value="<?php echo $komite[ 'sinav_tarihi' ]; ?>">
 									</div>
 								</div>
 								<div class="col-sm-1 p-0 float-left" style="display: flex;align-items: center;height: 93px;justify-content: center;">
-										<a href="" class="btn btn-danger">Sil</a>
+										<a modul= "komiteler" yetki_islem="sil" data-href="_modul/komiteler/komitelerSEG.php?islem=sil&komite_id=<?php echo $komite[ "id" ]; ?> &ders_yili_id=<?php echo $ders_yili_id; ?>&program_id=<?php echo $program_id; ?>&donem_id=<?php echo $donem_id ?>" data-toggle="modal" data-target="#sil_onay" class="btn btn-danger">Sil</a>
 								</div>
 							</div>	
 							<div class="clearfix"></div>
-						<?php } } ?>							
+						<?php }  ?>
 					</div>
-						
-						<?php 
-						foreach ($komiteler as $komite) {
-								echo '
-								';
-							}
-						?>
 					
 				<?php } ?>
 				<div class="clearfix"></div>
 					<div class="card-footer">
 						<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
 						<button onclick="window.location.href = '?modul=komiteler&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+						<a href="javascript:void()"  modul= "komiteler" yetki_islem="kaydet" class="btn btn-default btn-sm float-right" onclick="komiteEkle()" style="display:none;" id="komiteEkleBtn">Komite Ekle</a>
 					</div>
 			</form>
 		</div>
@@ -353,6 +348,40 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 			}
 		});
 	});
+	function komiteEkle(){
+		var komite = 
+			'<div class="komite"> <hr>' +
+				'<div class=" col-sm-11 float-left p-0 m-0" >'+
+					'<div class=" col-sm-4 float-left">'+
+						'<input type="text" name="ders_kodu[]" class="form-control" placeholder="Ders Kodu" required> '+
+					'</div>'+
+					'<div class="form-group  col-sm-8 float-left">'+
+						'<input type="text" name="adi[]" class="form-control" placeholder="Ders Adı" required >'+
+					'</div>'+
+					'<div class="form-group col-sm-4 float-left">'+
+						'<input type="date" name="baslangic_tarihi[]"   class="form-control " data-toggle="datetimepicker" id="datetimepicker1" placeholder="Başlangıç Tarihi" required >'+
+					'</div>'+
+					'<div class="form-group col-sm-4 float-left">'+
+					'	<input type="date" name="bitis_tarihi[]" class="form-control " placeholder="Bitiş Tarihi" data-toggle="datetimepicker"  id="datetimepicker2" required>'+
+					'</div>'+
+					'<div class="form-group col-sm-4 float-left">'+
+						'<input type="date" name="sinav_tarihi[]" class="form-control" placeholder="Sınav Tarihi" data-toggle="datetimepicker"  id="datetimepicker3" required >'+
+					'</div>'+
+				'</div>'+
+				'<div class="col-sm-1 p-0 float-left" style="display: flex;align-items: center;height: 93px;justify-content: center;">'+
+						'<a href="javascript:void()" class="btn btn-danger komitesil"  id="komitesil">Sil</a>'+
+				'</div>'+
+			'</div>	'+
+			'<div class="clearfix"></div>';
+		$("#komite-kapsa").append( komite );
+	}
+	/*Tıklanan Mola Satırı Siliyoruz*/
+	$('.row').on("click", ".komitesil", function (e) {
+	    e.preventDefault();
+	    $(this).closest(".komite").remove();
+
+	});
+
 	
 
 

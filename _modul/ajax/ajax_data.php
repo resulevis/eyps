@@ -214,8 +214,8 @@ switch( $_POST[ 'islem' ] ) {
 		echo $select;
 	break;
 
-	case 'donemListesi':
-		if( $_REQUEST[ 'modul' ] == "donemDersleri" ){
+	case 'donemListesi': 
+		if( $_REQUEST[ 'modul' ] == "donemDersleri" OR $_REQUEST[ 'modul' ] == "komiteler"   ){
 			$ders_yili_donemler = $vt->select( $SQL_ders_yili_donemler_getir, array( $_REQUEST[ "program_id" ], $_REQUEST[ "ders_yili_id" ] ) )[ 2 ];
 			$option = '';
 			foreach( $ders_yili_donemler AS $ders_yili_donem ) {
@@ -235,10 +235,15 @@ switch( $_POST[ 'islem' ] ) {
 								var data_islem 		= $(this).data("islem");
 							    var data_url 		= $(this).data("url");
 							    var modul	 		= $("#program-sec").data("modul");
-							    $("#dersler").empty();
-							    $.post(data_url, { islem : data_islem,program_id : program_id}, function (response) {
-							        $("#dersler").append(response);
-							    });
+								if ( modul == "komiteler" ) {
+									document.getElementById("komiteEkleBtn").style.display = "inline";
+									komiteEkle();
+								}else if (  modul == "donemDersleri" ){
+									$("#dersler").empty();
+									$.post(data_url, { islem : data_islem,program_id : program_id,modul : modul}, function (response) {
+										$("#dersler").append(response);
+									});
+								}	
 							});
 						</script>';
 		}
@@ -265,41 +270,46 @@ switch( $_POST[ 'islem' ] ) {
 	
 
 	case 'dersler':
-		$dersler 	= $vt->select( $SQL_dersler_getir, array( $_REQUEST[ "program_id" ] ) )[ 2 ];
 		$dersSonuc 		= "";
-		foreach ($dersler as $ders) {
-			$dersSonuc .= '
-				<div class="form-group " style="display: flex; align-items: center;">
-					<div class="custom-control custom-checkbox col-sm-8 float-left">
-						<input class="custom-control-input " name="ders_id[]" type="checkbox" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
-						<label for="'.$ders[ "id" ].'" class="custom-control-label">'.$ders[ "ders_kodu" ].' - '.$ders[ "adi" ].'</label>
-					</div>
-					<input  type="number" class="form-control col-sm-2 float-left" name ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
-					<input  type="number" class="form-control col-sm-2 float-left" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
-				</div><hr>';
-		}
+		if ( $_REQUEST['modul'] == "donemDersleri") {
+			$dersler 	= $vt->select( $SQL_dersler_getir, array( $_REQUEST[ "program_id" ] ) )[ 2 ];
+			foreach ($dersler as $ders) {
+				$dersSonuc .= '
+					<div class="form-group " style="display: flex; align-items: center;">
+						<div class="custom-control custom-checkbox col-sm-8 float-left">
+							<input class="custom-control-input " name="ders_id[]" type="checkbox" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
+							<label for="'.$ders[ "id" ].'" class="custom-control-label">'.$ders[ "ders_kodu" ].' - '.$ders[ "adi" ].'</label>
+						</div>
+						<input  type="number" class="form-control col-sm-2 float-left" name ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+						<input  type="number" class="form-control col-sm-2 float-left" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+					</div><hr>';
+			}
 
-		$sonuc =  '
-			<hr>
-			<div class="col-sm-12">
-				<div class="form-group " style="display: flex; align-items: center;">
-					<div class="custom-control custom-checkbox col-sm-8 float-left">
-						<b>Ders</b>
+			$sonuc =  '
+				<hr>
+				<div class="col-sm-12">
+					<div class="form-group " style="display: flex; align-items: center;">
+						<div class="custom-control custom-checkbox col-sm-8 float-left">
+							<b>Ders</b>
+						</div>
+						<div class="col-sm-2 float-left"><b>Teaorik D.S.</b></div>
+						<div class="col-sm-2 float-left"><b>Uygulama D.S.</b></div>
+						
 					</div>
-					<div class="col-sm-2 float-left"><b>Teaorik D.S.</b></div>
-					<div class="col-sm-2 float-left"><b>Uygulama D.S.</b></div>
-					
 				</div>
-			</div>
 
-			<div class="col-sm-12">
-				'.$dersSonuc.'
-			</div>
-			<script>
-				$(".dersSecimi").on("click", function() {
-					
-				});
-			</script>';
+				<div class="col-sm-12">
+					'.$dersSonuc.'
+				</div>
+				<script>
+					$(".dersSecimi").on("click", function() {
+						
+					});
+				</script>';
+		}
+		if ( $_REQUEST['modul'] == "komiteler" ){
+			
+		}	
 		echo $sonuc;
 	break;
 	
