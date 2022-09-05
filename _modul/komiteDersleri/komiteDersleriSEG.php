@@ -22,19 +22,24 @@ SET
 SQL;
 
 /**/
-$SQL_tek_donem_ders_oku = <<< SQL
+$SQL_tek_komite_ders_oku = <<< SQL
 SELECT 
-	*
+	d.id, 
+	d.adi 
 FROM 
-	tb_donem_dersleri as dd
+	tb_komite_dersleri AS kd
 LEFT JOIN 
-	tb_ders_yili_donemleri as dyd ON dyd.id = dd.ders_yili_donem_id
+	tb_donem_dersleri AS dd  ON dd.id = kd.donem_ders_id
 LEFT JOIN 
-	tb_ders_yillari as dy ON dyd.ders_yili_id = dy.id
-
+	tb_dersler AS d ON d.id = dd.ders_id
+LEFT JOIN 
+	tb_ders_yili_donemleri AS dyd ON dyd.id = dd.ders_yili_donem_id
 WHERE 
-	universite_id 	= ? AND
-	dd.id 			= ?
+	dyd.ders_yili_id = ? AND 
+	dyd.program_id 	 = ? AND
+	dyd.donem_id 	 = ? AND 
+	kd.komite_id 	 = ? AND 
+	kd.id 			 = ? 
 SQL;
 
 /*Yeni eklenecek dersin önceden  eklenip eklenmediğini kontrol etme*/
@@ -48,24 +53,27 @@ WHERE
 	kd.donem_ders_id 	= ?
 SQL;
 
-$SQL_donem_dersleri_guncelle = <<< SQL
+$SQL_komite_dersleri_guncelle = <<< SQL
 UPDATE
-	tb_donem_dersleri AS dd
-LEFT JOIN tb_dersler  as d ON d.id = dd.ders_id
-LEFT JOIN tb_ders_yili_donemleri as dyd ON dyd.id = dd.ders_yili_donem_id
+	tb_komite_dersleri AS kd
+LEFT JOIN 
+	tb_donem_dersleri AS dd  ON dd.id = kd.donem_ders_id
+LEFT JOIN 
+	tb_ders_yili_donemleri AS dyd ON dyd.id = dd.ders_yili_donem_id
 SET
-	dd.teorik_ders_saati 	= ?,
-	dd.uygulama_ders_saati  = ?
+	kd.teorik_ders_saati 	= ?,
+	kd.uygulama_ders_saati  = ?,
+	kd.soru_sayisi  		= ?
 WHERE
 	dyd.ders_yili_id  	= ? AND
 	dyd.program_id 		= ? AND 
 	dyd.donem_id 		= ? AND
-	dd.id 				= ?
+	kd.id 				= ?
 SQL;
 
 $SQL_sil = <<< SQL
 DELETE FROM
-	tb_donem_dersleri
+	tb_komite_dersleri
 WHERE
 	id = ?
 SQL;
@@ -80,11 +88,13 @@ WHERE
 SQL;
 
 
-$ders_yili_donemi   = $vt->select( $SQL_ders_yili_donem_oku, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[2][0]; 
+@$ders_yili_donemi 	= $vt->select( $SQL_ders_yili_donem_oku, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[2][0]; 
 
 $ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: $ders_yili_donemi[ "ders_yili_id" ];
 $program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: $ders_yili_donemi[ "program_id" ];
 $donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		: $ders_yili_donemi[ "donem_id" ];
+$komite_id          = array_key_exists( 'komite_id', $_REQUEST ) 	? $_REQUEST[ 'komite_id' ] 		: 0;
+$ders_id     		= array_key_exists( 'komite_ders_id', $_REQUEST ) ? $_REQUEST[ 'komite_ders_id' ] : 0;
 
 
 $ders_degerler = array();
@@ -117,26 +127,28 @@ switch( $islem ) {
 	case 'guncelle':
 		
 		foreach ($_REQUEST['ders_id'] as $ders_id) {
+
+
 			$ders_degerler[] = $_REQUEST['teorik_ders_saati-'.$ders_id];
 			$ders_degerler[] = $_REQUEST['uygulama_ders_saati-'.$ders_id];
+			$ders_degerler[] = $_REQUEST['soru_sayisi-'.$ders_id];
 			$ders_degerler[] = $ders_yili_id;
 			$ders_degerler[] = $program_id;
 			$ders_degerler[] = $donem_id;
 			$ders_degerler[] = $ders_id;
 
-			$sonuc = $vt->update( $SQL_donem_dersleri_guncelle, $ders_degerler );
+			$sonuc = $vt->update( $SQL_komite_dersleri_guncelle, $ders_degerler );
 
 			$ders_degerler = array();
 		}
-
 
 	break;
 	case 'sil':
 
 		//Silinecek olan tarife giriş yapılan firmaya mı ait oldugu kontrol ediliyor Eger firmaya ait ise silinecektir.
-		$tek_donem_ders_oku = $vt->select( $SQL_tek_donem_ders_oku, array( $_SESSION[ "universite_id" ], $_REQUEST[ "donem_ders_id" ] ) ) [ 2 ];
-		if (count( $tek_donem_ders_oku ) > 0) {
-			$sonuc = $vt->delete( $SQL_sil, array( $_REQUEST[ "donem_ders_id" ] ) );
+		$tek_komite_ders_oku = $vt->select( $SQL_tek_komite_ders_oku, array( $ders_yili_id, $program_id, $donem_id, $komite_id, $ders_id ) ) [ 2 ];
+		if (count( $tek_komite_ders_oku ) > 0) {
+			$sonuc = $vt->delete( $SQL_sil, array( $ders_id ) );
 			if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt silinrken bir hata oluştu ' . $sonuc[ 1 ] );
 		}
 	break;
@@ -144,5 +156,5 @@ switch( $islem ) {
 
 
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
-header( "Location:../../index.php?modul=komiteDersleri&islem=guncelle&ders_yili_id=$ders_yili_id&program_id=$program_id&donem_id=$donem_id");
+header( "Location:../../index.php?modul=komiteDersleri&islem=guncelle&ders_yili_id=$ders_yili_id&program_id=$program_id&donem_id=$donem_id&komite_id=$komite_id");
 ?>

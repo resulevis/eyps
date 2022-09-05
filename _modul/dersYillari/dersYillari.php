@@ -93,22 +93,29 @@ $dersYillari		= $vt->select( $SQL_tum_ders_yillari, array( $_SESSION[ 'universit
 								<tr>
 									<th style="width: 15px">#</th>
 									<th>Adı</th>
+									<th style="width: 20px">Aktif</th>
 									<th data-priority="1" style="width: 20px">Düzenle</th>
 									<th data-priority="1" style="width: 20px">Sil</th>
 								</tr>
 							</thead>
 							<tbody>
-								<?php $sayi = 1; foreach( $dersYillari AS $fakulte ) { ?>
-								<tr oncontextmenu="fun();" class ="fakulte-Tr <?php if( $fakulte[ 'id' ] == $dersYili_id ) echo $satir_renk; ?>" data-id="<?php echo $fakulte[ 'id' ]; ?>">
+								<?php $sayi = 1; foreach( $dersYillari AS $ders_yili ) { ?>
+								<tr oncontextmenu="fun();" class ="fakulte-Tr <?php if( $ders_yili[ 'id' ] == $dersYili_id ) echo $satir_renk; ?>" data-id="<?php echo $ders_yili[ 'id' ]; ?>">
 									<td><?php echo $sayi++; ?></td>
-									<td><?php echo $fakulte[ 'adi' ]; ?></td>
+									<td><?php echo $ders_yili[ 'adi' ]; ?></td>
+									<td class="text-center">
+										<div class="icheck-success d-inline">
+											<input type="radio" name="aktifYil" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifYil" data-modul="<?php echo $_REQUEST['modul'] ?>" id="<?php echo $ders_yili[ 'id' ]; ?>" <?php echo $_SESSION[ 'aktif_yil' ] == $ders_yili[ 'id' ] ? "checked": null; ?> class="aktifYilSec" value="<?php echo $ders_yili[ 'id' ]; ?>">
+											<label for="<?php echo $ders_yili[ 'id' ]; ?>"></label>
+										</div>
+									</td>
 									<td align = "center">
-										<a modul = 'dersYillari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=dersYillari&islem=guncelle&dersYili_id=<?php echo $fakulte[ 'id' ]; ?>" >
+										<a modul = 'dersYillari' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=dersYillari&islem=guncelle&dersYili_id=<?php echo $ders_yili[ 'id' ]; ?>" >
 											Düzenle
 										</a>
 									</td>
 									<td align = "center">
-										<button modul= 'dersYillari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/dersYillari/dersYillariSEG.php?islem=sil&dersYili_id=<?php echo $fakulte[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
+										<button modul= 'dersYillari' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/dersYillari/dersYillariSEG.php?islem=sil&dersYili_id=<?php echo $ders_yili[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -161,7 +168,7 @@ $dersYillari		= $vt->select( $SQL_tum_ders_yillari, array( $_SESSION[ 'universit
 										</div>
 									</div>
 									<div class="card-footer">
-										<button modul= 'fakulte' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<button modul= 'dersYillari' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>
@@ -281,5 +288,13 @@ $(function () {
 	});
 });
 
+$('.aktifYilSec').on("change", function(e) { 
+    var $yil_id 	= $(this).val();
+    var $data_islem = $(this).data("islem");
+    var $data_url 	= $(this).data("url");
+    $.post($data_url, { islem : $data_islem, yil_id : $yil_id }, function (response) {
+       
+    });
+});
 
 </script>

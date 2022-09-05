@@ -87,3 +87,16 @@
 </script>
 
  <?php } ?>
+<script type="text/javascript">
+    $('.aktifYilSec').on("change", function(e) { 
+        var $id         = $(this).val();
+        var $data_islem = $(this).data("islem");
+        var $data_url   = $(this).data("url");
+        $.post($data_url, { islem : $data_islem, id : $id }, function (response) {
+           window.location.reload();
+        });
+
+    });
+    
+
+</script>

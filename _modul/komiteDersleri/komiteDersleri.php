@@ -52,21 +52,23 @@ WHERE
 SQL;
 
 $SQL_dersler_getir = <<< SQL
-SELECT 
-	dd.id,
-	dd.ders_id,
-	dd.teorik_ders_saati,
-	dd.uygulama_ders_saati,
+select 
+	kd.id,
+	kd.teorik_ders_saati,
+	kd.uygulama_ders_saati,
+	kd.soru_sayisi,
 	d.adi,
 	d.ders_kodu
-FROM  
-	tb_donem_dersleri as dd
-LEFT JOIN tb_dersler  as d ON d.id = dd.ders_id
-LEFT JOIN tb_ders_yili_donemleri as dyd ON dyd.id = dd.ders_yili_donem_id
+from 
+	tb_komite_dersleri AS kd
+LEFT JOIN tb_donem_dersleri AS dd ON kd.donem_ders_id = dd.id
+LEFT JOIN tb_dersler AS d ON d.id = dd.ders_id
+LEFT JOIN tb_ders_yili_donemleri AS dyd ON dyd.id = dd.ders_yili_donem_id
 WHERE 
-	dyd.ders_yili_id  	= ? AND
-	dyd.program_id 		= ? AND 
-	dyd.donem_id 		= ?
+	dyd.ders_yili_id 	= ? AND
+	dyd.program_id 		= ? AND
+	dyd.donem_id 		= ? AND
+	kd.komite_id 		= ? 
 SQL;
 
 $SQL_ders_yili_donem_oku = <<< SQL
@@ -99,11 +101,13 @@ SQL;
 $ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: $ders_yili_donemi[ "ders_yili_id" ];
 $program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: $ders_yili_donemi[ "program_id" ];
 $donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		:$ders_yili_donemi[ "donem_id" ];
+$komite_id          = array_key_exists( 'komite_id', $_REQUEST )  	? $_REQUEST[ 'komite_id' ] 		: 0;
 
 $donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program_id ) )[2];
 $ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
 $programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ] ) )[ 2 ];
-$dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, $donem_id ) )[ 2 ];
+$dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id, $program_id, $donem_id, $komite_id ) )[ 2 ];
+$komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_id,$program_id ) )[2];
 
 ?>
 <!-- UYARI MESAJI VE BUTONU-->
@@ -148,7 +152,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 		<!-- general form elements -->
 		<div class="card card-secondary">
 			<div class="card-header">
-				<h3 class="card-title">Dönem Dersi Ekle / Güncelle</h3>
+				<h3 class="card-title">Komite Dersi Ekle / Güncelle</h3>
 			</div>
 			<!-- /.card-header -->
 			<!-- form start -->
@@ -157,6 +161,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 				<input type = "hidden" name = "ders_yili_id" value = "<?php echo $ders_yili_id; ?>">
 				<input type = "hidden" name = "program_id" value = "<?php echo $program_id; ?>">
 				<input type = "hidden" name = "donem_id" value = "<?php echo $donem_id; ?>">
+				<input type = "hidden" name = "komite_id" value = "<?php echo $komite_id; ?>">
 				<?php if ( $islem == "ekle") { ?>
 					<div class="card-body">
 						<div class="form-group">
@@ -216,28 +221,44 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 								?>
 							</select>
 						</div>
+
+						<div class="form-group">
+							<label  class="control-label">Komite</label>
+							<select class="form-control select2"  disabled required>
+								<option>Seçiniz...</option>
+								<?php 
+									foreach( $komiteler AS $komite ){
+										echo '<option value="'.$komite[ "id" ].'" '.( $komite[ "id" ] == $komite_id ? "selected" : null) .'>'.$komite[ "adi" ].'</option>';
+									}
+								?>
+							</select>
+						</div>
+						
 						
 					</div>
 					<div class="col-sm-12">
 						<div class="form-group " style="display: flex; align-items: center;">
-							<div class="custom-control custom-checkbox col-sm-7 float-left">
+							<div class="custom-control custom-checkbox col-sm-6 float-left">
 								<b>Ders</b>
 							</div>
 							<div class="col-sm-2 float-left"><b>Teaorik D.S.</b></div>
 							<div class="col-sm-2 float-left"><b>Uygulama D.S.</b></div>
+							<div class="col-sm-1 float-left"><b>Soru S.</b></div>
 							<div class="col-sm-1 float-left"><b>Sil</b></div>
 						</div>
 						<?php 
 						foreach ($dersler as $ders) {
 								echo '
 								<div class="form-group " style="display: flex; align-items: center;">
-									<div class="custom-control custom-checkbox col-sm-7 float-left">
+									<div class="custom-control custom-checkbox col-sm-6 float-left">
 										<input name="ders_id[]" type="hidden" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
 										<label for="'.$ders[ "id" ].'">'.$ders[ "ders_kodu" ].' - '.$ders[ "adi" ].'</label>
 									</div>
 									<input  type="number" class="form-control col-sm-2 float-left" name ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off" value="'.$ders[ "teorik_ders_saati" ].'">
 									<input  type="number" class="form-control col-sm-2 float-left m-1" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off" value="'.$ders[ "uygulama_ders_saati" ].'">
-									<a href="" class="btn btn-sm btn-danger m-1" modul= "komiteDersleri" yetki_islem="sil" data-href="_modul/komiteDersleri/komiteDersleriSEG.php?islem=sil&donem_ders_id='.$ders[ "id" ].'&ders_yili_id='.$ders_yili_id.'&program_id='.$program_id.'&donem_id='.$donem_id.'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
+									<input  type="number" class="form-control col-sm-1 float-left " name ="soru_sayisi-'.$ders[ "id" ].'"  autocomplete="off" value="'.$ders[ "soru_sayisi" ].'">
+									
+									<a href="" class="btn btn-sm btn-danger m-1" modul= "komiteDersleri" yetki_islem="sil" data-href="_modul/komiteDersleri/komiteDersleriSEG.php?islem=sil&komite_ders_id='.$ders[ "id" ].'&ders_yili_id='.$ders_yili_id.'&program_id='.$program_id.'&donem_id='.$donem_id.'&komite_id='.$komite_id.'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
 								</div><hr>';
 							}
 						?>
@@ -285,28 +306,33 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 							foreach ( $donemler AS $donem ){ ?>
 								<!--Dönemler-->
 								<li>
-									<div class="ders-kapsa">
+									<div class="ders-kapsa bg-warning">
 										<?php echo $donem[ "adi" ]  ?>
-										<a href="?modul=komiteDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
 									</div>
 								<ul class="ders-ul">
 				
 				<?php  
-								/*Komiteler Listesi*/
-								$komiteler = $vt->select( $SQL_komiteler_getir, array( $ders_yili[ 'id' ],$donem[ 'id' ],$program[ 'id' ] ) )[2];
-
-
-				?>
-
-
+									/*Komiteler Listesi*/
+									$komiteler = $vt->select( $SQL_komiteler_getir, array( $ders_yili[ 'id' ],$donem[ 'id' ],$program[ 'id' ] ) )[2];
+									foreach ( $komiteler AS $komite ){ ?>
+									<!--Komiteler-->
+									<li>
+										<div class="ders-kapsa">
+											<?php echo $komite[ "adi" ]  ?>
+											<a href="?modul=komiteDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>&komite_id=<?php echo $komite[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
+										</div>
+									<ul class="ders-ul">
 				<?php 			
-								/*Ders Listesi*/
-								$dersler = $vt->select( $SQL_dersler_getir, array( $ders_yili[ "id" ], $program[ "id" ], $donem[ "id" ] ) )[2];
-								foreach ( $dersler as $ders ) { ?>
-									<li><div class="ders-kapsa bg-light"><?php echo $ders[ "adi" ]; ?> <span class="float-right">(<?php echo $ders[ "ders_kodu" ]  ?>)</span></div></li>				
+										/*Ders Listesi*/
+										$dersler = $vt->select( $SQL_dersler_getir, array( $ders_yili[ "id" ], $program[ "id" ], $donem[ "id" ], $komite[ "id" ] ) )[2];
+										foreach ( $dersler as $ders ) { ?>
+											<li><div class="ders-kapsa bg-light"><?php echo $ders[ "adi" ]; ?> <span class="float-right">(<?php echo $ders[ "ders_kodu" ]  ?>)</span></div></li>				
 				<?php			
+									}
+									echo '</ul></li>';
 								}
 								echo '</ul></li>';
+								
 							}
 							echo '</ul></li>';
 						}
@@ -326,7 +352,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 	    var $program_id = $(this).val();
 	    var $data_islem = $(this).data("islem");
 	    var $data_url 	= $(this).data("url");
-	    var $data_modul	= $(this).data("url");
+	    var $data_modul	= $(this).data("modul");
 	    $("#dersYillari").empty();
 	    $.post($data_url, { islem : $data_islem, program_id : $program_id, modul : $data_modul }, function (response) {
 	        $("#dersYillari").append(response);

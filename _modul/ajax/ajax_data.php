@@ -192,7 +192,99 @@ WHERE
 	dd.ders_yili_donem_id = ?
 SQL;
 
+$SQL_ders_yili_ilk_goruntulenecek_guncelle = <<< SQL
+UPDATE
+	tb_ders_yillari
+SET
+	ilk_goruntulenecek 	= 0
+WHERE
+	universite_id  		= ?
+SQL;
 
+$SQL_ders_yili_ilk_goruntulenecek_guncelle2 = <<< SQL
+UPDATE
+	tb_ders_yillari
+SET
+	ilk_goruntulenecek 	= 1
+WHERE
+	universite_id  		= ? AND
+	id 					= ? 
+SQL;
+
+$SQL_fakulte_ilk_goruntulenecek_guncelle = <<< SQL
+UPDATE
+	tb_ders_yillari
+SET
+	ilk_goruntulenecek 	= 0
+WHERE
+	universite_id  		= ?
+SQL;
+
+$SQL_fakulte_ilk_goruntulenecek_guncelle2 = <<< SQL
+UPDATE
+	tb_ders_yillari
+SET
+	ilk_goruntulenecek 	= 1
+WHERE
+	universite_id  		= ? AND
+	id 					= ? 
+SQL;
+
+$SQL_fakulteler = <<< SQL
+SELECT 
+	dyd.id AS ders_yili_donem_id,
+	f.id AS fakulte_id, 
+	f.adi AS fakulte_adi,
+	b.id AS bolum_id,
+	b.adi AS bolum_adi,
+	p.id AS program_id, 
+	p.adi AS program_adi,
+	d.id  AS donem_id,
+	d.adi AS donem_adi
+FROM 
+	tb_fakulteler AS f
+LEFT JOIN 
+	tb_bolumler AS b ON b.fakulte_id = f.id
+RIGHT JOIN 
+	tb_programlar AS p On p.bolum_id = b.id
+LEFT JOIN 
+	tb_ders_yili_donemleri AS dyd ON dyd.program_id = p.id
+LEFT JOIN 
+	tb_donemler AS d ON dyd.donem_id = d.id
+WHERE 
+	f.universite_id 	= ? AND 
+	dyd.ders_yili_id 	= ? AND 
+	f.aktif 			= 1
+SQL;
+
+/**/
+$SQL_fakulte_sec = <<< SQL
+SELECT 
+	dyd.id AS ders_yili_donem_id,
+	f.id AS fakulte_id, 
+	f.adi AS fakulte_adi,
+	b.id AS bolum_id,
+	b.adi AS bolum_adi,
+	p.id AS program_id, 
+	p.adi AS program_adi,
+	d.id  AS donem_id,
+	d.adi AS donem_adi
+FROM 
+	tb_fakulteler AS f
+LEFT JOIN 
+	tb_bolumler AS b ON b.fakulte_id = f.id
+RIGHT JOIN 
+	tb_programlar AS p On p.bolum_id = b.id
+LEFT JOIN 
+	tb_ders_yili_donemleri AS dyd ON dyd.program_id = p.id
+LEFT JOIN 
+	tb_donemler AS d ON dyd.donem_id = d.id
+WHERE 
+	f.universite_id 	= ? AND 
+	dyd.ders_yili_id 	= ? AND 
+	dyd.id 				= ? AND 
+	f.aktif 			= 1
+SQL;
 
 
 $vt = new VeriTabani();
@@ -321,7 +413,6 @@ switch( $_POST[ 'islem' ] ) {
 		
 		echo count( $komiteler) > 0 ? $select : $hata;
 	break;
-	
 
 	case 'dersler':
 		$dersSonuc 		= "";
@@ -330,12 +421,13 @@ switch( $_POST[ 'islem' ] ) {
 			foreach ($dersler as $ders) {
 				$dersSonuc .= '
 					<div class="form-group " style="display: flex; align-items: center;">
-						<div class="custom-control custom-checkbox col-sm-8 float-left">
-							<input class="custom-control-input " name="ders_id[]" type="checkbox" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
+						<div class="custom-control custom-checkbox col-sm-8 float-left dersler" >
+							<input class="custom-control-input derslerCheck" data-id="'.$ders[ "id" ].'" name="ders_id[]" type="checkbox" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
 							<label for="'.$ders[ "id" ].'" class="custom-control-label">'.$ders[ "ders_kodu" ].' - '.$ders[ "adi" ].'</label>
 						</div>
-						<input  type="number" class="form-control col-sm-2 float-left" name ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
-						<input  type="number" class="form-control col-sm-2 float-left" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+						<input  type="number" class="form-control col-sm-2 float-left m-1" disabled name ="teorik_ders_saati-'.$ders[ "id" ].'" id ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+						<input  type="number" class="form-control col-sm-2 float-left m-1" disabled name ="uygulama_ders_saati-'.$ders[ "id" ].'"
+						id ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
 					</div><hr>';
 			}
 		}else if( $_REQUEST['modul'] == "komiteDersleri" ){
@@ -345,12 +437,13 @@ switch( $_POST[ 'islem' ] ) {
 				$dersSonuc .= '
 					<div class="form-group " style="display: flex; align-items: center;">
 						<div class="custom-control custom-checkbox col-sm-7 float-left">
-							<input class="custom-control-input " name="ders_id[]" type="checkbox" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'">
+							<input class="custom-control-input derslerCheck " data-id="'.$ders[ "id" ].'" name="ders_id[]" type="checkbox" id="'.$ders[ "id" ].'" value="'.$ders[ "id" ].'" >
 							<label for="'.$ders[ "id" ].'" class="custom-control-label">'.$ders[ "ders_kodu" ].' - '.$ders[ "adi" ].'</label>
 						</div>
-						<input  type="number" min="0" class="form-control col-sm-2 float-left m-1" name ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
-						<input  type="number" min="0" class="form-control col-sm-2 float-left m-1" name ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
-						<input  type="number" min="0" class="form-control col-sm-1 float-left m-1" name ="soru_sayisi-'.$ders[ "id" ].'"  autocomplete="off">
+						<input  type="number" min="0" class="form-control col-sm-2 float-left m-1" disabled  name ="teorik_ders_saati-'.$ders[ "id" ].'" id ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+						<input  type="number" min="0" class="form-control col-sm-2 float-left m-1" disabled name ="uygulama_ders_saati-'.$ders[ "id" ].'"
+						id ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
+						<input  type="number" min="0" class="form-control col-sm-1 float-left m-1" disabled name ="soru_sayisi-'.$ders[ "id" ].'" id ="soru_sayisi-'.$ders[ "id" ].'"  autocomplete="off">
 					</div><hr>';
 			}
 
@@ -372,8 +465,23 @@ switch( $_POST[ 'islem' ] ) {
 					'.$dersSonuc.'
 				</div>
 				<script>
-					$(".dersSecimi").on("click", function() {
-						
+					$(".derslerCheck").on("click", function() {
+						var ders_id = $(this).data("id");
+						var sonuc = document.getElementById(ders_id).checked;
+						if( sonuc == true ){
+							document.getElementById("teorik_ders_saati-" + ders_id).removeAttribute("disabled"); 
+							document.getElementById("uygulama_ders_saati-" + ders_id).removeAttribute("disabled"); 
+							document.getElementById("soru_sayisi-" + ders_id).removeAttribute("disabled"); 
+
+							document.getElementById("teorik_ders_saati-" + ders_id).setAttribute("required","required"); 
+							document.getElementById("uygulama_ders_saati-" + ders_id).setAttribute("required","required"); 
+							document.getElementById("soru_sayisi-" + ders_id).setAttribute("required","required");
+						}else{
+							document.getElementById("teorik_ders_saati-" + ders_id).setAttribute("disabled","disabled"); 
+							document.getElementById("uygulama_ders_saati-" + ders_id).setAttribute("disabled","disabled"); 
+							document.getElementById("soru_sayisi-" + ders_id).setAttribute("disabled","disabled"); 
+						}
+
 					});
 				</script>';
 			$hata  = '<div class="alert alert-danger text-center">Dönem İçin Ders Eklenmemiş !!!</div>';
@@ -391,6 +499,35 @@ switch( $_POST[ 'islem' ] ) {
 		}
 		echo $sonuc;
 	break;
+
+	case 'aktifYil':
+
+		$ilk_goruntulenecek_sifirla	= $vt->update( $SQL_ders_yili_ilk_goruntulenecek_guncelle, array( $_SESSION['universite_id'] ) );
+		$deger_ata					= $vt->update( $SQL_ders_yili_ilk_goruntulenecek_guncelle2, array( $_SESSION['universite_id'], $_REQUEST['id'] ) );
+		$_SESSION[ 'aktif_yil' ] 	= $_REQUEST['id'];
+
+
+		$fakulteler 				= $vt->select( $SQL_fakulteler, array( $_SESSION['universite_id'], $_SESSION[ 'aktif_yil' ] ) )[ 2 ];
+		$_SESSION[ 'dyd_id' ]		= $fakulteler[0][ "ders_yili_donem_id" ];
+		$_SESSION[ 'fakulte_id' ]	= $fakulteler[0][ "fakulte_id" ];
+		$_SESSION[ 'bolum_id' ]		= $fakulteler[0][ "bolum_id" ];
+		$_SESSION[ 'program_id' ]	= $fakulteler[0][ "program_id" ];
+		$_SESSION[ 'donem_id' ]		= $fakulteler[0][ "donem_id" ];
+		$_SESSION[ 'fakulteler' ]	= $fakulteler;
+
+	break;
+
+	case 'aktifFakulte':
+
+		$fakulteler 				= $vt->select( $SQL_fakulte_sec, array( $_SESSION['universite_id'], $_SESSION[ 'aktif_yil' ], $_REQUEST['id'] ) )[ 2 ];
+		$_SESSION[ 'dyd_id' ]		= $fakulteler[0][ "ders_yili_donem_id" ];
+		$_SESSION[ 'fakulte_id' ]	= $fakulteler[0][ "fakulte_id" ];
+		$_SESSION[ 'bolum_id' ]		= $fakulteler[0][ "bolum_id" ];
+		$_SESSION[ 'program_id' ]	= $fakulteler[0][ "program_id" ];
+		$_SESSION[ 'donem_id' ]		= $fakulteler[0][ "donem_id" ];
+
+	break;
+	
 	case 'cevap_turune_gore_secenek_ver':
 		$sonuc = "";
 		if( $_REQUEST[ 'soru_cevap_turu_id' ] == 1 ){ $deger1 = "Evet"; $deger2 = "Hayır"; }

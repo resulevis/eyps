@@ -1,3 +1,4 @@
+
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
@@ -9,6 +10,29 @@
         <a href="index.php" class="nav-link">AnaSayfa</a>
       </li>
     </ul>
+    <span class="nav-link text-red">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ||</span>
+    <form class="form-inline"  method="POST">
+      <div class="input-group input-group-sm">
+        <span class="nav-link">Ders Yılı Değiştir</span>
+        <select  class="form-control aktifYilSec" style="width: auto;" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifYil">
+          <?php 
+            foreach ($_SESSION['ders_yillari'] as $ders_yili) {
+              echo '<option value="'.$ders_yili[ "id" ].'" '.( $ders_yili[ "id" ] == $_SESSION[ "aktif_yil" ] ? "selected" : null ).'>'.$ders_yili[ "adi" ].'</option>';
+            }
+          ?>
+        </select>&nbsp;
+        
+        <select class="form-control aktifYilSec" style="width: auto;" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifFakulte" class="form-control">
+          <?php 
+            foreach ( $_SESSION[ 'fakulteler' ] as $dyd) {
+              echo '<option value="'.$dyd[ "ders_yili_donem_id" ].'" '.( $dyd[ "ders_yili_donem_id" ] == $_SESSION[ "dyd_id" ] ? "selected" : null ).'>
+              '.$dyd[ "fakulte_adi" ].' - '.$dyd[ "bolum_adi" ].' - '.$dyd[ "program_adi" ].' - '.$dyd[ "donem_adi" ].'
+              </option>'; 
+            }
+          ?>
+        </select>&nbsp;
+      </div>
+    </form>
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
