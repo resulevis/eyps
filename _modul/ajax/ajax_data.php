@@ -192,6 +192,21 @@ WHERE
 	dd.ders_yili_donem_id = ?
 SQL;
 
+$SQL_tum_ogretimElemanlari = <<< SQL
+SELECT 
+	oe.id AS id,
+	CONCAT( u.adi, ' ', oe.adi, ' ', oe.soyadi ) AS adi
+FROM 
+	tb_ogretim_elemanlari AS oe
+LEFT JOIN tb_fakulteler AS f ON f.id = oe.fakulte_id
+LEFT JOIN tb_anabilim_dallari AS abd ON abd.id = oe.anabilim_dali_id
+LEFT JOIN tb_unvanlar AS u ON u.id = oe.unvan_id
+WHERE
+	oe.universite_id 	= ? AND
+	oe.aktif 		  	= 1 
+ORDER BY u.sira ASC, oe.adi ASC
+SQL;
+
 $SQL_ders_yili_ilk_goruntulenecek_guncelle = <<< SQL
 UPDATE
 	tb_ders_yillari
@@ -486,6 +501,32 @@ switch( $_POST[ 'islem' ] ) {
 				</script>';
 			$hata  = '<div class="alert alert-danger text-center">Dönem İçin Ders Eklenmemiş !!!</div>';
 		echo count( $dersler) > 0 ? $sonuc : $hata;
+	break;
+	
+	case 'gorevliListesi':
+		$gorevlilerSonuc = "";
+		
+		$gorevliler  	 = $vt->select( $SQL_tum_ogretimElemanlari, array( $_SESSION[ 'universite_id' ]  ) )[2];
+
+		foreach ($gorevliler as $gorevli) {
+			$gorevlilerSonuc  .= '
+				<div class="form-group " style="display: flex; align-items: center;">
+					<div class="custom-control custom-checkbox col-sm-12 float-left">
+						<input class="custom-control-input derslerCheck " data-id="'.$gorevli[ "id" ].'" name="gorevli_id[]" type="checkbox" id="'.$gorevli[ "id" ].'" value="'.$gorevli[ "id" ].'" >
+						<label for="'.$gorevli[ "id" ].'" class="custom-control-label">'.$gorevli[ "adi" ].'</label>
+					</div>
+					
+				</div><hr>';
+		}
+		$sonuc =  '
+				<hr>
+				<h5 class="text-center alert alert-info p-1">Öğretim Görevlileri</h5>
+				<div class="col-sm-12">
+					'.$gorevlilerSonuc.'
+				</div>
+				';
+			$hata  = '<div class="alert alert-danger text-center"></div>';
+		echo count( $gorevliler) > 0 ? $sonuc : $hata;
 	break;
 	
 	case 'ilce_ver':
