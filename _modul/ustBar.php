@@ -26,7 +26,7 @@
           <?php 
             foreach ( $_SESSION[ 'fakulteler' ] as $dyd) {
               echo '<option value="'.$dyd[ "ders_yili_donem_id" ].'" '.( $dyd[ "ders_yili_donem_id" ] == $_SESSION[ "dyd_id" ] ? "selected" : null ).'>
-              '.$dyd[ "fakulte_adi" ].' - '.$dyd[ "bolum_adi" ].' - '.$dyd[ "program_adi" ].' - '.$dyd[ "donem_adi" ].'
+              '.$dyd[ "fakulte_adi" ].' - '.$dyd[ "bolum_adi" ].' - '.$dyd[ "program_adi" ].'
               </option>'; 
             }
           ?>

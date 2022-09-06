@@ -53,9 +53,7 @@ SELECT
 	b.id AS bolum_id,
 	b.adi AS bolum_adi,
 	p.id AS program_id, 
-	p.adi AS program_adi,
-	d.id  AS donem_id,
-	d.adi AS donem_adi
+	p.adi AS program_adi
 FROM 
 	tb_fakulteler AS f
 LEFT JOIN 
@@ -70,6 +68,7 @@ WHERE
 	f.universite_id 	= ? AND 
 	dyd.ders_yili_id 	= ? AND 
 	f.aktif 			= 1
+GROUP BY p.id
 SQL;
 
 
@@ -98,7 +97,10 @@ if( !$sorguSonuc[ 0 ] ) {
 		$_SESSION[ 'ders_yillari' ]		= $ders_yillari;
 
 		$fakulteler 					= $vt->select( $SQL_fakulteler, array( $kullaniciBilgileri[ 'universiteler' ], $aktif_yil[ "id" ] ) )[ 2 ];
-		$_SESSION[ 'aktif_fakulte' ]	= $aktif_fakulte[0][ "id" ];
+		$_SESSION[ 'dyd_id' ]			= $fakulteler[0][ "ders_yili_donem_id" ];
+		$_SESSION[ 'fakulte_id' ]		= $fakulteler[0][ "fakulte_id" ];
+		$_SESSION[ 'bolum_id' ]			= $fakulteler[0][ "bolum_id" ];
+		$_SESSION[ 'program_id' ]		= $fakulteler[0][ "program_id" ];
 		$_SESSION[ 'fakulteler' ]		= $fakulteler;
 
 

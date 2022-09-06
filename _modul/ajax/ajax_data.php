@@ -253,9 +253,7 @@ SELECT
 	b.id AS bolum_id,
 	b.adi AS bolum_adi,
 	p.id AS program_id, 
-	p.adi AS program_adi,
-	d.id  AS donem_id,
-	d.adi AS donem_adi
+	p.adi AS program_adi
 FROM 
 	tb_fakulteler AS f
 LEFT JOIN 
@@ -270,6 +268,7 @@ WHERE
 	f.universite_id 	= ? AND 
 	dyd.ders_yili_id 	= ? AND 
 	f.aktif 			= 1
+GROUP BY p.id
 SQL;
 
 /**/
@@ -281,9 +280,7 @@ SELECT
 	b.id AS bolum_id,
 	b.adi AS bolum_adi,
 	p.id AS program_id, 
-	p.adi AS program_adi,
-	d.id  AS donem_id,
-	d.adi AS donem_adi
+	p.adi AS program_adi
 FROM 
 	tb_fakulteler AS f
 LEFT JOIN 
@@ -292,13 +289,12 @@ RIGHT JOIN
 	tb_programlar AS p On p.bolum_id = b.id
 LEFT JOIN 
 	tb_ders_yili_donemleri AS dyd ON dyd.program_id = p.id
-LEFT JOIN 
-	tb_donemler AS d ON dyd.donem_id = d.id
 WHERE 
 	f.universite_id 	= ? AND 
 	dyd.ders_yili_id 	= ? AND 
 	dyd.id 				= ? AND 
 	f.aktif 			= 1
+GROUP BY p.id
 SQL;
 
 
@@ -553,7 +549,6 @@ switch( $_POST[ 'islem' ] ) {
 		$_SESSION[ 'fakulte_id' ]	= $fakulteler[0][ "fakulte_id" ];
 		$_SESSION[ 'bolum_id' ]		= $fakulteler[0][ "bolum_id" ];
 		$_SESSION[ 'program_id' ]	= $fakulteler[0][ "program_id" ];
-		$_SESSION[ 'donem_id' ]		= $fakulteler[0][ "donem_id" ];
 		$_SESSION[ 'fakulteler' ]	= $fakulteler;
 
 	break;
@@ -565,7 +560,6 @@ switch( $_POST[ 'islem' ] ) {
 		$_SESSION[ 'fakulte_id' ]	= $fakulteler[0][ "fakulte_id" ];
 		$_SESSION[ 'bolum_id' ]		= $fakulteler[0][ "bolum_id" ];
 		$_SESSION[ 'program_id' ]	= $fakulteler[0][ "program_id" ];
-		$_SESSION[ 'donem_id' ]		= $fakulteler[0][ "donem_id" ];
 
 	break;
 	
