@@ -295,6 +295,25 @@ WHERE
 	kd.komite_id 		= ? 
 SQL;
 
+$SQL_ogretim_uyeleri_getir = <<< SQL
+SELECT
+	oe.id AS id,
+	CONCAT( u.adi, ' ', oe.adi, ' ', oe.soyadi ) AS adi
+FROM 
+	tb_ogretim_elemanlari AS oe
+LEFT JOIN 
+	tb_unvanlar AS u ON u.id = oe.unvan_id
+LEFT JOIN 
+	tb_anabilim_dallari AS abd ON abd.id = oe.anabilim_dali_id
+LEFT JOIN 
+	tb_dersler AS d ON d.anabilim_dali_id = abd.id
+WHERE 
+	oe.aktif  = 1
+ORDER BY 
+	FIELD(abd.id, ? ),
+	u.sira ASC
+SQL;
+
 
 $vt = new VeriTabani();
 
@@ -400,7 +419,7 @@ switch( $_POST[ 'islem' ] ) {
 				";
 			}
 			$select = '<label  class="control-label">Komite</label>
-						<select class="form-control select2" name = "komite_id" id="komitelerIslemler" data-url="./_modul/ajax/ajax_data.php" data-islem="derslerSelect" data-modul = "'.$_REQUEST[ "modul" ].'" required>
+						<select class="form-control select2" name = "komite_id" id="komitelerIslemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" data-modul = "'.$_REQUEST[ "modul" ].'" required>
 							<option>Seçiniz...</option>
 							'.$option.'
 						</select>
@@ -499,66 +518,54 @@ switch( $_POST[ 'islem' ] ) {
 		echo count( $dersler) > 0 ? $sonuc : $hata;
 	break;
 
-	case 'derslerSelect':
-		$id 		= array_key_exists( 'ders_yili_donem_id', $_REQUEST ) 	? $_REQUEST[ 'ders_yili_donem_id' ] : $_REQUEST[ 'id' ];
-		$komite_id = array_key_exists( 'komite_id', $_REQUEST ) 			? $_REQUEST[ 'komite_id' ] 			: 0;
-		if( $_REQUEST[ 'modul' ] == "komiteDersleri" OR $_REQUEST[ 'modul' ] == "komiteGorevlileri" OR $_REQUEST[ 'modul' ] == "komiteDersOgretimUyeleri"  ){
-
-			$komiteler = $vt->select( $SQL_komite_dersler_getir, array( $_SESSION[ 'aktif_yil' ], $_SESSION[ 'program_id' ], $id, $komite_id  ) )[ 2 ];
-			$option = '';
-			foreach( $komiteler AS $komite ) {
-				$option .="
-					<option value='$komite[id]'>$komite[adi]</option>
-				";
-			}
-			$select = '<label  class="control-label">Komite</label>
-						<select class="form-control select2" name = "komite_id" id="komitelerIslemler" data-url="./_modul/ajax/ajax_data.php" data-islem="derslerSelect" data-modul = "'.$_REQUEST[ "modul" ].'" required>
-							<option>Seçiniz...</option>
-							'.$option.'
-						</select>
-						<script>
-						$(".select2").select2();
-							$("#komitelerIslemler").on("change", function(e) {
-								var program_id 		= $("#program-sec").val();
-								var data_islem 		= $(this).data("islem");
-							    var data_url 		= $(this).data("url");
-							    var ders_yili_donem_id = $("#ders_yili_donemler").val();
-							    var modul	 		= $("#program-sec").data("modul");
-								$("#dersler").empty();
-								$.post(data_url, { islem : data_islem,program_id : program_id,modul : modul,ders_yili_donem_id : ders_yili_donem_id}, function (response) {
-									$("#dersler").append(response);
-								});	
-							});
-						</script>';
-		}
-		$hata  = '<div class="alert alert-danger text-center">Dönem İçin Komite Eklenmemiş !!!</div>';
-		echo count( $dersler) > 0 ? $sonuc : $hata;
-	break;
 	
-	case 'gorevliListesi':
-		$gorevlilerSonuc = "";
-		
-		$gorevliler  	 = $vt->select( $SQL_tum_ogretimElemanlari, array( $_SESSION[ 'universite_id' ]  ) )[2];
+	case 'ogretimUyeleriListesi':
+		$komite_ders_id 	= array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
 
-		foreach ($gorevliler as $gorevli) {
-			$gorevlilerSonuc  .= '
-				<div class="form-group " style="display: flex; align-items: center;">
-					<div class="custom-control custom-checkbox col-sm-12 float-left">
-						<input class="custom-control-input derslerCheck " data-id="'.$gorevli[ "id" ].'" name="gorevli_id[]" type="checkbox" id="'.$gorevli[ "id" ].'" value="'.$gorevli[ "id" ].'" >
-						<label for="'.$gorevli[ "id" ].'" class="custom-control-label">'.$gorevli[ "adi" ].'</label>
+		$ogretim_uyeleri 	= $vt->select( $SQL_ogretim_uyeleri_getir, array( $komite_ders_id ) )[ 2 ]; 
+
+		$ogretim_uyeleri_option = "";
+
+		foreach ($ogretim_uyeleri as $ogretim_uyesi) {
+			$ogretim_uyeleri_option .= '<option value="'.$ogretim_uyesi[ "id" ].'" >'.$ogretim_uyesi[ "adi" ].'</option>'; 	  	
+		} 	  
+
+		echo '
+			<div class="modal fade" id="gorevliEkleModal">
+				<div class="modal-dialog modal-xl">
+					<div class="modal-content">
+						<form action = "_modul/komiteDersOgretimUyeleri/komiteDersOgretimUyeleriSEG.php" method = "POST">
+							<div class="modal-header">
+								<h4 class="modal-title">Öğretmen Şeçimi Yapmaktasınız</h4>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<div class="form-group">
+									<label  class="control-label">Öğretim Üyeleri</label>
+									<select   class="form-control select2"  multiple="multiple" name = "ogretim_uyesi_id[]" required>
+											<option>Seçiniz</option>
+											'.$ogretim_uyeleri_option.'
+									</select>
+									<script>
+										$(".select2").select2();
+									</script>
+								</div>
+							</div>
+							<div class="modal-footer justify-content-between">
+								<button type="button" class="btn btn-danger" data-dismiss="modal">Vazgeç</button>
+								<a type="button" class="btn btn-success btn-evet">Kaydet</a>
+							</div>
+						</form>
 					</div>
-					
-				</div><hr>';
-		}
-		$sonuc =  '
-				<hr>
-				<h5 class="text-center alert alert-info p-1">Öğretim Görevlileri</h5>
-				<div class="col-sm-12">
-					'.$gorevlilerSonuc.'
+					<!-- /.modal-content -->
 				</div>
-				';
-			$hata  = '<div class="alert alert-danger text-center"></div>';
-		echo count( $gorevliler) > 0 ? $sonuc : $hata;
+				<!-- /.modal-dialog -->
+			</div>';
+
+
+		
 	break;
 	
 	case 'ilce_ver':
