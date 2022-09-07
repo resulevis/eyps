@@ -84,7 +84,7 @@ $moduller = $vt->select( $SQL_modul );
 				?>
 							<li class="nav-item <?php if( in_array( $_REQUEST[ 'modul' ], $mdl ) or $modul[ 'kategori_acik' ] == 1 ) echo "menu-open"; ?>">
 								<a href="#" class="nav-link <?php if( in_array( $_REQUEST[ 'modul' ], $mdl ) ) echo "active"; ?>">
-									<i class="nav-icon <?php echo $modul[ 'simge' ]?>"></i>
+									<i class="nav-icon <?php echo $modul[ 'simge' ]?> <?php if( in_array( $_REQUEST[ 'modul' ], $mdl ) ) echo "text-white"; ?>"></i>
 									<p>
 										<?php echo $modul[ 'adi' ]; ?>
 										<i class="right fas fa-angle-left"></i>
@@ -121,7 +121,7 @@ $moduller = $vt->select( $SQL_modul );
 			?>
 				<li modul='<?php echo $modul[ 'modul' ];?>' yetki_islem='goruntule' class = "nav-item">
 					<a href="?modul=<?php echo $modul[ 'modul' ]?>" class="nav-link <?php if( $url_modul == $modul[ 'modul' ] ) echo "active"; ?>">
-						<i class="nav-icon <?php echo $modul[ 'simge' ]?>"></i> 
+						<i class="nav-icon <?php echo $modul[ 'simge' ]?> <?php if( $url_modul == $modul[ 'modul' ] ) echo "text-white"; ?>"></i> 
 						<p>
 							<?php echo $modul[ 'adi' ]?>
 						</p>

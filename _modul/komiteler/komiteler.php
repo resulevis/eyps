@@ -53,12 +53,7 @@ SQL;
 
 $SQL_komiteler_getir = <<< SQL
 SELECT 
-	k.id,
-	k.adi,
-	k.ders_kodu,
-	k.baslangic_tarihi,
-	k.bitis_tarihi,
-	k.sinav_tarihi
+	k.*
 FROM  
 	tb_komiteler as k
 LEFT JOIN tb_ders_yili_donemleri as dyd ON dyd.id = k.ders_yili_donem_id
@@ -134,7 +129,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 		<!-- general form elements -->
 		<div class="card card-secondary">
 			<div class="card-header">
-				<h3 class="card-title">Dönem Dersi Ekle / Güncelle</h3>
+				<h3 class="card-title">Ders Kurulu Ekle / Güncelle</h3>
 			</div>
 			<!-- /.card-header -->
 			<!-- form start -->
@@ -207,26 +202,40 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 							<hr>
 							<div>
 								<input type="hidden" name="komite_id[]" value="<?php echo $komite[ 'id' ] ?>" required>
-								<div class=" col-sm-11 float-left p-0 m-0" >
-									<div class=" col-sm-4 float-left">
-										<input type="text" name="ders_kodu[]" class="form-control" placeholder="Ders Kodu" value="<?php echo $komite[ 'ders_kodu' ] ?>" required>
+								<div class=" col-sm-12 float-left p-0 m-0" >
+									<div class="card">
+										<div class="card-header bg-lightblue">
+											<b><?php echo $komite[ 'ders_kurulu_sira' ] ?>. Ders Kurulu</b> : <?php echo $komite[ 'adi' ] ?>
+										</div>
+										<div class="card-body">
+											<div class="row">
+												<div class=" col-sm-4 float-left">
+													<label  class="control-label">Komite Ders Kodu</label>
+													<input type="text" name="ders_kodu[]" class="form-control" placeholder="Komite Ders Kodu" value="<?php echo $komite[ 'ders_kodu' ] ?>" required>
+												</div>
+												<div class="form-group  col-sm-8 float-left">
+													<label  class="control-label">Komite Ders Adı</label>
+													<input type="text" name="adi[]" class="form-control" placeholder="Komite Ders Adı"  value="<?php echo $komite[ 'adi' ] ?>" required>
+												</div>
+												
+												<div class="form-group col-sm-4 float-left">
+													<label  class="control-label">Başlangıç Tarihi</label>
+													<input type="date" name="baslangic_tarihi[]"   class="form-control " data-toggle="" id="1" placeholder="Başlangıç Tarihi" required value="<?php echo $komite[ 'baslangic_tarihi' ]; ?>">
+												</div>
+												<div class="form-group col-sm-4 float-left">
+													<label  class="control-label">Bitiş Tarihi</label>
+													<input type="date" name="bitis_tarihi[]" class="form-control " placeholder="Bitiş Tarihi" data-toggle=""  id="2" required value="<?php echo $komite[ 'bitis_tarihi' ]; ?>">
+												</div>
+												<div class="form-group col-sm-4 float-left">
+													<label  class="control-label">Sınav Tarihi</label>
+													<input type="date" name="sinav_tarihi[]" class="form-control" placeholder="Sınav Tarihi" data-toggle=""  id="3" required value="<?php echo $komite[ 'sinav_tarihi' ]; ?>">
+												</div>
+											</div>
+										</div>
+										<div class="card-footer">
+											<a modul= "komiteler" yetki_islem="sil" data-href="_modul/komiteler/komitelerSEG.php?islem=sil&komite_id=<?php echo $komite[ "id" ]; ?> &ders_yili_id=<?php echo $ders_yili_id; ?>&program_id=<?php echo $program_id; ?>&donem_id=<?php echo $donem_id ?>" data-toggle="modal" data-target="#sil_onay" class="btn btn-sm btn-danger float-right">Sil</a>
+										</div>
 									</div>
-									<div class="form-group  col-sm-8 float-left">
-										<input type="text" name="adi[]" class="form-control" placeholder="Ders Adı"  value="<?php echo $komite[ 'adi' ] ?>" required>
-									</div>
-									
-									<div class="form-group col-sm-4 float-left">
-										<input type="date" name="baslangic_tarihi[]"   class="form-control " data-toggle="" id="1" placeholder="Başlangıç Tarihi" required value="<?php echo $komite[ 'baslangic_tarihi' ]; ?>">
-									</div>
-									<div class="form-group col-sm-4 float-left">
-										<input type="date" name="bitis_tarihi[]" class="form-control " placeholder="Bitiş Tarihi" data-toggle=""  id="2" required value="<?php echo $komite[ 'bitis_tarihi' ]; ?>">
-									</div>
-									<div class="form-group col-sm-4 float-left">
-										<input type="date" name="sinav_tarihi[]" class="form-control" placeholder="Sınav Tarihi" data-toggle=""  id="3" required value="<?php echo $komite[ 'sinav_tarihi' ]; ?>">
-									</div>
-								</div>
-								<div class="col-sm-1 p-0 float-left" style="display: flex;align-items: center;height: 93px;justify-content: center;">
-										<a modul= "komiteler" yetki_islem="sil" data-href="_modul/komiteler/komitelerSEG.php?islem=sil&komite_id=<?php echo $komite[ "id" ]; ?> &ders_yili_id=<?php echo $ders_yili_id; ?>&program_id=<?php echo $program_id; ?>&donem_id=<?php echo $donem_id ?>" data-toggle="modal" data-target="#sil_onay" class="btn btn-danger">Sil</a>
 								</div>
 							</div>	
 							<div class="clearfix"></div>
@@ -248,7 +257,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 	<div class="col-md-7">
 		<div class="card card-success">
 			<div class="card-header">
-				<h3 class="card-title">Dönem Dersleri</h3>
+				<h3 class="card-title">Ders Kurulları</h3>
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
@@ -276,7 +285,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 							foreach ( $donemler AS $donem ){ ?>
 								<!--Dönemler-->
 								<li>
-									<div class="ders-kapsa">
+									<div class="ders-kapsa bg-lightblue">
 										<?php echo $donem[ "adi" ]  ?>
 										<a href="?modul=komiteler&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
 									</div>
@@ -353,18 +362,23 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 			'<div class="komite"> <hr>' +
 				'<div class=" col-sm-11 float-left p-0 m-0" >'+
 					'<div class=" col-sm-4 float-left">'+
+						'<label  class="control-label">Komite Ders Kodu</label>' + 
 						'<input type="text" name="ders_kodu[]" class="form-control" placeholder="Ders Kodu" required> '+
 					'</div>'+
 					'<div class="form-group  col-sm-8 float-left">'+
+						'<label  class="control-label">Komite Ders Adı</label>' + 
 						'<input type="text" name="adi[]" class="form-control" placeholder="Ders Adı" required >'+
 					'</div>'+
 					'<div class="form-group col-sm-4 float-left">'+
+						'<label  class="control-label">Başlangıç Tarihi</label>' + 
 						'<input type="date" name="baslangic_tarihi[]"   class="form-control " data-toggle="datetimepicker" id="datetimepicker1" placeholder="Başlangıç Tarihi" required >'+
 					'</div>'+
 					'<div class="form-group col-sm-4 float-left">'+
+						'<label  class="control-label">Bitiş Tarihi</label>' + 
 					'	<input type="date" name="bitis_tarihi[]" class="form-control " placeholder="Bitiş Tarihi" data-toggle="datetimepicker"  id="datetimepicker2" required>'+
 					'</div>'+
 					'<div class="form-group col-sm-4 float-left">'+
+						'<label  class="control-label">Sınav Tarihi</label>' + 
 						'<input type="date" name="sinav_tarihi[]" class="form-control" placeholder="Sınav Tarihi" data-toggle="datetimepicker"  id="datetimepicker3" required >'+
 					'</div>'+
 				'</div>'+
