@@ -26,7 +26,8 @@ SELECT
 FROM
 	tb_programlar
 WHERE 
-	universite_id = ? AND
+	universite_id 	= ? AND
+	id 			  	= ? AND
 	aktif 	 = 1
 SQL;
 
@@ -57,10 +58,11 @@ SQL;
 
 $SQL_dersler_getir = <<< SQL
 select 
-	kd.id,
+	kd.id AS id,
 	kd.teorik_ders_saati,
 	kd.uygulama_ders_saati,
 	kd.soru_sayisi,
+	kd.donem_ders_id,
 	d.adi,
 	d.ders_kodu
 from 
@@ -109,7 +111,7 @@ $komite_id          = array_key_exists( 'komite_id', $_REQUEST )  	? $_REQUEST[ 
 
 $donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "aktif_yil" ], $_SESSION[ 'program_id' ] ) )[2];
 $ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ], $_SESSION[ 'aktif_yil' ] ) )[ 2 ];
-$programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ] ) )[ 2 ];
+$programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ], $_SESSION[ "program_id" ]) )[ 2 ];
 $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id, $program_id, $donem_id, $komite_id ) )[ 2 ];
 $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_id,$program_id ) )[2];
 
@@ -170,7 +172,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 						<ul class="ders-ul" >
 				<?php 
 						/*Programların  Listesi*/
-						$programlar = $vt->select( $SQL_programlar, array( $_SESSION[ "universite_id" ] ) )[2];
+						$programlar = $vt->select( $SQL_programlar, array( $_SESSION[ "universite_id" ], $_SESSION[ "program_id" ] ) )[2];
 						foreach ($programlar as $program) { ?>
 							
 							<!-- Programlar -->
@@ -204,8 +206,8 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 											<li>
 												<div class="ders-kapsa bg-light"><?php echo $ders[ "ders_kodu" ]  ?> - <?php echo $ders[ "adi" ]; ?> 
 													<span class="row">
-														<span class="float-right btn btn-success ajaxGetir m-1" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="OgretimUeyeleriListesi"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevli Ekle</span>
-														<span class="float-right btn btn-warning ajaxGetir m-1" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="gorevliler"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevliler</span>
+														<a class="float-right btn btn-success gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyeleriListesi"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevli Ekle</a>
+														<a class="float-right btn btn-warning gorevli m-1" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="gorevliler"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevliler</a>
 													</span>
 												</div>
 											</li>				
@@ -227,3 +229,22 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 		</div>
 		<!-- right column -->
 	</div>
+
+	<div id="gorevli"></div>
+
+				
+
+	<script type="text/javascript">
+		$('.gorevli').on("click", function(e) { 
+	        var id 	        = $(this).data("id");
+	        var data_islem  = $(this).data("islem");
+	        var data_url    = $(this).data("url");
+	        var data_modul  = $(this).data("modul");
+	        var div         = $(this).data("div");
+	        $("#"+div).empty();
+	        $.post(data_url, { islem : data_islem, id : id, modul : data_modul }, function (response) {
+	            $("#"+div).append(response);
+	            $('#gorevliEkleModal').modal( "show" )
+	        });
+	    });
+	</script>
