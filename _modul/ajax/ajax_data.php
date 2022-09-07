@@ -310,7 +310,6 @@ LEFT JOIN
 WHERE 
 	oe.aktif  = 1
 ORDER BY 
-	FIELD(abd.id, ? ),
 	u.sira ASC
 SQL;
 
@@ -522,7 +521,7 @@ switch( $_POST[ 'islem' ] ) {
 	case 'ogretimUyeleriListesi':
 		$komite_ders_id 	= array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
 
-		$ogretim_uyeleri 	= $vt->select( $SQL_ogretim_uyeleri_getir, array( $komite_ders_id ) )[ 2 ]; 
+		$ogretim_uyeleri 	= $vt->select( $SQL_ogretim_uyeleri_getir )[ 2 ]; 
 
 		$ogretim_uyeleri_option = "";
 
@@ -535,6 +534,7 @@ switch( $_POST[ 'islem' ] ) {
 				<div class="modal-dialog modal-xl">
 					<div class="modal-content">
 						<form action = "_modul/komiteDersOgretimUyeleri/komiteDersOgretimUyeleriSEG.php" method = "POST">
+							<input type="hidden" value="'.$komite_ders_id.'" name="komite_ders_id">
 							<div class="modal-header">
 								<h4 class="modal-title">Öğretmen Şeçimi Yapmaktasınız</h4>
 								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -555,7 +555,7 @@ switch( $_POST[ 'islem' ] ) {
 							</div>
 							<div class="modal-footer justify-content-between">
 								<button type="button" class="btn btn-danger" data-dismiss="modal">Vazgeç</button>
-								<a type="button" class="btn btn-success btn-evet">Kaydet</a>
+								<button type="submit" class="btn btn-success btn-evet">Kaydet</a>
 							</div>
 						</form>
 					</div>

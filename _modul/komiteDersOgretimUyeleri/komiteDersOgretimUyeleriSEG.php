@@ -3,20 +3,17 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
-$islem				= array_key_exists( 'islem', $_REQUEST )				? $_REQUEST[ 'islem' ]				: 'ekle';
-$ders_yili_donem_id = array_key_exists( 'ders_yili_donem_id', $_REQUEST )	? $_REQUEST[ 'ders_yili_donem_id' ]	: 0;
+$islem			= array_key_exists( 'islem', $_REQUEST )		 	? $_REQUEST[ 'islem' ]			: 'ekle';
+$komite_ders_id = array_key_exists( 'komite_ders_id', $_REQUEST ) 	? $_REQUEST[ 'komite_ders_id' ]	: 0;
 
 
 /*DERSSLERİ EKLEME İŞLEMİ*/
 $SQL_komite_ders_ogretim_uyesi_ekle = <<< SQL
 INSERT INTO 
-	tb_komite_dersleri
+	tb_komite_ders_ogretim_uyeleri
 SET
-	komite_id 			= ?,
-	donem_ders_id 		= ?,
-	teorik_ders_saati 	= ?,
-	uygulama_ders_saati = ?,
-	soru_sayisi 		= ?
+	komite_ders_id 		= ?,
+	ogretim_uyesi_id 	= ?
 SQL;
 
 /**/
@@ -25,7 +22,7 @@ SELECT
 	d.id, 
 	d.adi 
 FROM 
-	tb_komite_dersleri AS kd
+	tb_komite_ders_ogretim_uyeleri AS kd
 LEFT JOIN 
 	tb_donem_dersleri AS dd  ON dd.id = kd.donem_ders_id
 LEFT JOIN 
@@ -42,9 +39,9 @@ SQL;
 
 $SQL_sil = <<< SQL
 DELETE FROM
-	tb_komite_dersleri
+	tb_komite_ders_ogretim_uyeleri
 WHERE
-	id = ?
+	$komite_ders_id = ?
 SQL;
 
 $SQL_ders_yili_donem_oku = <<< SQL
@@ -56,31 +53,20 @@ WHERE
 	id 		= ?
 SQL;
 
-
-@$ders_yili_donemi 	= $vt->select( $SQL_ders_yili_donem_oku, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[2][0]; 
-
-$ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: $ders_yili_donemi[ "ders_yili_id" ];
-$program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: $ders_yili_donemi[ "program_id" ];
-$donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		: $ders_yili_donemi[ "donem_id" ];
-$komite_id          = array_key_exists( 'komite_id', $_REQUEST ) 	? $_REQUEST[ 'komite_id' ] 		: 0;
-$ders_id     		= array_key_exists( 'komite_ders_id', $_REQUEST ) ? $_REQUEST[ 'komite_ders_id' ] : 0;
-
-
 $degerler = array();
-
+echo '<pre>';
+print_r($_REQUEST);
+die();
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 switch( $islem ) {
 	case 'ekle':
 		
-		foreach ($_REQUEST['ders_id'] as $ders_id) {
+		foreach ($_REQUEST['ogretim_uyesi_id'] as $id) {
 
 			if ( count( $ders_varmi ) < 1 ){
 
-				$degerler[] = $_REQUEST['komite_id'];
-				$degerler[] = $ders_id;
-				$degerler[] = $_REQUEST['teorik_ders_saati-'.$ders_id];
-				$degerler[] = $_REQUEST['uygulama_ders_saati-'.$ders_id];
-				$degerler[] = $_REQUEST['soru_sayisi-'.$ders_id];
+				$degerler[] = $komite_ders_id;
+				$degerler[] = $id;
 
 				$sonuc = $vt->insert( $SQL_komite_ders_ogretim_uyesi_ekle, $degerler );
 
@@ -102,5 +88,5 @@ switch( $islem ) {
 
 
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
-header( "Location:../../index.php?modul=komiteDersleri&islem=guncelle&ders_yili_id=$ders_yili_id&program_id=$program_id&donem_id=$donem_id&komite_id=$komite_id");
+header( "Location:../../index.php?modul=komiteDersOgretimUyeleri");
 ?>
