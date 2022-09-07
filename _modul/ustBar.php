@@ -13,16 +13,18 @@
     <span class="nav-link text-red">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ||</span>
     <form class="form-inline"  method="POST">
       <div class="input-group input-group-sm">
-        <span class="nav-link">Ders Yılı Değiştir</span>
-        <select  class="form-control aktifYilSec" style="width: auto;" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifYil">
+        <span class="nav-link text-bold">Ders Yılı :</span>
+        <select  class="form-control select2 aktifYilSec" style="width: auto;" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifYil">
           <?php 
             foreach ($_SESSION['ders_yillari'] as $ders_yili) {
               echo '<option value="'.$ders_yili[ "id" ].'" '.( $ders_yili[ "id" ] == $_SESSION[ "aktif_yil" ] ? "selected" : null ).'>'.$ders_yili[ "adi" ].'</option>';
             }
           ?>
-        </select>&nbsp;
-        
-        <select class="form-control aktifYilSec" style="width: auto;" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifFakulte" class="form-control">
+        </select>
+      </div>&nbsp;
+      <div class="input-group input-group-sm">
+        <span class="nav-link text-bold">Program :</span>
+        <select class="form-control select2 aktifYilSec" style="width: auto;" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifFakulte" class="form-control">
           <?php 
             foreach ( $_SESSION[ 'fakulteler' ] as $dyd) {
               echo '<option value="'.$dyd[ "program_id" ].'" '.( $dyd[ "program_id" ] == $_SESSION[ "program_id" ] ? "selected" : null ).'>

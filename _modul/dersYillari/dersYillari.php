@@ -79,7 +79,7 @@ $dersYillari		= $vt->select( $SQL_tum_ders_yillari, array( $_SESSION[ 'universit
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="card card-secondary" id = "card_dersYillari">
+				<div class="card card-olive" id = "card_dersYillari">
 					<div class="card-header">
 						<h3 class="card-title">Ders Yılları</h3>
 						<div class = "card-tools">
@@ -125,55 +125,46 @@ $dersYillari		= $vt->select( $SQL_tum_ders_yillari, array( $_SESSION[ 'universit
 				</div>
 			</div>
 			<div class="col-md-6">
-				<div class="card <?php if( $dersYili_id == 0 ) echo 'card-secondary' ?>">
-					<div class="card-header p-2">
-						<ul class="nav nav-pills tab-container">
-							<?php if( $dersYili_id > 0 ) { ?>
-								<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Ders Yılını Düzenle</h6>
-							<?php } else {
-								echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Ders Yılı Ekle</h6>";
-								}
-							?>
-							
-						</ul>
+				<div class="card card-orange">
+					<div class="card-header">
+						<?php if( $dersYili_id > 0 ) { ?>
+							<h3 class="card-title text-white"> Ders Yılı Düzenle</h3>
+						<?php } else { ?>
+							<h3 class="card-title text-white"> Ders Yılı Ekle</h3>
+						<?php } ?>
 					</div>
-					<div class="card-body">
-						<div class="tab-content">
-							<!-- GENEL BİLGİLER -->
-							<div class="tab-pane active" id="_genel">
-								<form class="form-horizontal" action = "_modul/dersYillari/dersYillariSEG.php" method = "POST" enctype="multipart/form-data">
-									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
-									<input type = "hidden" name = "dersYili_id" value = "<?php echo $dersYili_id; ?>">
-									<h3 class="profile-username text-center"><b> </b></h3>
-									<div class="form-group">
-										<label class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_dersYili[ "adi" ]; ?>"  autocomplete="off">
-									</div>
-									<div class="form-group">
-										<label class="control-label">Başlangıç Tarihi</label>
-										<div class="input-group date" id="baslangicTarihi" data-target-input="nearest">
-											<div class="input-group-append" data-target="#baslangicTarihi" data-toggle="datetimepicker">
-												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
-											</div>
-											<input autocomplete="off" type="text" name="tarihalani-baslangic_tarihi" value="<?php echo $fn->tarihFormatiDuzelt(  $tek_dersYili[ "baslangic_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#baslangicTarihi" data-toggle="datetimepicker"/>
+					<form class="form-horizontal" action = "_modul/dersYillari/dersYillariSEG.php" method = "POST" enctype="multipart/form-data">
+						<div class="card-body">
+								<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
+								<input type = "hidden" name = "dersYili_id" value = "<?php echo $dersYili_id; ?>">
+								<h3 class="profile-username text-center"><b> </b></h3>
+								<div class="form-group">
+									<label class="control-label">Adı</label>
+									<input required type="text" class="form-control form-control-sm" name ="adi" value = "<?php echo $tek_dersYili[ "adi" ]; ?>"  autocomplete="off">
+								</div>
+								<div class="form-group">
+									<label class="control-label">Başlangıç Tarihi</label>
+									<div class="input-group date" id="baslangicTarihi" data-target-input="nearest">
+										<div class="input-group-append" data-target="#baslangicTarihi" data-toggle="datetimepicker">
+											<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 										</div>
+										<input autocomplete="off" type="text" name="tarihalani-baslangic_tarihi" value="<?php echo $fn->tarihFormatiDuzelt(  $tek_dersYili[ "baslangic_tarihi" ] ); ?>" class="form-control form-control-sm datetimepicker-input" data-target="#baslangicTarihi" data-toggle="datetimepicker"/>
 									</div>
-									<div class="form-group">
-										<label class="control-label">Bitiş tarihi</label>
-										<div class="input-group date" id="bitisTarihi" data-target-input="nearest">
-											<div class="input-group-append" data-target="#bitisTarihi" data-toggle="datetimepicker">
-												<div class="input-group-text"><i class="fa fa-calendar"></i></div>
-											</div>
-											<input autocomplete="off" type="text" name="tarihalani-bitis_tarihi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_dersYili[ "bitis_tarihi" ] ); ?>" class="form-control datetimepicker-input" data-target="#bitisTarihi" data-toggle="datetimepicker"/>
+								</div>
+								<div class="form-group">
+									<label class="control-label">Bitiş tarihi</label>
+									<div class="input-group date" id="bitisTarihi" data-target-input="nearest">
+										<div class="input-group-append" data-target="#bitisTarihi" data-toggle="datetimepicker">
+											<div class="input-group-text"><i class="fa fa-calendar"></i></div>
 										</div>
+										<input autocomplete="off" type="text" name="tarihalani-bitis_tarihi" value="<?php echo $fn->tarihFormatiDuzelt( $tek_dersYili[ "bitis_tarihi" ] ); ?>" class="form-control form-control-sm datetimepicker-input" data-target="#bitisTarihi" data-toggle="datetimepicker"/>
 									</div>
-									<div class="card-footer">
-										<button modul= 'dersYillari' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
-									</div>
-								</form>
-							</div>
+								</div>
 						</div>
-					</div>
+						<div class="card-footer">
+							<button modul= 'dersYillari' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>

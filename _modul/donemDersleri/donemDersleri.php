@@ -133,7 +133,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 	<!-- left column -->
 	<div class="col-md-5">
 		<!-- general form elements -->
-		<div class="card card-secondary">
+		<div class="card card-olive">
 			<div class="card-header">
 				<h3 class="card-title">Dönem Dersi Ekle / Güncelle</h3>
 			</div>
@@ -242,9 +242,9 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 	</div>
 	<!--/.col (left) -->
 	<div class="col-md-7">
-		<div class="card card-success">
+		<div class="card card-orange">
 			<div class="card-header">
-				<h3 class="card-title">Dönem Dersleri</h3>
+				<h3 class="card-title text-white">Dönem Dersleri</h3>
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
@@ -256,7 +256,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
-						<li><div class="ders-kapsa bg-secondary"><?php  echo $ders_yili[ "adi" ]; ?></div>
+						<li><div class="ders-kapsa bg-navy"><?php  echo $ders_yili[ "adi" ]; ?></div>
 						<ul class="ders-ul" >
 				<?php 
 						/*Programların  Listesi*/
@@ -264,7 +264,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 						foreach ($programlar as $program) { ?>
 							
 							<!-- Programlar -->
-							<li><div class="ders-kapsa bg-danger"><?php echo $program[ "adi" ] ?></div> <!-- Second level node -->
+							<li><div class="ders-kapsa bg-lightblue"><?php echo $program[ "adi" ] ?></div> <!-- Second level node -->
 							<ul class="ders-ul">
 				<?php 		
 							/*Dönemler Listesi*/
@@ -272,7 +272,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 							foreach ( $donemler AS $donem ){ ?>
 								<!--Dönemler-->
 								<li>
-									<div class="ders-kapsa">
+									<div class="ders-kapsa bg-secondary">
 										<?php echo $donem[ "adi" ]  ?>
 										<a href="?modul=donemDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
 									</div>

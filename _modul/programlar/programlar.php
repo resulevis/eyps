@@ -94,7 +94,7 @@ $bolumler			= $vt->select( $SQL_tum_bolumler, array( $_SESSION[ 'universite_id' 
 	<!-- left column -->
 	<div class="col-md-4">
 		<!-- general form elements -->
-		<div class="card card-secondary">
+		<div class="card card-olive">
 			<div class="card-header">
 				<h3 class="card-title">Program Ekle / Güncelle</h3>
 			</div>
@@ -118,7 +118,7 @@ $bolumler			= $vt->select( $SQL_tum_bolumler, array( $_SESSION[ 'universite_id' 
 					</div>
 					<div class="form-group">
 						<label  class="control-label">Adı</label>
-						<input type="text" class="form-control" name ="adi" value = "<?php echo $program[ 'adi' ]; ?>" required placeholder="Kategori adı giriniz">
+						<input type="text" class="form-control form-control-sm" name ="adi" value = "<?php echo $program[ 'adi' ]; ?>" required placeholder="Kategori adı giriniz">
 					</div>
 				</div>
 				<!-- /.card-body -->
@@ -132,9 +132,9 @@ $bolumler			= $vt->select( $SQL_tum_bolumler, array( $_SESSION[ 'universite_id' 
 	</div>
 	<!--/.col (left) -->
 	<div class="col-md-8">
-		<div class="card card-secondary">
+		<div class="card card-orange">
 			<div class="card-header">
-				<h3 class="card-title">Programlar</h3>
+				<h3 class="card-title text-white">Programlar</h3>
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">

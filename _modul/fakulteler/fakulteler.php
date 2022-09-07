@@ -89,8 +89,8 @@ $fakulteler			= $vt->select( $SQL_tum_fakulteler, array( $_SESSION[ 'universite_
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="card card-secondary" id = "card_fakulteler">
-					<div class="card-header">
+				<div class="card" id = "card_fakulteler">
+					<div class="card-header bg-olive">
 						<h3 class="card-title">Fakülteler</h3>
 						<div class = "card-tools">
 							<button type="button" data-toggle = "tooltip" title = "Tam sayfa göster" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
@@ -128,37 +128,28 @@ $fakulteler			= $vt->select( $SQL_tum_fakulteler, array( $_SESSION[ 'universite_
 				</div>
 			</div>
 			<div class="col-md-6">
-				<div class="card <?php if( $fakulte_id == 0 ) echo 'card-secondary' ?>">
-					<div class="card-header p-2">
-						<ul class="nav nav-pills tab-container">
-							<?php if( $fakulte_id > 0 ) { ?>
-								<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Fakülteyi Düzenle</h6>
-							<?php } else {
-								echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Fakülte Ekle</h6>";
-								}
-							?>
-							
-						</ul>
+				<div class="card card-orange">
+					<div class="card-header">
+						<?php if( $fakulte_id > 0 ) { ?>
+							<h3 class="card-title text-white">Fakülte Düzenle</h3>
+						<?php } else { ?>
+							<h3 class="card-title text-white">Fakülte Ekle</h3>
+						<?php } ?>
 					</div>
-					<div class="card-body">
-						<div class="tab-content">
-							<!-- GENEL BİLGİLER -->
-							<div class="tab-pane active" id="_genel">
-								<form class="form-horizontal" action = "_modul/fakulteler/fakultelerSEG.php" method = "POST" enctype="multipart/form-data">
-									<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
-									<input type = "hidden" name = "fakulte_id" value = "<?php echo $fakulte_id; ?>">
-									<h3 class="profile-username text-center"><b> </b></h3>
-									<div class="form-group">
-										<label class="control-label">Adı</label>
-										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_fakulte[ "adi" ]; ?>"  autocomplete="off">
-									</div>
-									<div class="card-footer">
-										<button modul= 'fakulte' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
-									</div>
-								</form>
+					<form class="form-horizontal" action = "_modul/fakulteler/fakultelerSEG.php" method = "POST" enctype="multipart/form-data">
+						<div class="card-body">
+							<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>" >
+							<input type = "hidden" name = "fakulte_id" value = "<?php echo $fakulte_id; ?>">
+							<h3 class="profile-username text-center"><b> </b></h3>
+							<div class="form-group">
+								<label class="control-label">Adı</label>
+								<input required type="text" class="form-control form-control-sm" name ="adi" value = "<?php echo $tek_fakulte[ "adi" ]; ?>"  autocomplete="off">
 							</div>
 						</div>
-					</div>
+						<div class="card-footer">
+							<button modul= 'fakulte' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>

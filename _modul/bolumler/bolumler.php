@@ -104,7 +104,7 @@ $fakulteler			= $vt->select( $SQL_tum_fakulteler, array( $_SESSION[ 'universite_
 	<!-- left column -->
 	<div class="col-md-4">
 		<!-- general form elements -->
-		<div class="card card-success">
+		<div class="card card-olive">
 			<div class="card-header">
 				<h3 class="card-title">Bölüm Ekle / Güncelle</h3>
 			</div>
@@ -128,7 +128,7 @@ $fakulteler			= $vt->select( $SQL_tum_fakulteler, array( $_SESSION[ 'universite_
 					</div>
 					<div class="form-group">
 						<label  class="control-label">Adı</label>
-						<input type="text" class="form-control" name ="adi" value = "<?php echo $bolum[ 'adi' ]; ?>" required placeholder="Kategori adı giriniz">
+						<input type="text" class="form-control form-control-sm" name ="adi" value = "<?php echo $bolum[ 'adi' ]; ?>" required placeholder="Kategori adı giriniz">
 					</div>
 				</div>
 				<!-- /.card-body -->

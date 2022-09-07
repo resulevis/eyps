@@ -151,7 +151,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 	<!-- left column -->
 	<div class="col-md-5">
 		<!-- general form elements -->
-		<div class="card card-secondary">
+		<div class="card card-olive">
 			<div class="card-header">
 				<h3 class="card-title">Dönem Görevlisi Ekle / Güncelle</h3>
 			</div>
@@ -259,9 +259,9 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 	</div>
 	<!--/.col (left) -->
 	<div class="col-md-7">
-		<div class="card card-success">
+		<div class="card card-orange">
 			<div class="card-header">
-				<h3 class="card-title">Dönem Görevlileri</h3>
+				<h3 class="card-title text-white">Dönem Görevlileri</h3>
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">

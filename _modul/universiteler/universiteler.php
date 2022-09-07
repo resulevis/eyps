@@ -78,7 +78,7 @@ $universiteler			= $vt->select( $SQL_tum_universiteler, array( ) )[ 2 ];
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="card card-secondary" id = "card_universiteler">
+				<div class="card card-olive" id = "card_universiteler">
 					<div class="card-header">
 						<h3 class="card-title">Üniversiteler</h3>
 						<div class = "card-tools">
@@ -119,16 +119,12 @@ $universiteler			= $vt->select( $SQL_tum_universiteler, array( ) )[ 2 ];
 			<div class="col-md-6">
 				<form class="form-horizontal" action = "_modul/universiteler/universitelerSEG.php" method = "POST" enctype="multipart/form-data">
 					<div class="card <?php if( $universite_id == 0 ) echo 'card-secondary' ?>">
-						<div class="card-header p-2">
-							<ul class="nav nav-pills tab-container">
+						<div class="card-header bg-orange">
 								<?php if( $universite_id > 0 ) { ?>
-									<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Üniversiteyi Düzenle</h6>
-								<?php } else {
-									echo "<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Üniversite Ekle</h6>";
-									}
-								?>
-								
-							</ul>
+									<h3 class="card-title text-white"> Üniversiteyi Düzenle</h3>
+								<?php } else { ?>
+									<h3 class="card-title text-white"> Üniversite Ekle</h3>
+								<?php } ?>
 						</div>
 						<div class="card-body">
 							<div class="tab-content">

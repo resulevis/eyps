@@ -106,7 +106,7 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="card card-success " id = "card_donemler">
+				<div class="card card-olive " id = "card_donemler">
 					<div class="card-header">
 						<h3 class="card-title">Ders Yılı Açık Dönemler( Sınıflar )</h3>
 						<div class = "card-tools">
