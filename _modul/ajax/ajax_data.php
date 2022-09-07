@@ -226,24 +226,6 @@ WHERE
 	id 					= ? 
 SQL;
 
-$SQL_fakulte_ilk_goruntulenecek_guncelle = <<< SQL
-UPDATE
-	tb_ders_yillari
-SET
-	ilk_goruntulenecek 	= 0
-WHERE
-	universite_id  		= ?
-SQL;
-
-$SQL_fakulte_ilk_goruntulenecek_guncelle2 = <<< SQL
-UPDATE
-	tb_ders_yillari
-SET
-	ilk_goruntulenecek 	= 1
-WHERE
-	universite_id  		= ? AND
-	id 					= ? 
-SQL;
 
 $SQL_fakulteler = <<< SQL
 SELECT 
@@ -291,6 +273,26 @@ WHERE
 	p.id 			    = ? AND
 	f.aktif 			= 1
 GROUP BY p.id
+SQL;
+
+$SQL_komite_dersler_getir = <<< SQL
+select 
+	kd.id,
+	kd.teorik_ders_saati,
+	kd.uygulama_ders_saati,
+	kd.soru_sayisi,
+	d.adi,
+	d.ders_kodu
+from 
+	tb_komite_dersleri AS kd
+LEFT JOIN tb_donem_dersleri AS dd ON kd.donem_ders_id = dd.id
+LEFT JOIN tb_dersler AS d ON d.id = dd.ders_id
+LEFT JOIN tb_ders_yili_donemleri AS dyd ON dyd.id = dd.ders_yili_donem_id
+WHERE 
+	dyd.ders_yili_id 	= ? AND
+	dyd.program_id 		= ? AND
+	dyd.id 				= ? AND
+	kd.komite_id 		= ? 
 SQL;
 
 
@@ -388,7 +390,7 @@ switch( $_POST[ 'islem' ] ) {
 
 	case 'komiteler': 
 		$id = array_key_exists( 'ders_yili_donem_id', $_REQUEST ) 	? $_REQUEST[ 'ders_yili_donem_id' ] 	: $_REQUEST[ 'id' ];
-		if( $_REQUEST[ 'modul' ] == "komiteDersleri" OR $_REQUEST[ 'modul' ] == "komiteGorevlileri"  ){
+		if( $_REQUEST[ 'modul' ] == "komiteDersleri" OR $_REQUEST[ 'modul' ] == "komiteGorevlileri" OR $_REQUEST[ 'modul' ] == "komiteDersOgretimUyeleri"  ){
 
 			$komiteler = $vt->select( $SQL_komiteler_getir, array( $id ) )[ 2 ];
 			$option = '';
@@ -398,7 +400,7 @@ switch( $_POST[ 'islem' ] ) {
 				";
 			}
 			$select = '<label  class="control-label">Komite</label>
-						<select class="form-control select2" name = "komite_id" id="komitelerIslemler" data-url="./_modul/ajax/ajax_data.php" data-islem="dersler" required>
+						<select class="form-control select2" name = "komite_id" id="komitelerIslemler" data-url="./_modul/ajax/ajax_data.php" data-islem="derslerSelect" data-modul = "'.$_REQUEST[ "modul" ].'" required>
 							<option>Seçiniz...</option>
 							'.$option.'
 						</select>
@@ -409,9 +411,10 @@ switch( $_POST[ 'islem' ] ) {
 								var data_islem 		= $(this).data("islem");
 							    var data_url 		= $(this).data("url");
 							    var ders_yili_donem_id = $("#ders_yili_donemler").val();
-							    var modul	 		= $("#program-sec").data("modul");
+							    var modul	 		= $(this).data("modul");
+							    var komite_id	 	= $(this).val();
 								$("#dersler").empty();
-								$.post(data_url, { islem : data_islem,program_id : program_id,modul : modul,ders_yili_donem_id : ders_yili_donem_id}, function (response) {
+								$.post(data_url, { islem : data_islem,program_id : program_id,modul : modul,ders_yili_donem_id : ders_yili_donem_id, komite_id : komite_id}, function (response) {
 									$("#dersler").append(response);
 								});	
 							});
@@ -493,6 +496,42 @@ switch( $_POST[ 'islem' ] ) {
 					});
 				</script>';
 			$hata  = '<div class="alert alert-danger text-center">Dönem İçin Ders Eklenmemiş !!!</div>';
+		echo count( $dersler) > 0 ? $sonuc : $hata;
+	break;
+
+	case 'derslerSelect':
+		$id 		= array_key_exists( 'ders_yili_donem_id', $_REQUEST ) 	? $_REQUEST[ 'ders_yili_donem_id' ] : $_REQUEST[ 'id' ];
+		$komite_id = array_key_exists( 'komite_id', $_REQUEST ) 			? $_REQUEST[ 'komite_id' ] 			: 0;
+		if( $_REQUEST[ 'modul' ] == "komiteDersleri" OR $_REQUEST[ 'modul' ] == "komiteGorevlileri" OR $_REQUEST[ 'modul' ] == "komiteDersOgretimUyeleri"  ){
+
+			$komiteler = $vt->select( $SQL_komite_dersler_getir, array( $_SESSION[ 'aktif_yil' ], $_SESSION[ 'program_id' ], $id, $komite_id  ) )[ 2 ];
+			$option = '';
+			foreach( $komiteler AS $komite ) {
+				$option .="
+					<option value='$komite[id]'>$komite[adi]</option>
+				";
+			}
+			$select = '<label  class="control-label">Komite</label>
+						<select class="form-control select2" name = "komite_id" id="komitelerIslemler" data-url="./_modul/ajax/ajax_data.php" data-islem="derslerSelect" data-modul = "'.$_REQUEST[ "modul" ].'" required>
+							<option>Seçiniz...</option>
+							'.$option.'
+						</select>
+						<script>
+						$(".select2").select2();
+							$("#komitelerIslemler").on("change", function(e) {
+								var program_id 		= $("#program-sec").val();
+								var data_islem 		= $(this).data("islem");
+							    var data_url 		= $(this).data("url");
+							    var ders_yili_donem_id = $("#ders_yili_donemler").val();
+							    var modul	 		= $("#program-sec").data("modul");
+								$("#dersler").empty();
+								$.post(data_url, { islem : data_islem,program_id : program_id,modul : modul,ders_yili_donem_id : ders_yili_donem_id}, function (response) {
+									$("#dersler").append(response);
+								});	
+							});
+						</script>';
+		}
+		$hata  = '<div class="alert alert-danger text-center">Dönem İçin Komite Eklenmemiş !!!</div>';
 		echo count( $dersler) > 0 ? $sonuc : $hata;
 	break;
 	
