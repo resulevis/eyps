@@ -9,6 +9,7 @@ $ders_yili_donem_id     = array_key_exists( 'ders_yili_donem_id', $_REQUEST ) 	?
 $ders_yili_id          	= array_key_exists( 'ders_yili_id', $_REQUEST ) 		? $_REQUEST[ 'ders_yili_id' ] 		: $_SESSION['aktif_yil'];
 $program_id          	= array_key_exists( 'program_id', $_REQUEST ) 			? $_REQUEST[ 'program_id' ] 		: $_SESSION['program_id'];
 $donem_id          		= array_key_exists( 'donem_id', $_REQUEST ) 			? $_REQUEST[ 'donem_id' ] 			: 0;
+$komite_id          	= array_key_exists( 'komite_id', $_REQUEST ) 			? $_REQUEST[ 'komite_id' ] 			: 0;
 
 $kaydet_buton_yazi		= $islem == "guncelle"	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $islem == "guncelle"	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
@@ -35,22 +36,18 @@ SQL;
 
 $SQL_ogretim_elemani_getir = <<< SQL
 SELECT
-	dg.id AS id, 
+	kg.id AS id, 
 	oe.id AS ogretim_elemani_id,
 	CONCAT( u.adi, ' ', oe.adi, ' ', oe.soyadi ) AS adi 
 FROM 
-	tb_donem_gorevlileri as dg
+	tb_komite_gorevlileri as kg
 RIGHT JOIN 
-	tb_ders_yili_donemleri as dyd ON dyd.id = dg.ders_yili_donem_id
-RIGHT JOIN 
-	tb_ogretim_elemanlari as oe ON oe.id = dg.ogretim_elemani_id
+	tb_ogretim_elemanlari as oe ON oe.id = kg.ogretim_elemani_id
 LEFT JOIN 
 	tb_unvanlar AS u ON u.id = oe.unvan_id
 WHERE 
-	dyd.ders_yili_id 		= ? AND
-	dyd.program_id 			= ? AND
-	dyd.donem_id 		 	= ? AND
-	dg.gorev_kategori_id 	= ? 
+	kg.komite_id 			= ? AND
+	kg.gorev_kategori_id 	= ? 
 SQL;
 
 $SQL_gorev_kategorileri_getir = <<< SQL
@@ -62,11 +59,10 @@ WHERE
 	universite_id 		= ?
 SQL;
 
-/**/
 $SQL_komiteler_getir = <<< SQL
 SELECT
 	k.adi,
-	k.id,
+	k.id AS komite_id, 
 	k.ders_kodu 
 FROM 
 	tb_komiteler AS k
@@ -109,7 +105,8 @@ SQL;
 $ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array( $_SESSION[ 'universite_id' ], $_SESSION[ 'aktif_yil' ] ) )[ 2 ];
 $donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ 'aktif_yil' ], $_SESSION[ 'program_id' ] ) )[2];
 $gorev_kategorileri = $vt->select( $SQL_gorev_kategorileri_getir, array( $_SESSION[ 'universite_id' ] ) )[2];
-$donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili_id, $program_id, $donem_id, $gorev_kategori_id ) )[2];
+$donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $komite_id, $gorev_kategori_id  ) )[2];
+$komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil' ], $donem_id, $_SESSION[ 'program_id' ] ) )[2];
 ?>
 <!-- UYARI MESAJI VE BUTONU-->
 <div class="modal fade" id="sil_onay">
@@ -157,13 +154,13 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 			</div>
 			<!-- /.card-header -->
 			<!-- form start -->
-			<form id = "kayit_formu" action = "_modul/donemGorevlileri/donemGorevlileriSEG.php" method = "POST">
+			<form id = "kayit_formu" action = "_modul/komiteGorevlileri/komiteGorevlileriSEG.php" method = "POST">
 				<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
 				<?php if ( $islem == "ekle") { ?>
 					<div class="card-body">
 						<div class="form-group">
 							<label  class="control-label">Dönem</label>
-							<select class="form-control select2 " name = "ders_yili_donem_id" required>
+							<select class="form-control select2 ajaxGetir" name = "ders_yili_donem_id" data-div="komiteler" data-url="./_modul/ajax/ajax_data.php" data-islem="komiteler"  data-modul="<?php echo $_REQUEST['modul'] ?>" required>
 								<option>Seçiniz...</option>
 								<?php 
 									foreach( $donemler AS $donem ){
@@ -173,9 +170,10 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 								?>
 							</select>
 						</div>
+						<div class="form-group" id="komiteler"> </div>
 						<div class="form-group">
 							<label  class="control-label">Görev Kategorisi</label>
-							<select class="form-control select2 ajaxGetir" name = "gorev_kategori_id" id="" data-url="./_modul/ajax/ajax_data.php" data-islem="gorevliListesi" data-modul="<?php echo $_REQUEST['modul'] ?>" required>
+							<select class="form-control select2 ajaxGetir" name = "gorev_kategori_id" data-div="gorevliler" id="" data-url="./_modul/ajax/ajax_data.php" data-islem="gorevliListesi" data-modul="<?php echo $_REQUEST['modul'] ?>" required>
 								<option>Seçiniz...</option>
 								<?php 
 									foreach( $gorev_kategorileri AS $kategori ){
@@ -191,7 +189,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 					<!-- /.card-body -->
 					
 				<?php }else{ ?>
-					<input type = "hidden" name = "ders_yili_donem_id" value = "<?php echo $ders_yili_donem_id; ?>">
+					
 					<div class="card-body">
 						<div class="form-group">
 							<label  class="control-label">Dönem</label>
@@ -200,6 +198,18 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 								<?php 
 									foreach( $donemler AS $donem ){
 										echo '<option value="'.$donem[ "id" ].'" '.( $donem[ "id" ] == $donem_id ? "selected" : null) .'>'.$donem[ "adi" ].'</option>';
+									}
+								?>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label  class="control-label">Komite</label>
+							<select class="form-control select2"  disabled required>
+								<option>Seçiniz...</option>
+								<?php 
+									foreach( $komiteler AS $komite ){
+										echo '<option '.( $komite[ "komite_id" ] == $komite_id ? "selected" : null) .'>'.$komite[ "adi" ].'</option>';
 									}
 								?>
 							</select>
@@ -238,7 +248,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 										<input name="gorevli_id[]" type="hidden" id="'.$gorevli[ "id" ].'" value="'.$gorevli[ "id" ].'">
 										<label for="'.$gorevli[ "id" ].'">'.$gorevli[ "adi" ].'</label>
 									</div>
-									<a href="" class="btn btn-sm btn-danger m-1" modul= "donemGorevlileri" yetki_islem="sil" data-href="_modul/donemGorevlileri/donemGorevlileriSEG.php?islem=sil&ders_yili_id='.$ders_yili_id.'&program_id='.$program_id.'&donem_id='.$donem_id.'&gorev_kategori_id='.$gorev_kategori_id.'&donem_gorevli_id='.$gorevli[ "ogretim_elemani_id" ].'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
+									<a href="" class="btn btn-sm btn-danger m-1" modul= "komiteGorevlileri" yetki_islem="sil" data-href="_modul/komiteGorevlileri/komiteGorevlileriSEG.php?islem=sil&donem_id='.$donem_id.'&komite_id='.$komite_id.'&gorev_kategori_id='.$gorev_kategori_id.'&komite_gorevli_id='.$gorevli[ "ogretim_elemani_id" ].'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
 								</div><hr>';
 							}
 						?>
@@ -251,7 +261,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 						<?php if ( $islem == "ekle" ){ ?>
 							<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
 						<?php } ?> 
-						<button onclick="window.location.href = '?modul=donemGorevlileri&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
+						<button onclick="window.location.href = '?modul=komiteGorevlileri&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 					</div>
 			</form>
 		</div>
@@ -265,7 +275,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
-
+				<div class="mr-5 ml-5 mt-2 alert alert-warning">Görüntülemek istediğiniz döneme tıklayınız.</div>
 				<ul class="tree ">
 				<?php  
 					/*DERS Yılıllarını Getiriyoruz*/
@@ -281,34 +291,49 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 						foreach ( $donemler AS $donem ){ ?>
 							<!--Dönemler-->
 							<li>
-								<div class="ders-kapsa bg-danger">
+								<div class="ders-kapsa bg-danger kapat" data-id = "<?php echo $donem[ 'donem_id' ]; ?>" >
 									<?php echo $donem[ "adi" ]  ?>
 								</div>
-							<ul class="ders-ul">
-				<?php 
-						/*Görev Kategorileri  Listesi*/
+							<ul class="ders-ul" id="<?php echo $donem[ 'donem_id' ]; ?>" style="<?php echo $donem_id == $donem[ 'donem_id' ] ? '' : 'display: none;'  ?>" >
 
-						foreach ($gorev_kategorileri as $kategori) { ?>
-							
-							<!--$kategorilar -->
-							<li>
-								<div class="ders-kapsa bg-light">
-									<?php echo $kategori[ "adi" ] ?>
-									<a href="?modul=donemGorevlileri&islem=guncelle&ders_yili_id=<?php echo $_SESSION[ 'aktif_yil' ]; ?>&program_id=<?php echo $_SESSION[ 'program_id' ]; ?>&donem_id=<?php echo $donem["donem_id"]; ?>&gorev_kategori_id=<?php echo $kategori['id'] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>		
-								</div> <!-- Second level node -->
-							<ul class="ders-ul">
-				<?php 		
-							/*Dönemler Listesi*/
-							$ogretim_elemanlari = $vt->select( $SQL_ogretim_elemani_getir, array( $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ], $donem["donem_id"], $kategori[ "id" ] ) )[2];
-							foreach ( $ogretim_elemanlari AS $ogretim_elemani ){ ?>
-								<!--Dönemler-->
+				<?php  
+							/*Komiteler Listesi*/
+							$komiteler = $vt->select( $SQL_komiteler_getir, array( $_SESSION['aktif_yil'],$donem[ 'donem_id' ],$_SESSION['program_id'] ) )[2];
+							foreach ( $komiteler AS $komite ){ ?>
+								<!--Komiteler-->
 								<li>
-									<div class="ders-kapsa bg-default">
-										<?php echo $ogretim_elemani[ "adi" ]  ?>
+									<div class="ders-kapsa bg-info" data-id="<?php echo $donem['donem_id'].'-'.$komite[ 'komite_id' ];  ?>">
+										<?php echo $komite[ "adi" ]  ?>
+										
 									</div>
-								</li>			
+								<ul class="ders-ul">
+
+				<?php 
+								/*Görev Kategorileri  Listesi*/
+
+								foreach ($gorev_kategorileri as $kategori) { ?>
+									
+									<!--$kategorilar -->
+									<li>
+										<div class="ders-kapsa bg-light">
+											<?php echo $kategori[ "adi" ] ?>
+											<a href="?modul=komiteGorevlileri&islem=guncelle&donem_id=<?php echo $donem[ 'donem_id' ]; ?>&komite_id=<?php echo $komite[ 'komite_id' ]; ?>&gorev_kategori_id=<?php echo $kategori['id'] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>		
+										</div> <!-- Second level node -->
+									<ul class="ders-ul">
+				<?php 		
+									/*Görevliler Listesi*/
+									$ogretim_elemanlari = $vt->select( $SQL_ogretim_elemani_getir, array( $komite[ "komite_id" ], $kategori[ "id" ] ) )[2];
+									foreach ( $ogretim_elemanlari AS $ogretim_elemani ){ ?>
+										<!--Gorevliler-->
+										<li>
+											<div class="ders-kapsa bg-defaultlight">
+												<?php echo $ogretim_elemani[ "adi" ]  ?>
+											</div>
+										</li>			
 				<?php			
 								
+									}
+									echo '</ul></li>';
 								}
 								echo '</ul></li>';
 							}
@@ -331,9 +356,15 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 	    var data_islem 	= $(this).data("islem");
 	    var data_url 	= $(this).data("url");
 	    var data_modul	= $(this).data("modul");
-	    $("#gorevliler").empty();
+	    var div			= $(this).data("div");
+	    $("#"+div).empty();
 	    $.post(data_url, { islem : data_islem, id : id, modul : data_modul }, function (response) {
-	        $("#gorevliler").append(response);
+	        $("#"+div).append(response);
 	    });
 	});	
+
+	$(".kapat").click(function(){
+	    var id = $(this).data("id");
+	    $("#"+id).slideToggle(500);
+	});
 </script>

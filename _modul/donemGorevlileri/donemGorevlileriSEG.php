@@ -6,8 +6,8 @@ $fn		= new Fonksiyonlar();
 
 $islem					= array_key_exists( 'islem', $_REQUEST )	? $_REQUEST[ 'islem' ]	: 'ekle';
 $ders_yili_donem_id     = array_key_exists( 'ders_yili_donem_id', $_REQUEST ) 	? $_REQUEST[ 'ders_yili_donem_id' ] :	 0;
-$ders_yili_id          	= array_key_exists( 'ders_yili_id', $_REQUEST ) 		? $_REQUEST[ 'ders_yili_id' ] 		: 0;
-$program_id          	= array_key_exists( 'program_id', $_REQUEST ) 			? $_REQUEST[ 'program_id' ] 		: 0;
+$ders_yili_id          	= array_key_exists( 'ders_yili_id', $_REQUEST ) 		? $_REQUEST[ 'ders_yili_id' ] 		: $_SESSION['aktif_yil'];
+$program_id          	= array_key_exists( 'program_id', $_REQUEST ) 			? $_REQUEST[ 'program_id' ] 		: $_SESSION['program_id'];
 $donem_id          		= array_key_exists( 'donem_id', $_REQUEST ) 			? $_REQUEST[ 'donem_id' ] 			: 0;
 $gorev_kategori_id     	= array_key_exists( 'gorev_kategori_id', $_REQUEST ) 	? $_REQUEST[ 'gorev_kategori_id' ] 	: 0;
 $donem_gorevli_id     	= array_key_exists( 'donem_gorevli_id', $_REQUEST ) 	? $_REQUEST[ 'donem_gorevli_id' ] 	: 0;
@@ -137,5 +137,6 @@ switch( $islem ) {
 }
 
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
-header( "Location:../../index.php?modul=donemGorevlileri&islem=guncelle&ders_yili_id=".$ders_yili_id."&program_id=".$program_id."&donem_id=".$donem_id."&gorev_kategori_id=".$gorev_kategori_id);
+$link = $islem == "guncelle" ? "&islem=guncelle&ders_yili_id=".$ders_yili_id."&program_id=".$program_id."&donem_id=".$donem_id."&gorev_kategori_id=".$gorev_kategori_id : "";
+header( "Location:../../index.php?modul=donemGorevlileri".$link);
 ?>

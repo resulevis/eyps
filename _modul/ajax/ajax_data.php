@@ -247,7 +247,6 @@ SQL;
 
 $SQL_fakulteler = <<< SQL
 SELECT 
-	dyd.id AS ders_yili_donem_id,
 	f.id AS fakulte_id, 
 	f.adi AS fakulte_adi,
 	b.id AS bolum_id,
@@ -261,12 +260,10 @@ LEFT JOIN
 RIGHT JOIN 
 	tb_programlar AS p On p.bolum_id = b.id
 LEFT JOIN 
-	tb_ders_yili_donemleri AS dyd ON dyd.program_id = p.id
-LEFT JOIN 
-	tb_donemler AS d ON dyd.donem_id = d.id
+	tb_ders_yillari AS dy ON dy.universite_id = f.universite_id
 WHERE 
 	f.universite_id 	= ? AND 
-	dyd.ders_yili_id 	= ? AND 
+	dy.id 				= ? AND 
 	f.aktif 			= 1
 GROUP BY p.id
 SQL;
@@ -274,7 +271,6 @@ SQL;
 /**/
 $SQL_fakulte_sec = <<< SQL
 SELECT 
-	dyd.id AS ders_yili_donem_id,
 	f.id AS fakulte_id, 
 	f.adi AS fakulte_adi,
 	b.id AS bolum_id,
@@ -288,11 +284,11 @@ LEFT JOIN
 RIGHT JOIN 
 	tb_programlar AS p On p.bolum_id = b.id
 LEFT JOIN 
-	tb_ders_yili_donemleri AS dyd ON dyd.program_id = p.id
+	tb_ders_yillari AS dy ON dy.universite_id = f.universite_id
 WHERE 
 	f.universite_id 	= ? AND 
-	dyd.ders_yili_id 	= ? AND 
-	dyd.id 				= ? AND 
+	dy.id 				= ? AND 
+	p.id 			    = ? AND
 	f.aktif 			= 1
 GROUP BY p.id
 SQL;
@@ -391,9 +387,10 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 
 	case 'komiteler': 
-		if( $_REQUEST[ 'modul' ] == "komiteDersleri" ){
+		$id = array_key_exists( 'ders_yili_donem_id', $_REQUEST ) 	? $_REQUEST[ 'ders_yili_donem_id' ] 	: $_REQUEST[ 'id' ];
+		if( $_REQUEST[ 'modul' ] == "komiteDersleri" OR $_REQUEST[ 'modul' ] == "komiteGorevlileri"  ){
 
-			$komiteler = $vt->select( $SQL_komiteler_getir, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[ 2 ];
+			$komiteler = $vt->select( $SQL_komiteler_getir, array( $id ) )[ 2 ];
 			$option = '';
 			foreach( $komiteler AS $komite ) {
 				$option .="
@@ -555,11 +552,13 @@ switch( $_POST[ 'islem' ] ) {
 
 	case 'aktifFakulte':
 
-		$fakulteler 				= $vt->select( $SQL_fakulte_sec, array( $_SESSION['universite_id'], $_SESSION[ 'aktif_yil' ], $_REQUEST['id'] ) )[ 2 ];
-		$_SESSION[ 'dyd_id' ]		= $fakulteler[0][ "ders_yili_donem_id" ];
+		$fakulteler 				= $vt->select( $SQL_fakulte_sec, array( $_SESSION['universite_id'], $_SESSION[ 'aktif_yil' ], $_REQUEST['id']) )[ 2 ];
 		$_SESSION[ 'fakulte_id' ]	= $fakulteler[0][ "fakulte_id" ];
 		$_SESSION[ 'bolum_id' ]		= $fakulteler[0][ "bolum_id" ];
 		$_SESSION[ 'program_id' ]	= $fakulteler[0][ "program_id" ];
+
+		echo '<pre>';
+		print_r($_SESSION);
 
 	break;
 	
