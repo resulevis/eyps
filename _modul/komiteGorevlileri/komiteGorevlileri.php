@@ -348,23 +348,3 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 		</div>
 		<!-- right column -->
 	</div>
-
-<script type="text/javascript">
-	
-	$('.ajaxGetir').on("change", function(e) { 
-	    var id 			= $(this).val();
-	    var data_islem 	= $(this).data("islem");
-	    var data_url 	= $(this).data("url");
-	    var data_modul	= $(this).data("modul");
-	    var div			= $(this).data("div");
-	    $("#"+div).empty();
-	    $.post(data_url, { islem : data_islem, id : id, modul : data_modul }, function (response) {
-	        $("#"+div).append(response);
-	    });
-	});	
-
-	$(".kapat").click(function(){
-	    var id = $(this).data("id");
-	    $("#"+id).slideToggle(500);
-	});
-</script>
