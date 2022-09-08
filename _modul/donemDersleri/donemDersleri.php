@@ -26,8 +26,9 @@ SELECT
 FROM
 	tb_programlar
 WHERE 
-	universite_id = ? AND
-	aktif 	 = 1
+	id 				= ? AND
+	universite_id 	= ? AND
+	aktif 	 		= 1
 SQL;
 
 $SQL_ders_yillari_getir = <<< SQL
@@ -36,8 +37,9 @@ SELECT
 FROM
 	tb_ders_yillari
 WHERE
-	universite_id = ? AND
-	aktif 		  = 1
+	id 				= ? AND
+	universite_id 	= ? AND
+	aktif 		  	= 1
 SQL;
 
 $SQL_donemler_getir = <<< SQL
@@ -79,15 +81,13 @@ WHERE
 SQL;
 
 
-$ders_yili_donemi   = $vt->select( $SQL_ders_yili_donem_oku, array( $_REQUEST[ "ders_yili_donem_id" ] ) )[2][0]; 
-
-$ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: $ders_yili_donemi[ "ders_yili_id" ];
-$program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: $ders_yili_donemi[ "program_id" ];
-$donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		:$ders_yili_donemi[ "donem_id" ];
+$ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_id' ] 	: 0;
+$program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: 0;
+$donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		: 0;
 
 $donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program_id ) )[2];
-$ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
-$programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ] ) )[ 2 ];
+$ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ], $_SESSION[ 'aktif_yil' ] ) )[ 2 ];
+$programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ], $_SESSION[ 'program_id' ] ) )[ 2 ];
 $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, $donem_id ) )[ 2 ];
 
 ?>
@@ -252,7 +252,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 				<ul class="tree ">
 				<?php  
 					/*DERS Yılıllarını Getiriyoruz*/
-					$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION[ "universite_id" ] ) )[2];
+					$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ 'aktif_yil' ] ) )[2];
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
@@ -260,7 +260,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 						<ul class="ders-ul" >
 				<?php 
 						/*Programların  Listesi*/
-						$programlar = $vt->select( $SQL_programlar, array( $_SESSION[ "universite_id" ] ) )[2];
+						$programlar = $vt->select( $SQL_programlar, array( $_SESSION[ "universite_id" ], $_SESSION[ 'program_id' ] ) )[2];
 						foreach ($programlar as $program) { ?>
 							
 							<!-- Programlar -->
