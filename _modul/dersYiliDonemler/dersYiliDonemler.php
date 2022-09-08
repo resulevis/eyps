@@ -58,6 +58,17 @@ WHERE
 	aktif 			= 1
 SQL;
 
+$SQL_donemler = <<< SQL
+SELECT
+	*
+FROM
+	tb_donemler
+WHERE 
+	universite_id  	= ? AND
+	program_id  	= ? AND
+	aktif 			= 1
+SQL;
+
 /*Tüm Programları Getirme*/
 $SQL_ders_yillari_getir = <<< SQL
 SELECT
@@ -70,6 +81,7 @@ WHERE
 SQL;
 
 $programlar				= $vt->select( $SQL_programlar, 	array( $_SESSION[ 'universite_id'] ) )[ 2 ];
+$donemler				= $vt->select( $SQL_donemler, 	array( $_SESSION[ 'universite_id'], $_SESSION[ 'program_id'] ) )[ 2 ];
 $ders_yillari			= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
 $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSION[ 'universite_id'] ) )[ 2 ];
 @$tek_ders_yili_donem 	= $vt->select( $SQL_tek_ders_yili_donem_oku, array( $ders_yili_donem_id ) )[ 2 ][ 0 ];
@@ -158,13 +170,15 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 					<form id = "kayit_formu" action = "_modul/dersYiliDonemler/dersYiliDonemlerSEG.php" method = "POST">
 						<div class="card-body">
 							<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
+							<input type = "hidden" name = "program_id" value = "<?php echo $_SESSION['program_id']; ?>">
+							<input type = "hidden" name = "ders_yili_id" value = "<?php echo  $_SESSION['ders_yili_id']; ?>">
 							<div class="form-group">
-								<label  class="control-label">Program</label>
-								<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" data-modul="<?php echo $_REQUEST['modul'] ?>" required>
+								<label  class="control-label">Dönemler</label>
+								<select class="form-control select2" name = "donem_id"  required>
 									<option>Seçiniz...</option>
 									<?php 
-										foreach( $programlar AS $program ){
-											echo '<option value="'.$program[ "id" ].'" '.($program[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
+										foreach( $donemler AS $donem ){
+											echo '<option value="'.$donem[ "id" ].'" '.($tek_ders_yili_donem[ "donem_id" ] == $donem[ "id" ] ? "selected" : null) .'>'.$donem[ "adi" ].'</option>';
 										}
 
 									?>
