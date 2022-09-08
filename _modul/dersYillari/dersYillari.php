@@ -105,7 +105,7 @@ $dersYillari		= $vt->select( $SQL_tum_ders_yillari, array( $_SESSION[ 'universit
 									<td><?php echo $ders_yili[ 'adi' ]; ?></td>
 									<td class="text-center">
 										<div class="icheck-success d-inline">
-											<input type="radio" name="aktifYil" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifYil" data-modul="<?php echo $_REQUEST['modul'] ?>" id="<?php echo $ders_yili[ 'id' ]; ?>" <?php echo $_SESSION[ 'aktif_yil' ] == $ders_yili[ 'id' ] ? "checked": null; ?> class="aktifYilSec" value="<?php echo $ders_yili[ 'id' ]; ?>">
+											<input type="radio" name="aktifYil" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifIlkGoruntulenecek" data-modul="<?php echo $_REQUEST['modul'] ?>" id="<?php echo $ders_yili[ 'id' ]; ?>" <?php echo $ders_yili[ "ilk_goruntulenecek" ] == 1 ? "checked": null; ?> class="aktifYilSec" value="<?php echo $ders_yili[ 'id' ]; ?>">
 											<label for="<?php echo $ders_yili[ 'id' ]; ?>"></label>
 										</div>
 									</td>
@@ -279,13 +279,5 @@ $(function () {
 	});
 });
 
-$('.aktifYilSec').on("change", function(e) { 
-    var $yil_id 	= $(this).val();
-    var $data_islem = $(this).data("islem");
-    var $data_url 	= $(this).data("url");
-    $.post($data_url, { islem : $data_islem, yil_id : $yil_id }, function (response) {
-       
-    });
-});
 
 </script>

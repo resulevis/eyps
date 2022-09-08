@@ -666,6 +666,12 @@ switch( $_POST[ 'islem' ] ) {
 		echo $sonuc;
 	break;
 
+	case 'aktifIlkGoruntulenecek':
+
+		$ilk_goruntulenecek_sifirla	= $vt->update( $SQL_ders_yili_ilk_goruntulenecek_guncelle, array( $_SESSION['universite_id'] ) );
+		$deger_ata					= $vt->update( $SQL_ders_yili_ilk_goruntulenecek_guncelle2, array( $_SESSION['universite_id'], $_REQUEST['id'] ) );
+	break;
+
 	case 'aktifYil':
 
 		$ilk_goruntulenecek_sifirla	= $vt->update( $SQL_ders_yili_ilk_goruntulenecek_guncelle, array( $_SESSION['universite_id'] ) );

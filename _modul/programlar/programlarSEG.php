@@ -51,11 +51,26 @@ WHERE
 	id = ?
 SQL;
 
+$SQL_varsayilan_sifirla = <<< SQL
+UPDATE
+	tb_programlar
+SET
+	varsayilan = 0
+WHERE
+	universite_id = ?
+SQL;
+
+
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 
 switch( $islem ) {
 	case 'ekle':
+		$varsayilan_varmi = array_key_exists("varsayilan", $_REQUEST ) ? 1 : 0;
+		if ($varsayilan_varmi > 0) {
+			$degerler[3] = $varsayilan_varmi;
+			$varsayilan_sifirla = $vt->update( $SQL_varsayilan_sifirla, array( $_SESSION[ "universite_id" ] ) );
+		}
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );
 		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
 		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
@@ -63,6 +78,13 @@ switch( $islem ) {
 		$program_id = $son_eklenen_id;
 	break;
 	case 'guncelle':
+		
+		$varsayilan_varmi = array_key_exists("varsayilan", $_REQUEST ) ? 1 : 0;
+		if ($varsayilan_varmi > 0) {
+			$degerler[3] = $varsayilan_varmi;
+			$varsayilan_sifirla = $vt->update( $SQL_varsayilan_sifirla, array( $_SESSION[ "universite_id" ] ) );
+		}
+
 		//Güncellenecek olan tarife giriş yapılan firmaya mı ait oldugu kontrol ediliyor Eger firmaya ait ise Güncellenecektir.
 		$tek_program_oku = $vt->select( $SQL_tek_program_oku, array( $program_id ) ) [ 2 ];
 		if (count( $tek_program_oku ) > 0) {

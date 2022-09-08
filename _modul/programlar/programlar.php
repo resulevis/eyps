@@ -120,6 +120,14 @@ $bolumler			= $vt->select( $SQL_tum_bolumler, array( $_SESSION[ 'universite_id' 
 						<label  class="control-label">Adı</label>
 						<input type="text" class="form-control form-control-sm" name ="adi" value = "<?php echo $program[ 'adi' ]; ?>" required placeholder="Kategori adı giriniz">
 					</div>
+					<div class="form-group">
+						<label  class="control-label">Default </label>
+						<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
+							<div class="bootstrap-switch-container" >
+								<input type="checkbox" name="varsayilan" checked="" data-bootstrap-switch="" data-off-color="danger" data-on-text="Default" data-off-text="Değil" data-on-color="success">
+							</div>
+						</div>
+					</div>
 				</div>
 				<!-- /.card-body -->
 				<div class="card-footer">

@@ -67,6 +67,7 @@ LEFT JOIN
 WHERE 
 	f.universite_id 	= ? AND 
 	dyd.ders_yili_id 	= ? AND 
+	p.varsayilan 		= 1 AND 
 	f.aktif 			= 1
 GROUP BY p.id
 SQL;
