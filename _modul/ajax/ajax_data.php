@@ -313,6 +313,23 @@ ORDER BY
 	u.sira ASC
 SQL;
 
+$SQL_komite_ders_getir = <<< SQL
+select 
+	kd.id AS id,
+	kd.teorik_ders_saati,
+	kd.uygulama_ders_saati,
+	kd.soru_sayisi,
+	kd.donem_ders_id,
+	d.adi,
+	d.ders_kodu
+from 
+	tb_komite_dersleri AS kd
+LEFT JOIN tb_donem_dersleri AS dd ON kd.donem_ders_id = dd.id
+LEFT JOIN tb_dersler AS d ON d.id = dd.ders_id
+LEFT JOIN tb_ders_yili_donemleri AS dyd ON dyd.id = dd.ders_yili_donem_id
+WHERE 
+	kd.id = ? 
+SQL;
 
 $vt = new VeriTabani();
 
@@ -519,9 +536,11 @@ switch( $_POST[ 'islem' ] ) {
 
 	
 	case 'ogretimUyeleriListesi':
-		$komite_ders_id 	= array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
+		$komite_ders_id  = array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
 
-		$ogretim_uyeleri 	= $vt->select( $SQL_ogretim_uyeleri_getir )[ 2 ]; 
+		$secili_ders 	 = $vt->select( $SQL_komite_ders_getir, array( $komite_ders_id ) )[2][0];
+
+		$ogretim_uyeleri = $vt->select( $SQL_ogretim_uyeleri_getir )[ 2 ]; 
 
 		$ogretim_uyeleri_option = "";
 
@@ -536,7 +555,7 @@ switch( $_POST[ 'islem' ] ) {
 						<form action = "_modul/komiteDersOgretimUyeleri/komiteDersOgretimUyeleriSEG.php" method = "POST">
 							<input type="hidden" value="'.$komite_ders_id.'" name="komite_ders_id">
 							<div class="modal-header">
-								<h4 class="modal-title">Öğretmen Şeçimi Yapmaktasınız</h4>
+								<h4 class="modal-title">'.$secili_ders[ "ders_kodu" ].' - '.$secili_ders[ "adi" ].' Dersi İçin Öğretmen Şeçimi Yapmaktasınız</h4>
 								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
 								</button>
@@ -564,8 +583,6 @@ switch( $_POST[ 'islem' ] ) {
 				<!-- /.modal-dialog -->
 			</div>';
 
-
-		
 	break;
 	
 	case 'ilce_ver':
