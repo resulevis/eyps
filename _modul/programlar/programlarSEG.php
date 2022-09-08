@@ -76,6 +76,7 @@ switch( $islem ) {
 		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
 		$son_eklenen_id	= $sonuc[ 2 ]; 
 		$program_id = $son_eklenen_id;
+		if ( $varsayilan_varmi == 1  ) $_SESSION['program_id'] = $program_id;
 	break;
 	case 'guncelle':
 		
@@ -83,6 +84,7 @@ switch( $islem ) {
 		if ($varsayilan_varmi > 0) {
 			$degerler[3] = $varsayilan_varmi;
 			$varsayilan_sifirla = $vt->update( $SQL_varsayilan_sifirla, array( $_SESSION[ "universite_id" ] ) );
+			$_SESSION['program_id'] = $_REQUEST[ 'program_id' ];
 		}
 
 		//Güncellenecek olan tarife giriş yapılan firmaya mı ait oldugu kontrol ediliyor Eger firmaya ait ise Güncellenecektir.
