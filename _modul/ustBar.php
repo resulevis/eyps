@@ -24,7 +24,7 @@
         
         <select class="form-control select2 aktifYilSec" style="width: auto;" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifFakulte" class="form-control">
           <?php 
-            foreach ( $_SESSION[ 'fakulteler' ] as $dyd) {
+            foreach ( $_SESSION[ 'programlar' ] as $dyd) {
               echo '<option value="'.$dyd[ "program_id" ].'" '.( $dyd[ "program_id" ] == $_SESSION[ "program_id" ] ? "selected" : null ).'>
               '.$dyd[ "fakulte_adi" ].' - '.$dyd[ "bolum_adi" ].' - '.$dyd[ "program_adi" ].'
               </option>'; 

@@ -227,54 +227,6 @@ WHERE
 SQL;
 
 
-$SQL_fakulteler = <<< SQL
-SELECT 
-	f.id AS fakulte_id, 
-	f.adi AS fakulte_adi,
-	b.id AS bolum_id,
-	b.adi AS bolum_adi,
-	p.id AS program_id, 
-	p.adi AS program_adi
-FROM 
-	tb_fakulteler AS f
-LEFT JOIN 
-	tb_bolumler AS b ON b.fakulte_id = f.id
-RIGHT JOIN 
-	tb_programlar AS p On p.bolum_id = b.id
-LEFT JOIN 
-	tb_ders_yillari AS dy ON dy.universite_id = f.universite_id
-WHERE 
-	f.universite_id 	= ? AND 
-	dy.id 				= ? AND 
-	f.aktif 			= 1
-GROUP BY p.id
-SQL;
-
-/**/
-$SQL_fakulte_sec = <<< SQL
-SELECT 
-	f.id AS fakulte_id, 
-	f.adi AS fakulte_adi,
-	b.id AS bolum_id,
-	b.adi AS bolum_adi,
-	p.id AS program_id, 
-	p.adi AS program_adi
-FROM 
-	tb_fakulteler AS f
-LEFT JOIN 
-	tb_bolumler AS b ON b.fakulte_id = f.id
-RIGHT JOIN 
-	tb_programlar AS p On p.bolum_id = b.id
-LEFT JOIN 
-	tb_ders_yillari AS dy ON dy.universite_id = f.universite_id
-WHERE 
-	f.universite_id 	= ? AND 
-	dy.id 				= ? AND 
-	p.id 			    = ? AND
-	f.aktif 			= 1
-GROUP BY p.id
-SQL;
-
 $SQL_komite_dersler_getir = <<< SQL
 select 
 	kd.id,
@@ -673,31 +625,10 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 
 	case 'aktifYil':
-
-		$ilk_goruntulenecek_sifirla	= $vt->update( $SQL_ders_yili_ilk_goruntulenecek_guncelle, array( $_SESSION['universite_id'] ) );
-		$deger_ata					= $vt->update( $SQL_ders_yili_ilk_goruntulenecek_guncelle2, array( $_SESSION['universite_id'], $_REQUEST['id'] ) );
 		$_SESSION[ 'aktif_yil' ] 	= $_REQUEST['id'];
-
-
-		$fakulteler 				= $vt->select( $SQL_fakulteler, array( $_SESSION['universite_id'], $_SESSION[ 'aktif_yil' ] ) )[ 2 ];
-		$_SESSION[ 'dyd_id' ]		= $fakulteler[0][ "ders_yili_donem_id" ];
-		$_SESSION[ 'fakulte_id' ]	= $fakulteler[0][ "fakulte_id" ];
-		$_SESSION[ 'bolum_id' ]		= $fakulteler[0][ "bolum_id" ];
-		$_SESSION[ 'program_id' ]	= $fakulteler[0][ "program_id" ];
-		$_SESSION[ 'fakulteler' ]	= $fakulteler;
-
 	break;
-
 	case 'aktifFakulte':
-
-		$fakulteler 				= $vt->select( $SQL_fakulte_sec, array( $_SESSION['universite_id'], $_SESSION[ 'aktif_yil' ], $_REQUEST['id']) )[ 2 ];
-		$_SESSION[ 'fakulte_id' ]	= $fakulteler[0][ "fakulte_id" ];
-		$_SESSION[ 'bolum_id' ]		= $fakulteler[0][ "bolum_id" ];
-		$_SESSION[ 'program_id' ]	= $fakulteler[0][ "program_id" ];
-
-		echo '<pre>';
-		print_r($_SESSION);
-
+		$_SESSION[ 'program_id' ]	= $_REQUEST['id'];
 	break;
 	
 	case 'cevap_turune_gore_secenek_ver':

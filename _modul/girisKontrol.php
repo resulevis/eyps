@@ -34,6 +34,18 @@ WHERE
 LIMIT 1
 SQL;
 
+$SQL_aktif_program = <<< SQL
+SELECT
+	*
+FROM
+	tb_programlar
+WHERE
+	universite_id 	   	= ? AND
+	varsayilan		 	= 1 AND 
+	aktif 			   	= 1
+LIMIT 1
+SQL;
+
 $SQL_ders_yillari = <<< SQL
 SELECT
 	*
@@ -45,9 +57,8 @@ WHERE
 SQL;
 
 
-$SQL_fakulteler = <<< SQL
+$SQL_programlar = <<< SQL
 SELECT 
-	dyd.id AS ders_yili_donem_id,
 	f.id AS fakulte_id, 
 	f.adi AS fakulte_adi,
 	b.id AS bolum_id,
@@ -55,21 +66,14 @@ SELECT
 	p.id AS program_id, 
 	p.adi AS program_adi
 FROM 
-	tb_fakulteler AS f
+	tb_programlar AS p
 LEFT JOIN 
-	tb_bolumler AS b ON b.fakulte_id = f.id
-RIGHT JOIN 
-	tb_programlar AS p On p.bolum_id = b.id
+	tb_bolumler AS b ON p.bolum_id = b.id
 LEFT JOIN 
-	tb_ders_yili_donemleri AS dyd ON dyd.program_id = p.id
-LEFT JOIN 
-	tb_donemler AS d ON dyd.donem_id = d.id
+	tb_fakulteler AS f On b.fakulte_id = f.id
 WHERE 
 	f.universite_id 	= ? AND 
-	dyd.ders_yili_id 	= ? AND 
-	p.varsayilan 		= 1 AND 
 	f.aktif 			= 1
-GROUP BY p.id
 SQL;
 
 
@@ -97,12 +101,11 @@ if( !$sorguSonuc[ 0 ] ) {
 		$_SESSION[ 'aktif_yil' ]		= $aktif_yil[ "id" ];
 		$_SESSION[ 'ders_yillari' ]		= $ders_yillari;
 
-		$fakulteler 					= $vt->select( $SQL_fakulteler, array( $kullaniciBilgileri[ 'universiteler' ], $aktif_yil[ "id" ] ) )[ 2 ];
-		$_SESSION[ 'dyd_id' ]			= $fakulteler[0][ "ders_yili_donem_id" ];
-		$_SESSION[ 'fakulte_id' ]		= $fakulteler[0][ "fakulte_id" ];
-		$_SESSION[ 'bolum_id' ]			= $fakulteler[0][ "bolum_id" ];
-		$_SESSION[ 'program_id' ]		= $fakulteler[0][ "program_id" ];
-		$_SESSION[ 'fakulteler' ]		= $fakulteler;
+		$aktif_program_id				= $vt->selectSingle( $SQL_aktif_program, array( $kullaniciBilgileri[ 'universiteler' ] ) )[ 2 ];
+		$_SESSION[ 'program_id' ]		= $aktif_program_id[ "id" ];
+
+		$programlar 					= $vt->select( $SQL_programlar, array( $kullaniciBilgileri[ 'universiteler' ] ) )[ 2 ];
+		$_SESSION[ 'programlar' ]		= $programlar;
 
 
 	} else {
