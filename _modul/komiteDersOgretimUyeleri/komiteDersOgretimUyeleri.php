@@ -116,42 +116,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id, $program_id,
 $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_id,$program_id ) )[2];
 
 ?>
-<!-- UYARI MESAJI VE BUTONU-->
-<div class="modal fade" id="sil_onay">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">Lütfen Dikkat!</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<p><b>Bu kategoriyi sildiğinizde kategori altındaki alt kategoriler de silinecektir.</b></p>
-				<p>Bu kaydı <b>Silmek</b> istediğinize emin misiniz?</p>
-			</div>
-			<div class="modal-footer justify-content-between">
-				<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
-				<a type="button" class="btn btn-danger btn-evet">Evet</a>
-			</div>
-		</div>
-		<!-- /.modal-content -->
-	</div>
-	<!-- /.modal-dialog -->
-</div>
-<script>
-	$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
-		$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
-	} );
-</script>
 
-<script>  
-	$(document).ready(function() {
-		$('#limit-belirle').change(function() {
-			$(this).closest('form').submit();
-		});
-	});
-</script>
 <div class="row">
 	<div class="col-md-12">
 		<div class="card card-success">
@@ -206,8 +171,8 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 											<li>
 												<div class="ders-kapsa bg-light"><?php echo $ders[ "ders_kodu" ]  ?> - <?php echo $ders[ "adi" ]; ?> 
 													<span class="row">
-														<a class="float-right btn btn-success gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyeleriListesi"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevli Ekle</a>
-														<a class="float-right btn btn-warning gorevli m-1" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="gorevliler"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevliler</a>
+														<a class="float-right btn btn-success gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyesiEkle"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevli Ekle</a>
+														<a class="float-right btn btn-warning gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyeleri"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevliler</a>
 													</span>
 												</div>
 											</li>				
@@ -232,9 +197,33 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 
 	<div id="gorevli"></div>
 
-				
+	<!-- UYARI MESAJI VE BUTONU-->
+	<div class="modal fade" id="sil_onay">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Lütfen Dikkat!</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>Bu kaydı <b>Silmek</b> istediğinize emin misiniz?</p>
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
+					<a type="button" class="btn btn-danger btn-evet">Evet</a>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<script>
+		$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
+			$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
+		} );
 
-	<script type="text/javascript">
 		$('.gorevli').on("click", function(e) { 
 	        var id 	        = $(this).data("id");
 	        var data_islem  = $(this).data("islem");

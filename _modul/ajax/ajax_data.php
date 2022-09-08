@@ -331,6 +331,21 @@ WHERE
 	kd.id = ? 
 SQL;
 
+$SQL_secili_ogretmenler_getir = <<< SQL
+SELECT 
+	oe.id,
+	CONCAT( u.adi, ' ', oe.adi, ' ', oe.soyadi ) AS adi
+FROM
+	tb_komite_dersleri_ogretim_uyeleri AS kdou 
+LEFT JOIN
+	tb_ogretim_elemanlari as oe ON oe.id = kdou.ogretim_uyesi_id
+LEFT JOIN
+	tb_unvanlar as u ON u.id = oe.unvan_id
+WHERE
+	kdou.komite_ders_id = ?
+ORDER BY u.sira ASC
+SQL;
+
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
@@ -535,18 +550,23 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 
 	
-	case 'ogretimUyeleriListesi':
-		$komite_ders_id  = array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
+	case 'ogretimUyesiEkle':
+		$komite_ders_id  		= array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
+		$secili_ders 	 		= $vt->select( $SQL_komite_ders_getir, array( $komite_ders_id ) )[2][0];
+		$ogretim_uyeleri 		= $vt->select( $SQL_ogretim_uyeleri_getir )[ 2 ]; 
 
-		$secili_ders 	 = $vt->select( $SQL_komite_ders_getir, array( $komite_ders_id ) )[2][0];
-
-		$ogretim_uyeleri = $vt->select( $SQL_ogretim_uyeleri_getir )[ 2 ]; 
+		$secili_ogretim_uyeleri = $vt->select( $SQL_secili_ogretmenler_getir, array( $komite_ders_id )  )[2];
+		$secili_idler 			= array();
+		foreach ($secili_ogretim_uyeleri as $ogretim_elemani) {
+			$secili_idler[] 	= $ogretim_elemani[ "id" ];
+		}
 
 		$ogretim_uyeleri_option = "";
 
 		foreach ($ogretim_uyeleri as $ogretim_uyesi) {
-			$ogretim_uyeleri_option .= '<option value="'.$ogretim_uyesi[ "id" ].'" >'.$ogretim_uyesi[ "adi" ].'</option>'; 	  	
-		} 	  
+			$select = in_array( $ogretim_uyesi[ "id" ], $secili_idler ) ? "selected" : null;
+			$ogretim_uyeleri_option .= '<option value="'.$ogretim_uyesi[ "id" ].'" '.$select.'>'.$ogretim_uyesi[ "adi" ].'</option>'; 	  	
+		}
 
 		echo '
 			<div class="modal fade" id="gorevliEkleModal">
@@ -583,6 +603,55 @@ switch( $_POST[ 'islem' ] ) {
 				<!-- /.modal-dialog -->
 			</div>';
 
+	break;
+
+	case 'ogretimUyeleri':
+		$komite_ders_id  		= array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
+		$secili_ders 	 		= $vt->select( $SQL_komite_ders_getir, array( $komite_ders_id ) )[2][0];
+		$ogretim_uyeleri 		= $vt->select( $SQL_ogretim_uyeleri_getir )[ 2 ]; 
+
+		$secili_ogretim_uyeleri = $vt->select( $SQL_secili_ogretmenler_getir, array( $komite_ders_id )  )[2];
+		$ogretim_uyeleri 		= '';
+		$say = 1;
+ 		foreach ($secili_ogretim_uyeleri as $ogretim_elemani) {
+			$ogretim_uyeleri   .= '	
+			<div class="row align-items-center pr-3 pl-2">
+				<div class="col-sm-11 float-left">
+					<span><b>'.$say.'</b> - '.$ogretim_elemani[ "adi" ].'</span>
+				</div>
+				<div class="col-sm-1 float-left">
+					<a href="" class="btn btn-sm btn-danger m-1" modul= "'.$_REQUEST[ "modul" ].'" yetki_islem="sil" data-href="_modul/'.$_REQUEST[ "modul" ].'/'.$_REQUEST[ "modul" ].'SEG.php?islem=sil&komite_ders_id='.$komite_ders_id.'&ogretim_uyesi_id='.$ogretim_elemani[ "id" ].'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
+				</div>
+			</div>
+			<hr class="m-1">';
+			$say++;
+		}
+
+		$hata  = '<div class="alert alert-danger text-center">Öğretim Görevlisi Eklenmemiş !!!</div>';
+
+		$sonuc =  '
+			<div class="modal fade" id="gorevliEkleModal">
+				<div class="modal-dialog ">
+					<div class="modal-content">
+							<div class="modal-header">
+								<h4 class="modal-title">'.$secili_ders[ "ders_kodu" ].' - '.$secili_ders[ "adi" ].' Öğretim Üyeleri</h4>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								'.(count( $secili_ogretim_uyeleri) > 0 ? $ogretim_uyeleri : $hata).'
+							</div>
+							<div class="modal-footer justify-content-between">
+								<button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+							</div>
+					</div>
+					<!-- /.modal-content -->
+				</div>
+				<!-- /.modal-dialog -->
+			</div>';
+		
+		echo  $sonuc;
 	break;
 	
 	case 'ilce_ver':
