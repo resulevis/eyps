@@ -71,6 +71,16 @@ WHERE
 	aktif 			= 1
 SQL;
 
+$SQL_tum_donemler = <<< SQL
+SELECT
+	*
+FROM
+	tb_donemler
+WHERE 
+	universite_id  	= ? AND
+	aktif 			= 1
+SQL;
+
 /*Tüm Programları Getirme*/
 $SQL_ders_yillari_getir = <<< SQL
 SELECT
@@ -83,7 +93,7 @@ WHERE
 SQL;
 
 $programlar				= $vt->select( $SQL_programlar, 	array( $_SESSION[ 'universite_id'] ) )[ 2 ];
-$donemler				= $vt->select( $SQL_donemler, 	array( $_SESSION[ 'universite_id'], $_SESSION[ 'program_id'] ) )[ 2 ];
+$donemler				= $vt->select( $SQL_tum_donemler, 	array( $_SESSION[ 'universite_id'] ) )[ 2 ];
 $ders_yillari			= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
 $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSION[ 'aktif_yil'], $_SESSION[ 'program_id'] ) )[ 2 ];
 @$tek_ders_yili_donem 	= $vt->select( $SQL_tek_ders_yili_donem_oku, array( $id ) )[ 2 ][ 0 ];

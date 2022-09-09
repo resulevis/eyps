@@ -30,6 +30,18 @@ WHERE
 	aktif 	 = 1
 SQL;
 
+/*Aktif Programı Getirme*/
+$SQL_tek_program = <<< SQL
+SELECT
+	*
+FROM
+	tb_programlar
+WHERE 
+	universite_id = ? AND
+	id 			  = ? AND
+	aktif 	 	  = 1
+SQL;
+
 $SQL_ders_yillari_getir = <<< SQL
 SELECT
 	*
@@ -40,15 +52,29 @@ WHERE
 	aktif 		  = 1
 SQL;
 
-$SQL_donemler_getir = <<< SQL
+/*Aktif Ders Yılını Getirme*/
+$SQL_tek_ders_yili = <<< SQL
 SELECT
 	*
 FROM
-	tb_donemler
+	tb_ders_yillari
 WHERE
-	universite_id 	= ? AND
-	program_id 		= ? AND
-	aktif 		  	= 1
+	universite_id = ? AND
+	id 			  = ? AND
+	aktif 		  = 1
+SQL;
+
+$SQL_donemler_getir = <<< SQL
+SELECT
+	d.*
+FROM
+	tb_ders_yili_donemleri AS dyd
+LEFT JOIN tb_donemler AS d ON d.id = dyd.donem_id 
+WHERE
+	d.universite_id 	= ? AND
+	dyd.ders_yili_id 	= ? AND
+	dyd.program_id 		= ? AND
+	d.aktif 			= 1
 SQL;
 
 $SQL_komiteler_getir = <<< SQL
@@ -79,7 +105,7 @@ $ders_yili_id       = array_key_exists( 'ders_yili_id', $_REQUEST ) ? $_REQUEST[
 $program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[ 'program_id' ] 	: $ders_yili_donemi[ "program_id" ];
 $donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		:$ders_yili_donemi[ "donem_id" ];
 
-$donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program_id ) )[2];
+$donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
 $ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
 $programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ] ) )[ 2 ];
 $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_id, $donem_id ) )[ 2 ];
@@ -113,16 +139,6 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 		$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
 	} );
 </script>
-
-<script>  
-	$(document).ready(function() {
-		$('#limit-belirle').change(function() {
-
-			$(this).closest('form').submit();
-
-		});
-	});
-</script>
 <div class="row">
 	<!-- left column -->
 	<div class="col-md-5">
@@ -141,7 +157,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 				<?php if ( $islem == "ekle") { ?>
 					<div class="card-body">
 						<div class="form-group">
-							<label  class="control-label">Program</label>
+							<label  class="control-label">Dönemler</label>
 							<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" data-modul="<?php echo $_REQUEST['modul'] ?>" required>
 								<option>Seçiniz...</option>
 								<?php 
@@ -265,7 +281,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 				<ul class="tree ">
 				<?php  
 					/*DERS Yılıllarını Getiriyoruz*/
-					$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION[ "universite_id" ] ) )[2];
+					$ders_yillari = $vt->select( $SQL_tek_ders_yili, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ] ) )[2];
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
@@ -273,7 +289,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 						<ul class="ders-ul" >
 				<?php 
 						/*Programların  Listesi*/
-						$programlar = $vt->select( $SQL_programlar, array( $_SESSION[ "universite_id" ] ) )[2];
+						$programlar = $vt->select( $SQL_tek_program, array( $_SESSION[ "universite_id" ], $_SESSION[ "program_id" ] ) )[2];
 						foreach ($programlar as $program) { ?>
 							
 							<!-- Programlar -->
@@ -281,7 +297,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 							<ul class="ders-ul">
 				<?php 		
 							/*Dönemler Listesi*/
-							$donemler = $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program[ "id" ] ) )[2];
+							$donemler = $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $program[ "id" ] ) )[2];
 							foreach ( $donemler AS $donem ){ ?>
 								<!--Dönemler-->
 								<li>
@@ -292,7 +308,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 								<ul class="ders-ul">
 				<?php 
 								/*Ders Listesi*/
-								$komiteler = $vt->select( $SQL_komiteler_getir, array( $ders_yili[ "id" ], $program[ "id" ], $donem[ "id" ] ) )[2];
+								$komiteler = $vt->select( $SQL_komiteler_getir, array( $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ], $donem[ "id" ] ) )[2];
 								foreach ( $komiteler as $komite ) { ?>
 									<li><div class="ders-kapsa bg-light">(<?php echo $komite[ "ders_kodu" ]  ?>) - <?php echo $komite[ "adi" ]; ?> <span class="float-right">(<?php echo $fn->tarihFormatiDuzelt($komite[ "baslangic_tarihi" ]).' - '. $fn->tarihFormatiDuzelt($komite[ "baslangic_tarihi" ])   ?>)</span></div></li>				
 				<?php			
