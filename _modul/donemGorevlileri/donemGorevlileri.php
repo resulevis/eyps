@@ -53,6 +53,7 @@ WHERE
 	dg.gorev_kategori_id 	= ? 
 SQL;
 
+/*Tüm Görev Kategorileri*/
 $SQL_gorev_kategorileri_getir = <<< SQL
 SELECT 
 	*
@@ -60,6 +61,25 @@ FROM
 	tb_gorev_kategorileri
 WHERE 
 	universite_id 		= ?
+SQL;
+
+/*Doneme Eklenmiiş Görevli listesine ait kategorileri listeler*/
+$SQL_eklenmis_gorev_kategorileri_getir = <<< SQL
+SELECT 
+	gk.id AS id,
+	gk.adi AS adi
+FROM  
+	tb_donem_gorevlileri as dg
+LEFT JOIN 
+	tb_gorev_kategorileri as gk ON dg.gorev_kategori_id = gk.id
+LEFT JOIN 
+	tb_ders_yili_donemleri AS dyd ON dyd.id = dg.ders_yili_donem_id
+WHERE 
+	gk.universite_id 	= ? AND
+	dyd.ders_yili_id  	= ? AND
+	dyd.program_id 		= ? AND
+	dyd.donem_id 		= ?
+GROUP BY gk.id
 SQL;
 
 /**/
@@ -287,7 +307,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 							<ul class="ders-ul">
 				<?php 
 						/*Görev Kategorileri  Listesi*/
-
+						$gorev_kategorileri = $vt->select( $SQL_eklenmis_gorev_kategorileri_getir, array( $_SESSION[ 'universite_id' ], $_SESSION[ 'aktif_yil' ], $_SESSION[ 'program_id' ], $donem[ 'donem_id' ] ) )[2];
 						foreach ($gorev_kategorileri as $kategori) { ?>
 							
 							<!--$kategorilar -->
