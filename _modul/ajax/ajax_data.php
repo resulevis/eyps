@@ -430,7 +430,7 @@ switch( $_POST[ 'islem' ] ) {
 	case 'dersler':
 		$dersSonuc 		= "";
 		if ( $_REQUEST['modul'] == "donemDersleri" ) {
-			$dersler 	= $vt->select( $SQL_dersler_getir, array( $_REQUEST[ "program_id" ] ) )[ 2 ];
+			$dersler 	= $vt->select( $SQL_dersler_getir, array( $_SESSION[ "program_id" ] ) )[ 2 ];
 			foreach ($dersler as $ders) {
 				$dersSonuc .= '
 					<div class="form-group " style="display: flex; align-items: center;">
@@ -630,7 +630,7 @@ switch( $_POST[ 'islem' ] ) {
 			$hata  = '<div class="alert alert-danger text-center"></div>';
 		echo count( $gorevliler) > 0 ? $sonuc : $hata;
 	break;
-	
+
 	case 'ilce_ver':
 
 		$ilceler	= $vt->select( $SQL_ilceler_getir, array( $_REQUEST[ 'il_id' ] ) );
