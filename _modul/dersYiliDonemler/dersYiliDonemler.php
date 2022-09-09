@@ -7,19 +7,19 @@ $vt = new VeriTabani();
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	$mesaj								= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
 	$mesaj_turu							= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' : 'yesil';
-	$_REQUEST[ 'ders_yili_donem_id' ]				= $_SESSION[ 'sonuclar' ][ 'id' ];
+	$_REQUEST[ 'id' ]					= $_SESSION[ 'sonuclar' ][ 'id' ];
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
 
 
-$islem			= array_key_exists( 'islem'		,$_REQUEST )  ? $_REQUEST[ 'islem' ]	 : 'ekle';
-$ders_yili_donem_id    	= array_key_exists( 'ders_yili_donem_id'	,$_REQUEST )  ? $_REQUEST[ 'ders_yili_donem_id' ]	 : 0;
+$islem			= array_key_exists( 'islem'		,$_REQUEST )  ? $_REQUEST[ 'islem' ]	: 'ekle';
+$id    			= array_key_exists( 'id'		,$_REQUEST )  ? $_REQUEST[ 'id' ]	 	: 0;
 
 
-$satir_renk				= $ders_yili_donem_id > 0	? 'table-warning'						: '';
-$kaydet_buton_yazi		= $ders_yili_donem_id > 0	? 'Güncelle'							: 'Kaydet';
-$kaydet_buton_cls		= $ders_yili_donem_id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
+$satir_renk				= $id > 0	? 'table-warning'						: '';
+$kaydet_buton_yazi		= $id > 0	? 'Güncelle'							: 'Kaydet';
+$kaydet_buton_cls		= $id > 0	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
 
 
 /*Tüm Ders Yılını Okuma*/
@@ -34,6 +34,9 @@ FROM
 LEFT JOIN tb_programlar AS p ON dyd.program_id = p.id 
 LEFT JOIN tb_ders_yillari AS dy ON dyd.ders_yili_id = dy.id 
 LEFT JOIN tb_donemler AS d ON dyd.donem_id = d.id
+WHERE 
+	dyd.ders_yili_id 	= ? AND
+	dyd.program_id 		= ? 
 SQL;
 
 /*Tek Ders Yılı Okuma*/
@@ -43,8 +46,7 @@ SELECT
 FROM 
 	tb_ders_yili_donemleri
 WHERE 
-	id 				= ? AND
-	aktif 			= 1 
+	id 				= ?
 SQL;
 
 /*Tüm Programları Getirme*/
@@ -83,8 +85,8 @@ SQL;
 $programlar				= $vt->select( $SQL_programlar, 	array( $_SESSION[ 'universite_id'] ) )[ 2 ];
 $donemler				= $vt->select( $SQL_donemler, 	array( $_SESSION[ 'universite_id'], $_SESSION[ 'program_id'] ) )[ 2 ];
 $ders_yillari			= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
-$ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSION[ 'universite_id'] ) )[ 2 ];
-@$tek_ders_yili_donem 	= $vt->select( $SQL_tek_ders_yili_donem_oku, array( $ders_yili_donem_id ) )[ 2 ][ 0 ];
+$ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSION[ 'aktif_yil'], $_SESSION[ 'program_id'] ) )[ 2 ];
+@$tek_ders_yili_donem 	= $vt->select( $SQL_tek_ders_yili_donem_oku, array( $id ) )[ 2 ][ 0 ];
 
 ?>
 
@@ -140,7 +142,7 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 							</thead>
 							<tbody>
 								<?php $sayi = 1; foreach( $ders_yili_donemler AS $ders_yili_donem ) { ?>
-								<tr oncontextmenu="fun();" class ="fakulte-Tr <?php if( $ders_yili_donem[ 'id' ] == $ders_yili_donem_id ) echo $satir_renk; ?>" data-id="<?php echo $ders_yili_donem[ 'id' ]; ?>">
+								<tr oncontextmenu="fun();" class =" <?php if( $ders_yili_donem[ 'id' ] == $id ) echo $satir_renk; ?>" data-id="<?php echo $ders_yili_donem[ 'id' ]; ?>">
 									<td><?php echo $sayi++; ?></td>
 									<td><?php echo $ders_yili_donem[ 'program_adi' ]; ?></td>
 									<td><?php echo $ders_yili_donem[ 'ders_yili_adi' ]; ?></td>
@@ -172,6 +174,7 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 							<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
 							<input type = "hidden" name = "program_id" value = "<?php echo $_SESSION['program_id']; ?>">
 							<input type = "hidden" name = "ders_yili_id" value = "<?php echo  $_SESSION['ders_yili_id']; ?>">
+							<input type = "hidden" name = "id" value = "<?php echo $id; ?>">
 							<div class="form-group">
 								<label  class="control-label">Dönemler</label>
 								<select class="form-control select2" name = "donem_id"  required>
@@ -184,8 +187,6 @@ $ders_yili_donemler		= $vt->select( $SQL_tum_ders_yili_donemler, 	array( $_SESSI
 									?>
 								</select>
 							</div>
-							<div class="form-group" id="dersYillari"> </div>
-							<div class="form-group" id="donemListesi"> </div>
 						</div>
 						<!-- /.card-body -->
 						<div class="card-footer">
