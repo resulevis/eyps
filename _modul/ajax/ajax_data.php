@@ -606,6 +606,31 @@ switch( $_POST[ 'islem' ] ) {
 		echo  $sonuc;
 	break;
 	
+	case 'gorevliListesi':
+		$gorevlilerSonuc = "";
+		
+		$gorevliler  	 = $vt->select( $SQL_tum_ogretimElemanlari, array( $_SESSION[ 'universite_id' ]  ) )[2];
+		foreach ($gorevliler as $gorevli) {
+			$gorevlilerSonuc  .= '
+				<div class="form-group " style="display: flex; align-items: center;">
+					<div class="custom-control custom-checkbox col-sm-12 float-left">
+						<input class="custom-control-input derslerCheck " data-id="'.$gorevli[ "id" ].'" name="gorevli_id[]" type="checkbox" id="'.$gorevli[ "id" ].'" value="'.$gorevli[ "id" ].'" >
+						<label for="'.$gorevli[ "id" ].'" class="custom-control-label">'.$gorevli[ "adi" ].'</label>
+					</div>
+					
+				</div><hr>';
+		}
+		$sonuc =  '
+				<hr>
+				<h5 class="text-center alert alert-info p-1">Öğretim Görevlileri</h5>
+				<div class="col-sm-12">
+					'.$gorevlilerSonuc.'
+				</div>
+				';
+			$hata  = '<div class="alert alert-danger text-center"></div>';
+		echo count( $gorevliler) > 0 ? $sonuc : $hata;
+	break;
+	
 	case 'ilce_ver':
 
 		$ilceler	= $vt->select( $SQL_ilceler_getir, array( $_REQUEST[ 'il_id' ] ) );
