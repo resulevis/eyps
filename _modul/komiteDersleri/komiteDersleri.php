@@ -27,6 +27,7 @@ FROM
 	tb_programlar
 WHERE 
 	universite_id = ? AND
+	id 			  = ? AND
 	aktif 	 = 1
 SQL;
 
@@ -37,18 +38,23 @@ FROM
 	tb_ders_yillari
 WHERE
 	universite_id = ? AND
+	id 			  = ? AND
 	aktif 		  = 1
 SQL;
 
 $SQL_donemler_getir = <<< SQL
 SELECT
-	*
+	dyd.id AS id,
+	d.id AS donem_id,
+	d.adi AS adi
 FROM
-	tb_donemler
+	tb_ders_yili_donemleri AS dyd
+LEFT JOIN tb_donemler AS d ON d.id = dyd.donem_id 
 WHERE
-	universite_id 	= ? AND
-	program_id 		= ? AND
-	aktif 		  	= 1
+	d.universite_id 	= ? AND
+	dyd.ders_yili_id 	= ? AND
+	dyd.program_id 		= ? AND
+	d.aktif 			= 1
 SQL;
 
 $SQL_dersler_getir = <<< SQL
@@ -103,9 +109,9 @@ $program_id         = array_key_exists( 'program_id', $_REQUEST )  	? $_REQUEST[
 $donem_id          	= array_key_exists( 'donem_id', $_REQUEST )  	? $_REQUEST[ 'donem_id' ] 		:$ders_yili_donemi[ "donem_id" ];
 $komite_id          = array_key_exists( 'komite_id', $_REQUEST )  	? $_REQUEST[ 'komite_id' ] 		: 0;
 
-$donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program_id ) )[2];
-$ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ] ) )[ 2 ];
-$programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ] ) )[ 2 ];
+$donemler 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
+$ders_yillari		= $vt->select( $SQL_ders_yillari_getir, array($_SESSION[ 'universite_id' ], $_SESSION[ "aktif_yil" ] ) )[ 2 ];
+$programlar			= $vt->select( $SQL_programlar, array( $_SESSION[ 'universite_id' ], $_SESSION[ "program_id" ] ) )[ 2 ];
 $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id, $program_id, $donem_id, $komite_id ) )[ 2 ];
 $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_id,$program_id ) )[2];
 
@@ -165,12 +171,12 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 				<?php if ( $islem == "ekle") { ?>
 					<div class="card-body">
 						<div class="form-group">
-							<label  class="control-label">Program</label>
-							<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" data-modul="<?php echo $_REQUEST['modul'] ?>" required>
+							<label  class="control-label">Donem</label>
+							<select class="form-control select2 ajaxGetir" name = "ders_yili_donem_id" id="ders_yili_donemler" data-url="./_modul/ajax/ajax_data.php" data-islem="komiteler" data-modul="<?php echo $_REQUEST['modul'] ?>" data-div="komiteler" required >
 								<option>Seçiniz...</option>
 								<?php 
-									foreach( $programlar AS $program ){
-										echo '<option value="'.$program[ "id" ].'" '.($program[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
+									foreach( $donemler AS $donem ){
+										echo '<option value="'.$donem[ "id" ].'" >'.$donem[ "adi" ].'</option>';
 									}
 
 								?>
@@ -286,7 +292,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 				<ul class="tree ">
 				<?php  
 					/*DERS Yılıllarını Getiriyoruz*/
-					$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION[ "universite_id" ] ) )[2];
+					$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ] ) )[2];
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
@@ -294,7 +300,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 						<ul class="ders-ul" >
 				<?php 
 						/*Programların  Listesi*/
-						$programlar = $vt->select( $SQL_programlar, array( $_SESSION[ "universite_id" ] ) )[2];
+						$programlar = $vt->select( $SQL_programlar, array( $_SESSION[ "universite_id" ], $_SESSION[ "program_id" ] ) )[2];
 						foreach ($programlar as $program) { ?>
 							
 							<!-- Programlar -->
@@ -302,7 +308,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 							<ul class="ders-ul">
 				<?php 		
 							/*Dönemler Listesi*/
-							$donemler = $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $program[ "id" ] ) )[2];
+							$donemler = $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
 							foreach ( $donemler AS $donem ){ ?>
 								<!--Dönemler-->
 								<li>
