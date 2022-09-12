@@ -66,7 +66,8 @@ SQL;
 
 $SQL_donemler_getir = <<< SQL
 SELECT
-	d.*
+	dyd.id AS id,
+	d.adi AS adi
 FROM
 	tb_ders_yili_donemleri AS dyd
 LEFT JOIN tb_donemler AS d ON d.id = dyd.donem_id 
@@ -158,11 +159,11 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 					<div class="card-body">
 						<div class="form-group">
 							<label  class="control-label">Dönemler</label>
-							<select class="form-control select2" name = "program_id" id="program-sec" data-url="./_modul/ajax/ajax_data.php" data-islem="dersYillariListe" data-modul="<?php echo $_REQUEST['modul'] ?>" required>
+							<select class="form-control select2 " name = "ders_yili_donem_id" onchange='komiteEkle();' >
 								<option>Seçiniz...</option>
 								<?php 
-									foreach( $programlar AS $program ){
-										echo '<option value="'.$program[ "id" ].'" '.($program[ "program_id" ] == $program[ "id" ] ? "selected" : null) .'>'.$program[ "adi" ].'</option>';
+									foreach( $donemler AS $donem ){
+										echo '<option value="'.$donem[ "id" ].'" '.($donem[ "donem_id" ] == $donem[ "id" ] ? "selected" : null) .'>'.$donem[ "adi" ].'</option>';
 									}
 
 								?>
@@ -404,6 +405,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 			'</div>	'+
 			'<div class="clearfix"></div>';
 		$("#komite-kapsa").append( komite );
+		document.getElementById("komiteEkleBtn").style.display = "inline";
 	}
 	/*Tıklanan Mola Satırı Siliyoruz*/
 	$('.row').on("click", ".komitesil", function (e) {
