@@ -298,6 +298,23 @@ WHERE
 ORDER BY u.sira ASC
 SQL;
 
+$SQL_ogrenci_ara = <<< SQL
+SELECT 
+	id,
+	tc_kimlik_no,
+	ogrenci_no,
+	CONCAT( adi, ' ', soyadi ) AS adi
+FROM 
+	tb_ogrenciler 
+WHERE 
+	adi LIKE ? OR 
+	soyadi LIKE ? OR
+	ogrenci_no LIKE ? OR
+	tc_kimlik_no LIKE ?
+ORDER BY adi ASC 
+LIMIT 5
+SQL;
+
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
@@ -501,7 +518,6 @@ switch( $_POST[ 'islem' ] ) {
 		echo count( $dersler) > 0 ? $sonuc : $hata;
 	break;
 
-	
 	case 'ogretimUyesiEkle':
 		$komite_ders_id  		= array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
 		$secili_ders 	 		= $vt->select( $SQL_komite_ders_getir, array( $komite_ders_id ) )[2][0];
@@ -631,16 +647,24 @@ switch( $_POST[ 'islem' ] ) {
 		echo count( $gorevliler) > 0 ? $sonuc : $hata;
 	break;
 
-	case 'ilce_ver':
+	case 'ogrenciAra':
+		$aranacak_kelime = $_REQUEST[ "kelime" ];
+		$data = array();
+		if ( isset( $aranacak_kelime ) ) {
+				
+			$kelime = '"%'.$aranacak_kelime.'%"';
 
-		$ilceler	= $vt->select( $SQL_ilceler_getir, array( $_REQUEST[ 'il_id' ] ) );
-		$sonuc = "<option value=''>Seçiniz</option>";
-		foreach( $ilceler[ 2 ] AS $ilce ) {
-			$sonuc.="
-				<option value='$ilce[id]'>$ilce[adi]</option>
-			";
-		}
-		echo $sonuc;
+			echo $kelime;
+
+			$ara = $vt->select( $SQL_ogrenci_ara, array( $kelime, $kelime, $kelime, $kelime ) )[2];
+			echo '<pre>';
+			foreach ($ara as $sonuc) {
+				$data[] = array( 'id' => $sonuc[ "id" ], 'adi' => $sonuc[ "adi" ] );
+			}
+
+			echo json_encode($data);
+		}	
+
 	break;
 
 	case 'aktifIlkGoruntulenecek':
