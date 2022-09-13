@@ -59,6 +59,18 @@ WHERE
 	universite_id 		= ?
 SQL;
 
+$SQL_eklenmis_gorev_kategorileri_getir = <<< SQL
+SELECT 
+	gk.*
+FROM  
+	tb_gorev_kategorileri AS gk
+RIGHT JOIN 
+	tb_komite_gorevlileri AS kg ON kg.gorev_kategori_id = gk.id
+WHERE 
+	universite_id 		= ? AND
+	kg.komite_id 		= ?
+SQL;
+
 $SQL_komiteler_getir = <<< SQL
 SELECT
 	k.adi,
@@ -291,10 +303,10 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 						foreach ( $donemler AS $donem ){ ?>
 							<!--Dönemler-->
 							<li>
-								<div class="ders-kapsa bg-danger kapat" data-id = "<?php echo $donem[ 'donem_id' ]; ?>" >
+								<div class="ders-kapsa bg-danger" data-id = "<?php echo $donem[ 'donem_id' ]; ?>" >
 									<?php echo $donem[ "adi" ]  ?>
 								</div>
-							<ul class="ders-ul" id="<?php echo $donem[ 'donem_id' ]; ?>" style="<?php echo $donem_id == $donem[ 'donem_id' ] ? '' : 'display: none;'  ?>" >
+							<ul class="ders-ul" id="<?php echo $donem[ 'donem_id' ]; ?>"  >
 
 				<?php  
 							/*Komiteler Listesi*/
@@ -310,7 +322,7 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 
 				<?php 
 								/*Görev Kategorileri  Listesi*/
-
+								$gorev_kategorileri = $vt->select( $SQL_eklenmis_gorev_kategorileri_getir, array( $_SESSION[ 'universite_id' ], $komite[ "komite_id" ] ) )[2];
 								foreach ($gorev_kategorileri as $kategori) { ?>
 									
 									<!--$kategorilar -->
