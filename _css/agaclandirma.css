@@ -23,7 +23,7 @@ body {
   background: white;
 }
 .tree li {
-  font-weight: bold;
+  font-weight: normal;
   line-height: 25px;
   margin: 0;
   padding: 0.5em 0 0 5px;
@@ -51,13 +51,13 @@ body {
 }
 .tree li div{
   border-radius: 5px;
-  border: 1px solid #afafaf;
+  border: 0px solid #afafaf;
   margin: 0;
   padding: 0.25em 0.5em;
   background: white;
   box-shadow: 1px 1px 4px #8f949a;
   color: #369;
-  font-weight: bold;
+  font-weight: normal;
 }
 .tree li div:not(.ders-kapsa){
     max-width: 150px;
@@ -83,5 +83,28 @@ ul.tree:before {
 .tree .ders-ul{
   padding: 0 10px 0 0;
 }
-
+.tree .bg-renk1{
+  background-color: #264653;
+  color:white;
+}
+.tree .bg-renk2{
+  background-color: #2a9d8f;
+  color:white;
+}
+.tree .bg-renk3{
+  background-color: #f4a261;
+  color:white;
+}
+.tree .bg-renk4{
+  background-color: #e76f51;
+  color:white;
+}
+.tree .bg-renk5{
+  background-color: #a5908af6;
+  color:white;
+}
+.tree .bg-renk6{
+  background-color: #eaac8b8e;
+  color:white;
+}
 

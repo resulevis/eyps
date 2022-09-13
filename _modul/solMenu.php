@@ -21,7 +21,7 @@ $moduller = $vt->select( $SQL_modul );
 
 ?>
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar main-sidebar-custom sidebar-light-lightblue elevation-4">
+<aside class="main-sidebar main-sidebar-custom sidebar-light-olive elevation-4">
 	<!-- Brand Logo -->
 	<a href="index.php" class="brand-link">
 	<img src="img/yyu_logo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">

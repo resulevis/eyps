@@ -160,9 +160,9 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 	<!-- left column -->
 	<div class="col-md-5">
 		<!-- general form elements -->
-		<div class="card card-secondary">
+		<div class="card card-olive">
 			<div class="card-header">
-				<h3 class="card-title">Dönem Görevlisi Ekle / Güncelle</h3>
+				<h3 class="card-title">Komite Görevlisi Ekle / Güncelle</h3>
 			</div>
 			<!-- /.card-header -->
 			<!-- form start -->
@@ -281,9 +281,9 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 	</div>
 	<!--/.col (left) -->
 	<div class="col-md-7">
-		<div class="card card-success">
+		<div class="card card-dark">
 			<div class="card-header">
-				<h3 class="card-title">Dönem Görevlileri</h3>
+				<h3 class="card-title">Komite Görevlileri</h3>
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
@@ -295,7 +295,7 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
-						<li><div class="ders-kapsa bg-secondary"><?php  echo $ders_yili[ "adi" ]; ?></div>
+						<li><div class="ders-kapsa bg-renk1"><?php  echo $ders_yili[ "adi" ]; ?></div>
 						<ul class="ders-ul" >
 				<?php 		
 						/*Dönemler Listesi*/
@@ -303,7 +303,7 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 						foreach ( $donemler AS $donem ){ ?>
 							<!--Dönemler-->
 							<li>
-								<div class="ders-kapsa bg-danger" data-id = "<?php echo $donem[ 'donem_id' ]; ?>" >
+								<div class="ders-kapsa bg-renk2" data-id = "<?php echo $donem[ 'donem_id' ]; ?>" >
 									<?php echo $donem[ "adi" ]  ?>
 								</div>
 							<ul class="ders-ul" id="<?php echo $donem[ 'donem_id' ]; ?>"  >
@@ -314,7 +314,7 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 							foreach ( $komiteler AS $komite ){ ?>
 								<!--Komiteler-->
 								<li>
-									<div class="ders-kapsa bg-info" data-id="<?php echo $donem['donem_id'].'-'.$komite[ 'komite_id' ];  ?>">
+									<div class="ders-kapsa bg-renk3" data-id="<?php echo $donem['donem_id'].'-'.$komite[ 'komite_id' ];  ?>">
 										<?php echo $komite[ "adi" ]  ?>
 										
 									</div>
@@ -327,9 +327,9 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 									
 									<!--$kategorilar -->
 									<li>
-										<div class="ders-kapsa bg-light">
+										<div class="ders-kapsa bg-renk4">
 											<?php echo $kategori[ "adi" ] ?>
-											<a href="?modul=komiteGorevlileri&islem=guncelle&donem_id=<?php echo $donem[ 'donem_id' ]; ?>&komite_id=<?php echo $komite[ 'komite_id' ]; ?>&gorev_kategori_id=<?php echo $kategori['id'] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>		
+											<a href="?modul=komiteGorevlileri&islem=guncelle&donem_id=<?php echo $donem[ 'donem_id' ]; ?>&komite_id=<?php echo $komite[ 'komite_id' ]; ?>&gorev_kategori_id=<?php echo $kategori['id'] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>		
 										</div> <!-- Second level node -->
 									<ul class="ders-ul">
 				<?php 		
@@ -338,7 +338,7 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 									foreach ( $ogretim_elemanlari AS $ogretim_elemani ){ ?>
 										<!--Gorevliler-->
 										<li>
-											<div class="ders-kapsa bg-defaultlight">
+											<div class="ders-kapsa bg-renk5">
 												<?php echo $ogretim_elemani[ "adi" ]  ?>
 											</div>
 										</li>			

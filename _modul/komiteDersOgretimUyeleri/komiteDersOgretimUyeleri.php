@@ -119,7 +119,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 
 <div class="row">
 	<div class="col-md-12">
-		<div class="card card-success">
+		<div class="card card-dark">
 			<div class="card-header">
 				<h3 class="card-title">Komite Ders Öğretim Üyeleri</h3>
 			</div>
@@ -133,7 +133,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
-						<li><div class="ders-kapsa bg-secondary"><?php  echo $ders_yili[ "adi" ]; ?></div>
+						<li><div class="ders-kapsa bg-renk1"><?php  echo $ders_yili[ "adi" ]; ?></div>
 						<ul class="ders-ul" >
 				<?php 
 						/*Programların  Listesi*/
@@ -141,7 +141,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 						foreach ($programlar as $program) { ?>
 							
 							<!-- Programlar -->
-							<li><div class="ders-kapsa bg-danger"><?php echo $program[ "adi" ] ?></div> <!-- Second level node -->
+							<li><div class="ders-kapsa bg-renk2"><?php echo $program[ "adi" ] ?></div> <!-- Second level node -->
 							<ul class="ders-ul">
 				<?php 		
 							/*Dönemler Listesi*/
@@ -149,7 +149,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 							foreach ( $donemler AS $donem ){ ?>
 								<!--Dönemler-->
 								<li>
-									<div class="ders-kapsa bg-warning">
+									<div class="ders-kapsa bg-renk3">
 										<?php echo $donem[ "adi" ]  ?>
 									</div>
 								<ul class="ders-ul">
@@ -160,7 +160,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 									foreach ( $komiteler AS $komite ){ ?>
 									<!--Komiteler-->
 									<li>
-										<div class="ders-kapsa">
+										<div class="ders-kapsa bg-renk4">
 											<?php echo $komite[ "adi" ]  ?>
 										</div>
 									<ul class="ders-ul">
@@ -169,10 +169,10 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 										$dersler = $vt->select( $SQL_dersler_getir, array( $ders_yili[ "id" ], $program[ "id" ], $donem[ "id" ], $komite[ "id" ] ) )[2];
 										foreach ( $dersler as $ders ) { ?>
 											<li>
-												<div class="ders-kapsa bg-light"><?php echo $ders[ "ders_kodu" ]  ?> - <?php echo $ders[ "adi" ]; ?> 
+												<div class="ders-kapsa bg-renk5"><?php echo $ders[ "ders_kodu" ]  ?> - <?php echo $ders[ "adi" ]; ?> 
 													<span class="row">
-														<a class="float-right btn btn-success gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyesiEkle"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevli Ekle</a>
-														<a class="float-right btn btn-warning gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyeleri"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevliler</a>
+														<a class="float-right btn btn-light gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyesiEkle"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevli Ekle</a>
+														<a class="float-right btn btn-dark gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyeleri"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevliler</a>
 													</span>
 												</div>
 											</li>				
