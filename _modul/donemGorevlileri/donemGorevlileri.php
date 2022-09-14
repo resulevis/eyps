@@ -293,7 +293,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
-						<li><div class="ders-kapsa bg-secondary"><?php  echo $ders_yili[ "adi" ]; ?></div>
+						<li><div class="ders-kapsa bg-renk1"><?php  echo $ders_yili[ "adi" ]; ?></div>
 						<ul class="ders-ul" >
 				<?php 		
 						/*Dönemler Listesi*/
@@ -301,7 +301,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 						foreach ( $donemler AS $donem ){ ?>
 							<!--Dönemler-->
 							<li>
-								<div class="ders-kapsa bg-danger">
+								<div class="ders-kapsa bg-renk2">
 									<?php echo $donem[ "adi" ]  ?>
 								</div>
 							<ul class="ders-ul">
@@ -312,9 +312,9 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 							
 							<!--$kategorilar -->
 							<li>
-								<div class="ders-kapsa bg-light">
+								<div class="ders-kapsa bg-renk3">
 									<?php echo $kategori[ "adi" ] ?>
-									<a href="?modul=donemGorevlileri&islem=guncelle&ders_yili_id=<?php echo $_SESSION[ 'aktif_yil' ]; ?>&program_id=<?php echo $_SESSION[ 'program_id' ]; ?>&donem_id=<?php echo $donem["donem_id"]; ?>&gorev_kategori_id=<?php echo $kategori['id'] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>		
+									<a href="?modul=donemGorevlileri&islem=guncelle&ders_yili_id=<?php echo $_SESSION[ 'aktif_yil' ]; ?>&program_id=<?php echo $_SESSION[ 'program_id' ]; ?>&donem_id=<?php echo $donem["donem_id"]; ?>&gorev_kategori_id=<?php echo $kategori['id'] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>		
 								</div> <!-- Second level node -->
 							<ul class="ders-ul">
 				<?php 		
@@ -323,7 +323,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 							foreach ( $ogretim_elemanlari AS $ogretim_elemani ){ ?>
 								<!--Dönemler-->
 								<li>
-									<div class="ders-kapsa bg-default">
+									<div class="ders-kapsa bg-renk4">
 										<?php echo $ogretim_elemani[ "adi" ]  ?>
 									</div>
 								</li>			
