@@ -7,7 +7,7 @@ $vt = new VeriTabani();
 if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	$mesaj								= $_SESSION[ 'sonuclar' ][ 'mesaj' ];
 	$mesaj_turu							= $_SESSION[ 'sonuclar' ][ 'hata' ] ? 'kirmizi' 	: 'yesil';
-	$_REQUEST[ 'ogrenci_id' ]			= $_SESSION[ 'sonuclar' ][ 'id' ];
+	//$_REQUEST[ 'ogrenci_id' ]			= $_SESSION[ 'sonuclar' ][ 'id' ];
 	unset( $_SESSION[ 'sonuclar' ] );
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
@@ -46,6 +46,16 @@ WHERE
 	aktif 			= 1 
 SQL;
 
+$SQL_ogrenciler = <<< SQL
+SELECT 
+	*
+	,concat(adi,' ',soyadi) AS adi_soyadi
+FROM 
+	tb_ogrenciler
+WHERE 	 
+	aktif 			= 1 
+SQL;
+
 $SQL_donemler_getir = <<< SQL
 SELECT
 	dyd.id AS id,
@@ -64,6 +74,7 @@ $donemler 				= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_
 $_SESSION[ "donem_id" ] = $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
 
 $ogrenciler				= $vt->select( $SQL_tum_donem_ogrencileri, array( $_SESSION[ 'donem_id'] ) )[ 2 ];
+$ogrenciler2			= $vt->select( $SQL_ogrenciler, array(  ) )[ 2 ];
 @$tek_ogrenci			= $vt->select( $SQL_tek_ogrenci_oku, array( $ogrenci_id ) )[ 2 ][ 0 ];
 
 ?>
@@ -98,18 +109,18 @@ $ogrenciler				= $vt->select( $SQL_tum_donem_ogrencileri, array( $_SESSION[ 'don
 			<div class="col-sm-12 mb-2 d-flex">
 
 				<?php foreach( $donemler AS $donem ){ ?>
-						<div class="col-sm m-1 pt-3 pb-3 bg-<?php echo $_SESSION[ 'donem_id' ] == $donem[ 'id' ] ? 'warning' : 'danger' ?> btn text-left">
+						<label for="donemCard<?php echo $donem[ "id" ] ?>" class="col-sm m-1 pt-3 pb-3 bg-<?php echo $_SESSION[ 'donem_id' ] == $donem[ 'id' ] ? 'olive' : 'navy' ?> btn text-left">
 							<div class="icheck-success d-inline">
-								<input type="radio" name="aktifDonem" id="<?php echo $donem[ "id" ] ?>" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifDonem" data-modul="<?php echo $_REQUEST['modul'] ?>" value="<?php echo $donem[ "id" ] ?>" class="aktifYilSec" <?php echo $_SESSION[ 'donem_id' ] == $donem[ 'id' ] ? 'checked' : null; ?>  >
-								<label for="<?php echo $donem[ "id" ] ?>"><?php echo $donem[ 'adi' ]; ?></label>
+								<input type="radio" name="aktifDonem" id="donemCard<?php echo $donem[ "id" ] ?>" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifDonem" data-modul="<?php echo $_REQUEST['modul'] ?>" value="<?php echo $donem[ "id" ] ?>" class="aktifYilSec" <?php echo $_SESSION[ 'donem_id' ] == $donem[ 'id' ] ? 'checked' : null; ?>  >
+								<label for="donemCard<?php echo $donem[ "id" ] ?>"><?php echo $donem[ 'adi' ]; ?></label>
 							</div>
-						</div>
+						</label>
 				<?php } ?>
 				
 			</div>
 			
 			<div class="col-md-8">
-				<div class="card card-secondary" id = "card_ogrenciler">
+				<div class="card card-olive" id = "card_ogrenciler">
 					<div class="card-header">
 						<h3 class="card-title">Öğrenciler</h3>
 					</div>
@@ -144,43 +155,54 @@ $ogrenciler				= $vt->select( $SQL_tum_donem_ogrencileri, array( $_SESSION[ 'don
 				</div>
 			</div>
 			<div class="col-md-4">
-				<div class="card <?php if( $ogrenci_id == 0 ) echo 'card-secondary' ?>">
-					<div class="card-header p-2">
-						<ul class="nav nav-pills tab-container">
-							<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Tek Öğrenci Ekle</h6>
-						</ul>
-					</div>
-					<div class="card-body">
-						<div class="tab-content">
-							<!-- GENEL BİLGİLER -->
-							<div class="tab-pane active" id="_genel">
-								<div class="form-group">
-									<label class="control-label">Adı</label>
-									<input type="text" class="form-control" name ="arama" placeholder="TC, Ad, Soyad, Numara" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onkeyup="javascript:load_data(this.value)" >
-									<span id="aramaSonuclari">
-									</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="card <?php if( $ogrenci_id == 0 ) echo 'card-secondary' ?>">
-					<div class="card-header p-2">
-						<ul class="nav nav-pills tab-container">
-							<h6 style = 'font-size: 1rem;'> &nbsp;&nbsp;&nbsp; Çoklu Öğrenci Ekle</h6>
-						</ul>
+				<div class="card card-dark">
+					<div class="card-header">
+						<h3 class="card-title">Tek Öğrenci Ekle</h3>
 					</div>
 					<form class="form-horizontal" action = "_modul/donemOgrencileri/donemOgrencileriSEG.php" method = "POST" enctype="multipart/form-data">
-						<input type="hidden" name="islem" value="<?php echo $islem; ?>">
+					<div class="card-body">
+						<!-- GENEL BİLGİLER -->
+						<!--div class="form-group">
+							<label class="control-label">Adı</label>
+							<input type="text" class="form-control" name ="arama" placeholder="TC, Ad, Soyad, Numara" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onkeyup="javascript:load_data(this.value)" >
+							<span id="aramaSonuclari">
+							</span>
+						</div-->
+						<input type="hidden" name="islem" value="<?php echo $islem;?>">
+						<div class="form-group">
+							<label  class="control-label">Eklenecek Öğrenci</label>
+							<select class="form-control select2" name="ogrenci_id" required>
+								<option value="">Seçiniz...</option>
+								<?php 
+									foreach( $ogrenciler2 AS $ogrenci ){
+								?>
+									<option value="<?php echo $ogrenci[ "id" ];?>">
+										( <?php echo $ogrenci[ "ogrenci_no" ];?> )&nbsp;&nbsp;&nbsp; 
+										<b><?php echo $ogrenci[ "adi_soyadi" ];?></b>
+									</option>
+								<?php
+									}
+
+								?>
+							</select>
+						</div>								
+					</div>
+					<div class="card-footer">
+						<button modul= 'donemOgrencileri' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+					</div>
+					</form>
+				</div>
+				<div class="card <?php if( $ogrenci_id == 0 ) echo 'card-secondary' ?>">
+					<div class="card-header">
+						<h3 class="card-title">Toplu Öğrenci Ekle</h3>
+					</div>
+					<form class="form-horizontal" action = "_modul/donemOgrencileri/donemOgrencileriSEG.php" method = "POST" enctype="multipart/form-data">
+						<input type="hidden" name="islem" value="toplu_ekle">
 						<div class="card-body">
-							<div class="tab-content">
-								<!-- GENEL BİLGİLER -->
-								<div class="tab-pane active" id="_genel">
-									<div class="form-group">
-										<label class="control-label">Öğrenci Numaralarını Giriniz</label>
-										<textarea class="form-control" rows="10" name="ogrenci_numaralari"></textarea>
-									</div>
-								</div>
+						<!-- GENEL BİLGİLER -->
+							<div class="form-group">
+								<label class="control-label">Öğrenci Numaralarını Alt alta Giriniz</label>
+								<textarea class="form-control" rows="10" name="ogrenci_numaralari"></textarea>
 							</div>
 						</div>
 						<div class="card-footer">
