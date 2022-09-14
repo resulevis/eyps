@@ -311,8 +311,26 @@ WHERE
 	soyadi LIKE ? OR
 	ogrenci_no LIKE ? OR
 	tc_kimlik_no LIKE ?
-ORDER BY adi ASC 
-LIMIT 5
+ORDER BY adi ASC
+SQL;
+
+/*DERSSLERİ EKLEME İŞLEMİ*/
+$SQL_donem_ogrencisi_ekle = <<< SQL
+INSERT INTO 
+	tb_donem_ogrencileri
+SET
+	ders_yili_donem_id  = ?,
+	ogrenci_id   		= ?
+SQL;
+
+$SQL_donem_ogrencisi_oku = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_donem_ogrencileri 
+WHERE 
+	ders_yili_donem_id  = ? AND 
+	ogrenci_id  		= ?
 SQL;
 
 $vt = new VeriTabani();
@@ -652,19 +670,38 @@ switch( $_POST[ 'islem' ] ) {
 		$data = array();
 		if ( isset( $aranacak_kelime ) ) {
 				
-			$kelime = '"%'.$aranacak_kelime.'%"';
-
-			echo $kelime;
+			$kelime = '%'.$aranacak_kelime.'%';
 
 			$ara = $vt->select( $SQL_ogrenci_ara, array( $kelime, $kelime, $kelime, $kelime ) )[2];
-			echo '<pre>';
 			foreach ($ara as $sonuc) {
-				$data[] = array( 'id' => $sonuc[ "id" ], 'adi' => $sonuc[ "adi" ] );
+				$data[] = array( 'id' => $sonuc[ "id" ],'tc_kimlik_no' => $sonuc[ "tc_kimlik_no" ],'ogrenci_no' => $sonuc[ "ogrenci_no" ], 'adi' => $sonuc[ "adi" ] );
 			}
 
 			echo json_encode($data);
 		}	
 
+	break;
+
+	case 'donemOgrenciEkle':
+		$sonuc = array();
+		$ogrenci_varmi = $vt->select( $SQL_donem_ogrencisi_oku, array( $_SESSION[ "donem_id" ], $_REQUEST[ "id" ] ) )[2];
+
+		if ( count( $ogrenci_varmi ) > 0 ){
+			$sonuc["mesaj"] = "Öğrenci Önceden Eklenmiş durumda";
+			$sonuc["mesaj_turu"] = "kirmizi";
+			
+		}else{
+			$ogrenci_ekle = $vt->insert( $SQL_donem_ogrencisi_ekle, array( $_SESSION[ "donem_id" ], $_REQUEST[ "id" ] ) );
+			if( $ogrenci_ekle[ 0 ] ) {
+				$sonuc["mesaj"] = "Öğrenci Eklenmedi";
+				$sonuc["mesaj_turu"] = "kirmizi";
+			}else{
+				$sonuc["mesaj"] = "Öğrenci Eklendi";
+				$sonuc["mesaj_turu"] = "yesil";
+			}
+		}
+
+		echo json_encode($sonuc);
 	break;
 
 	case 'aktifIlkGoruntulenecek':
@@ -678,6 +715,9 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 	case 'aktifFakulte':
 		$_SESSION[ 'program_id' ]	= $_REQUEST['id'];
+	break;
+	case 'aktifDonem':
+		$_SESSION[ 'donem_id' ]	= $_REQUEST['id'];
 	break;
 	
 	case 'cevap_turune_gore_secenek_ver':
