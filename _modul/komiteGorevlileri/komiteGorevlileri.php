@@ -287,7 +287,6 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
-				<div class="mr-5 ml-5 mt-2 alert alert-warning">Görüntülemek istediğiniz döneme tıklayınız.</div>
 				<ul class="tree ">
 				<?php  
 					/*DERS Yılıllarını Getiriyoruz*/
