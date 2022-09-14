@@ -156,7 +156,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 	<!-- left column -->
 	<div class="col-md-5">
 		<!-- general form elements -->
-		<div class="card card-secondary">
+		<div class="card card-olive">
 			<div class="card-header">
 				<h3 class="card-title">Komite Dersi Ekle / Güncelle</h3>
 			</div>
@@ -282,7 +282,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 	</div>
 	<!--/.col (left) -->
 	<div class="col-md-7">
-		<div class="card card-success">
+		<div class="card card-dark">
 			<div class="card-header">
 				<h3 class="card-title">Dönem Dersleri</h3>
 			</div>
@@ -296,7 +296,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 
 					foreach ($ders_yillari as $ders_yili ) { ?>
 						
-						<li><div class="ders-kapsa bg-secondary"><?php  echo $ders_yili[ "adi" ]; ?></div>
+						<li><div class="ders-kapsa bg-renk1"><?php  echo $ders_yili[ "adi" ]; ?></div>
 						<ul class="ders-ul" >
 				<?php 
 						/*Programların  Listesi*/
@@ -304,7 +304,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 						foreach ($programlar as $program) { ?>
 							
 							<!-- Programlar -->
-							<li><div class="ders-kapsa bg-danger"><?php echo $program[ "adi" ] ?></div> <!-- Second level node -->
+							<li><div class="ders-kapsa bg-renk2"><?php echo $program[ "adi" ] ?></div> <!-- Second level node -->
 							<ul class="ders-ul">
 				<?php 		
 							/*Dönemler Listesi*/
@@ -312,7 +312,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 							foreach ( $donemler AS $donem ){ ?>
 								<!--Dönemler-->
 								<li>
-									<div class="ders-kapsa bg-warning">
+									<div class="ders-kapsa bg-renk3">
 										<?php echo $donem[ "adi" ]  ?>
 									</div>
 								<ul class="ders-ul">
@@ -323,16 +323,16 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 									foreach ( $komiteler AS $komite ){ ?>
 									<!--Komiteler-->
 									<li>
-										<div class="ders-kapsa">
+										<div class="ders-kapsa bg-renk4">
 											<?php echo $komite[ "adi" ]  ?>
-											<a href="?modul=komiteDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>&komite_id=<?php echo $komite[ 'id' ] ?>" class="btn btn-warning float-right btn-xs">Düzenle</a>
+											<a href="?modul=komiteDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>&komite_id=<?php echo $komite[ 'id' ] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>
 										</div>
 									<ul class="ders-ul">
 				<?php 			
 										/*Ders Listesi*/
 										$dersler = $vt->select( $SQL_dersler_getir, array( $ders_yili[ "id" ], $program[ "id" ], $donem[ "id" ], $komite[ "id" ] ) )[2];
 										foreach ( $dersler as $ders ) { ?>
-											<li><div class="ders-kapsa bg-light"><?php echo $ders[ "adi" ]; ?> <span class="float-right">(<?php echo $ders[ "ders_kodu" ]  ?>)</span></div></li>				
+											<li><div class="ders-kapsa bg-renk5"><?php echo $ders[ "adi" ]; ?> <span class="float-right">(<?php echo $ders[ "ders_kodu" ]  ?>)</span></div></li>				
 				<?php			
 									}
 									echo '</ul></li>';
