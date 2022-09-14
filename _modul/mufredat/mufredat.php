@@ -57,6 +57,20 @@ WHERE
 	dyd.program_id 		= ?
 SQL;
 
+
+
+$SQL_alt_mufredat_getir = <<< SQL
+SELECT
+	*
+FROM 
+	tb_mufredat
+WHERE 
+	ust_id = ?
+SQL;
+
+
+
+
 $mufredatlar = $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
 
 ?>
@@ -69,37 +83,43 @@ $mufredatlar = $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] )
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
-
-				<ul class="tree ">
-
 					<?php
-						$enyuksekTap = array();
-						function kategoriListele2( $kategoriler, $parent = 0, $tab = 1, $ilk = 0 ){
-							$html = '';
-							$enyuksekTap[] = $tab;
+					//var_dump($mufredatlar);
+						function kategoriListele2( $kategoriler, $parent = 0, $class ="tree", $renk = 0){
+							$html = '<ul class="'.$class.'">';
 
 							foreach ($kategoriler as $kategori){
 								if( $kategori['ust_id'] == $parent ){
 									if( $parent == 0 ) {
-										$tab 			= 1;	
-										$enyuksekTap 	= array();								
+										$renk = 1;
 									} 
-									if( $ilk == 0 ) $ulKapat = str_repeat('</ul></li>', max( $enyuksekTap ) );$html .= $ulKapat;
 
-									$html .= '<li><div class="ders-kapsa bg-renk'.$tab.'">'.$kategori[ "adi" ].'</div>
-												<ul class="ders-ul" >';
-									$tab++;
-									
-									$html .= kategoriListele2($kategoriler, $kategori['id'], $tab, $tab);
+									if( $kategori['kategori'] == 0 ){
+										//$html .= '<li><div class="ders-kapsa bg-renk'.$renk.'"> '.$kategori[ "adi" ].$kategori[ "id" ].'</div></li>';
+										$html .= "<li><div class='ders-kapsa bg-renk$renk'> $kategori[adi]$kategori[id]
+										<a href='#' class='btn btn-dark float-right btn-xs'>Düzenle</a>
+										</div></li>";
+
+									}
+									if( $kategori['kategori'] == 1 ){
+										$html .= "<li><div class='ders-kapsa bg-renk$renk'> $kategori[adi]$kategori[id]
+										<a href='#' class='btn btn-dark float-right btn-xs'>Düzenle</a>
+										</div>";
+										$renk++;
+										$html .= kategoriListele2($kategoriler, $kategori['id'],"ders-ul",$renk);
+										$html .= '</li>';
+										$renk--;
+									}
 								}
+
 							}
+							$html .='</ul>';
 							return $html;
 						}
 
 						echo kategoriListele2($mufredatlar);
 					?>
-				
-				</ul>
+
 			</div>
 			<!-- /.card -->
 		</div>
