@@ -712,12 +712,14 @@ switch( $_POST[ 'islem' ] ) {
 
 	case 'aktifYil':
 		$_SESSION[ 'aktif_yil' ] 	= $_REQUEST['id'];
+		unset($_SESSION['donem_id']);
 	break;
 	case 'aktifFakulte':
 		$_SESSION[ 'program_id' ]	= $_REQUEST['id'];
+		unset($_SESSION['donem_id']);
 	break;
 	case 'aktifDonem':
-		$_SESSION[ 'donem_id' ]	= $_REQUEST['id'];
+		$_SESSION[ 'donem_id' ]		= $_REQUEST['id'];
 	break;
 	
 	case 'cevap_turune_gore_secenek_ver':

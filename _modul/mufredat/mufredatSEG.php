@@ -3,62 +3,114 @@ include "../../_cekirdek/fonksiyonlar.php";
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
 
-$islem				= array_key_exists( 'islem', $_REQUEST )		 	? $_REQUEST[ 'islem' ]				: 'ekle';
-$komite_ders_id 	= array_key_exists( 'komite_ders_id', $_REQUEST ) 	? $_REQUEST[ 'komite_ders_id' ]		: 0;
-$ogretim_uyesi_id 	= array_key_exists( 'ogretim_uyesi_id', $_REQUEST ) ? $_REQUEST[ 'ogretim_uyesi_id' ]	: 0;
+$islem				= array_key_exists( 'islem', $_REQUEST )	? $_REQUEST[ 'islem' ]	: 'ekle';
+$mufredat_id 		= array_key_exists( 'id', $_REQUEST ) 		? $_REQUEST[ 'id' ] 	: 0;
 
 
-/*DERSSLERİ EKLEME İŞLEMİ*/
-$SQL_komite_ders_ogretim_uyesi_ekle = <<< SQL
+$SQL_mufredat_ekle = <<< SQL
 INSERT INTO 
-	tb_komite_dersleri_ogretim_uyeleri
+	tb_mufredat
 SET
-	komite_ders_id 		= ?,
-	ogretim_uyesi_id 	= ?
+	ust_id 				= ?,
+	adi 				= ?,
+	ders_yili_donem_id 	= ?,
+	program_id 			= ?,
+	ders_id 			= ?,
+	kategori 			= ?
+SQL;
+
+$SQL_mufredat_duzenle = <<< SQL
+UPDATE
+	tb_mufredat
+SET
+	adi 	= ?
+WHERE 
+	id 		= ? 
 SQL;
 
 $SQL_sil = <<< SQL
 DELETE FROM
-	tb_komite_dersleri_ogretim_uyeleri
+	tb_mufredat
 WHERE
-	komite_ders_id = ?
+	id = ?
 SQL;
 
-$SQL_tek_sil = <<< SQL
-DELETE FROM
-	tb_komite_dersleri_ogretim_uyeleri
-WHERE
-	komite_ders_id 		= ? AND 
-	ogretim_uyesi_id 	= ? 
+$SQL_mufredat_oku = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_mufredat
+WHERE 
+	ust_id  		= ?
 SQL;
-
 
 $degerler = array();
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 switch( $islem ) {
 	case 'ekle':
-		
-		$komite_ogretim_uyeleri_sil = $vt->delete( $SQL_sil, array( $komite_ders_id ) );
 
-		foreach ($_REQUEST['ogretim_uyesi_id'] as $id) {
+		$kategori = $_REQUEST[ "kategori" ] == "on" ? 1 : 0;
 
-			$degerler[] = $komite_ders_id;
-			$degerler[] = $id;
+		$degerler[] = $_REQUEST[ "ust_id" ];
+		$degerler[] = $_REQUEST[ "adi" ];
+		$degerler[] = $_SESSION[ "donem_id" ];
+		$degerler[] = $_SESSION[ "program_id" ];
+		$degerler[] = $_REQUEST[ "ders_id" ];
+		$degerler[] = $kategori;
 
-			$sonuc = $vt->insert( $SQL_komite_ders_ogretim_uyesi_ekle, $degerler );
+		$sonuc = $vt->insert( $SQL_mufredat_ekle, $degerler );
+		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt eklenirken bir hata oluştu ' . $sonuc[ 1 ] );
+		else $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => $sonuc[ 2 ] ); 
+		$son_eklenen_id	= $sonuc[ 2 ]; 
+		$mufredat_id = $son_eklenen_id;
 
-			$degerler = array();
-		}
+	break;
+	case 'guncelle':
+		$degerler[] = $_REQUEST[ "adi" ];
+		$degerler[] = $_REQUEST[ "mufredat_id" ];
+
+		$sonuc = $vt->update( $SQL_mufredat_duzenle, $degerler );
+		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
 
 	break;
 	case 'sil':
-		$sonuc = $vt->delete( $SQL_tek_sil, array( $komite_ders_id, $ogretim_uyesi_id ) );
-		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt silinrken bir hata oluştu ' . $sonuc[ 1 ] );
+
+		echo '<pre>';
+
+
+		function kategorisil($vt, $SQL_mufredat_oku, $SQL_sil, $id){
+
+			$kategoriler = $vt->select( $SQL_mufredat_oku, array( $id ) )[2];
+
+			if ( count( $kategoriler ) > 0 ) {
+				foreach ($kategoriler as $kategori){
+
+					$altKategoriler = $vt->select( $SQL_mufredat_oku, array( $kategori[ "id" ] ) )[2];
+
+					if( count( $altKategoriler ) > 0 ){
+						foreach ($altKategoriler as $altKategori) {
+							kategorisil($vt,$SQL_mufredat_oku, $SQL_sil, $altKategori[ "id" ]);
+						}
+					}else{
+						$kategori_sil = $vt->delete( $SQL_sil, array( $kategori[ "id" ] ));
+					}
+					$kategori_sil = $vt->delete( $SQL_sil, array( $kategori[ "id" ] ));
+				}
+				$kategori_sil = $vt->delete( $SQL_sil, array( $id ));
+			}else{
+				$kategori_sil = $vt->delete( $SQL_sil, array( $id ));
+			}
+			
+		}
+
+		echo "gelen id  : $mufredat_id";
+		kategorisil($vt,$SQL_mufredat_oku, $SQL_sil, $mufredat_id);
 	break;
 }
 
 
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
-header( "Location:../../index.php?modul=komiteDersOgretimUyeleri");
+$_SESSION[ 'sonuclar' ][ 'id' ] = $mufredat_id;
+header( "Location:../../index.php?modul=mufredat");
 ?>

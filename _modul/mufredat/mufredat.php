@@ -57,25 +57,51 @@ WHERE
 	dyd.program_id 		= ?
 SQL;
 
-
-
-$SQL_alt_mufredat_getir = <<< SQL
-SELECT
-	*
+$SQL_dersler_getir = <<< SQL
+SELECT 
+	d.* 
 FROM 
-	tb_mufredat
+	tb_donem_dersleri AS dd
+LEFT JOIN 
+	tb_dersler AS d ON d.id = dd.ders_id
 WHERE 
-	ust_id = ?
+	dd.ders_yili_donem_id = ?
 SQL;
 
+$SQL_donemler_getir = <<< SQL
+SELECT
+	dyd.id AS id,
+	d.adi AS adi
+FROM
+	tb_ders_yili_donemleri AS dyd
+LEFT JOIN tb_donemler AS d ON d.id = dyd.donem_id 
+WHERE
+	d.universite_id 	= ? AND
+	dyd.ders_yili_id 	= ? AND
+	dyd.program_id 		= ? AND
+	d.aktif 			= 1
+SQL;
 
-
-
-$mufredatlar = $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
+$donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
+$_SESSION[ "donem_id" ] = $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
+$mufredatlar 			= $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
+$dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
 
 ?>
 
 <div class="row">
+	<div class="col-sm-12 mb-2 d-flex">
+
+		<?php foreach( $donemler AS $donem ){ ?>
+				<label for="donemCard<?php echo $donem[ "id" ] ?>" class="col-sm m-1 pt-3 pb-3 bg-<?php echo $_SESSION[ 'donem_id' ] == $donem[ 'id' ] ? 'olive' : 'navy' ?> btn text-left">
+					<div class="icheck-success d-inline">
+						<input type="radio" name="aktifDonem" id="donemCard<?php echo $donem[ "id" ] ?>" data-url="./_modul/ajax/ajax_data.php" data-islem="aktifDonem" data-modul="<?php echo $_REQUEST['modul'] ?>" value="<?php echo $donem[ "id" ] ?>" class="aktifYilSec" <?php echo $_SESSION[ 'donem_id' ] == $donem[ 'id' ] ? 'checked' : null; ?>  >
+						<label for="donemCard<?php echo $donem[ "id" ] ?>"><?php echo $donem[ 'adi' ]; ?></label>
+					</div>
+				</label>
+		<?php } ?>
+		
+	</div>
 	<div class="col-md-12">
 		<div class="card card-dark">
 			<div class="card-header">
@@ -83,10 +109,15 @@ $mufredatlar = $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] )
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
+				<ul class="tree">
+					<li> <div class='ders-kapsa bg-renk5'> Ana Kategori 
+							<a href='#' class='btn btn-dark float-right btn-xs KategoriEkle' id='0' data-id='0' data-kategori_ad ='Ana Kategori' data-modal='yeni_ana_kategori_ekle'>Kategori Ekle</a>
+						</div>
+
 					<?php
 					//var_dump($mufredatlar);
 						function kategoriListele2( $kategoriler, $parent = 0, $class ="tree", $renk = 0){
-							$html = '<ul class="'.$class.'">';
+							$html = '<ul class="ders-ul">';
 
 							foreach ($kategoriler as $kategori){
 								if( $kategori['ust_id'] == $parent ){
@@ -96,14 +127,20 @@ $mufredatlar = $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] )
 
 									if( $kategori['kategori'] == 0 ){
 										//$html .= '<li><div class="ders-kapsa bg-renk'.$renk.'"> '.$kategori[ "adi" ].$kategori[ "id" ].'</div></li>';
-										$html .= "<li><div class='ders-kapsa bg-renk$renk'> $kategori[adi]$kategori[id]
-										<a href='#' class='btn btn-dark float-right btn-xs'>Düzenle</a>
+										$html .= "<li><div class='ders-kapsa bg-renk$renk '> $kategori[adi]
+										<a href='#' id='$kategori[id]' data-id='$kategori[id]' class='btn btn-warning float-right btn-xs KategoriDuzenle' data-kategori_ad_duzenle='$kategori[adi]' data-modal='kategori_duzenle' data-islem='guncelle' data-kategori='$kategori[kategori]'>Düzenle</a>
 										</div></li>";
 
 									}
 									if( $kategori['kategori'] == 1 ){
-										$html .= "<li><div class='ders-kapsa bg-renk$renk'> $kategori[adi]$kategori[id]
-										<a href='#' class='btn btn-dark float-right btn-xs'>Düzenle</a>
+										$html .= "<li><div class='ders-kapsa bg-renk$renk'> $kategori[adi]
+										<span>
+											<button modul= 'mufredat' yetki_islem='sil' class='btn btn-xs ml-1 btn-danger float-right' data-href='_modul/mufredat/mufredatSEG.php?islem=sil&id=$kategori[id]' data-toggle='modal' data-target='#sil_onay'>Sil</button>
+
+											<a href='#' id='$kategori[id]' data-id='$kategori[id]' data-ders_id='$kategori[ders_id]' class='btn btn-warning float-right btn-xs ml-1 KategoriDuzenle'data-kategori_ad_duzenle='$kategori[adi]' data-modal='kategori_duzenle' data-islem='guncelle' data-kategori ='$kategori[kategori]' >Düzenle</a>
+
+											<a href='#' class='btn btn-dark float-right btn-xs KategoriEkle' id='$kategori[id]' data-id='$kategori[id]' data-kategori_ad ='$kategori[adi]' data-ders_id='$kategori[ders_id]' data-modal='kategori_ekle'>Kategori Ekle</a>
+										</span>
 										</div>";
 										$renk++;
 										$html .= kategoriListele2($kategoriler, $kategori['id'],"ders-ul",$renk);
@@ -116,9 +153,10 @@ $mufredatlar = $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] )
 							$html .='</ul>';
 							return $html;
 						}
-
 						echo kategoriListele2($mufredatlar);
 					?>
+					</li>
+				</ul>
 
 			</div>
 			<!-- /.card -->
@@ -139,6 +177,7 @@ $mufredatlar = $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] )
 					</button>
 				</div>
 				<div class="modal-body">
+					<p><b>Bu Kaydı silmeniz durumunda kategori Altında bulunan diğer kategoriler silinecektir.</b></p>
 					<p>Bu kaydı <b>Silmek</b> istediğinize emin misiniz?</p>
 				</div>
 				<div class="modal-footer justify-content-between">
@@ -150,10 +189,169 @@ $mufredatlar = $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] )
 		</div>
 		<!-- /.modal-dialog -->
 	</div>
+
+	<!--MUFREDAT EKLEME MODALI-->
+	<div class="modal fade" id="yeni_ana_kategori_ekle">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Yeni Ana Kategori Ekleme</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form class="form-horizontal" action = "_modul/mufredat/mufredatSEG.php" method = "POST">
+					<div class="modal-body">
+						<input type="hidden" id="ust_id"  name="ust_id" >
+						<div class="form-group">
+							<label  class="control-label">Eklenecek Öğrenci</label>
+							<select class="form-control select2" name="ders_id" required>
+								<option value="">Seçiniz...</option>
+								<?php foreach( $dersler AS $ders ){ ?>
+									<option value="<?php echo $ders[ "id" ];?>">
+										( <?php echo $ders[ "ders_kodu" ];?> )&nbsp;&nbsp;&nbsp; 
+										<b><?php echo $ders[ "adi" ];?></b>
+									</option>
+								<?php } ?>
+							</select>
+						</div>	
+
+						<div class="form-group">
+							<label class="control-label">Kategori Adı</label>
+							<input required type="text" class="form-control" name ="adi"  autocomplete="off">
+						</div>
+						<div class="form-group">
+							<label  class="control-label">Kategori Mi? </label>
+							<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
+								<div class="bootstrap-switch-container" >
+									<input type="checkbox" name="kategori" checked data-bootstrap-switch="" data-off-color="danger" data-on-text="Default" data-off-text="Değil" data-on-color="success">
+								</div>
+							</div>
+						</div>
+
+					</div>
+					<div class="modal-footer justify-content-between">
+						<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
+						<button type="submit" class="btn btn-danger ">Evet</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+
+	<!--MUFREDAT EKLEME MODALI-->
+	<div class="modal fade" id="kategori_ekle">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Yeni Kategori Ekle</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form class="form-horizontal" action = "_modul/mufredat/mufredatSEG.php" method = "POST">
+					<div class="modal-body">
+						<input type="hidden" id="yeni_kategori_ust_id"  name="ust_id">
+						<input type="hidden" id="ders_id" name="ders_id">
+						<div class="form-group">
+							<label class="control-label">Ust Kategori</label>
+							<input required type="text" class="form-control" id="kategori_ad"  autocomplete="off" disabled>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label">Kategori Adı</label>
+							<input required type="text" class="form-control" name ="adi"  autocomplete="off">
+						</div>
+						<div class="form-group">
+							<label  class="control-label">Kategori Mi? </label>
+							<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
+								<div class="bootstrap-switch-container" >
+									<input type="checkbox" name="kategori" checked data-bootstrap-switch="" data-off-color="danger" data-on-text="Kategori" data-off-text="Değil" data-on-color="success">
+								</div>
+							</div>
+						</div>
+
+					</div>
+					<div class="modal-footer justify-content-between">
+						<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
+						<button type="submit" class="btn btn-danger">Evet</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+
+	<!--MUFREDAT -->
+	<div class="modal fade" id="kategori_duzenle">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Yeni Ana Kategori Ekle</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form class="form-horizontal" action = "_modul/mufredat/mufredatSEG.php" method = "POST">
+					<div class="modal-body">
+						<input type="hidden" id="islem" name="islem">
+						<input type="hidden" id="mufredat_id" name="mufredat_id">
+
+						<div class="form-group">
+							<label class="control-label">Kategori Adı</label>
+							<input required type="text" class="form-control" name ="adi"  autocomplete="off" id="kategori_ad_duzenle">
+						</div>
+
+					</div>
+					<div class="modal-footer justify-content-between">
+						<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
+						<button type="submit" class="btn btn-danger">Evet</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	
 	<script>
 		$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
 			$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
 		} );
+
+		$('.KategoriEkle').on("click", function(e) { 
+	        var ust_id      = $(this).data("id");
+	        var kategori_ad = $(this).data("kategori_ad");
+	        var ders_id 	= $(this).data("ders_id");
+	        var modal 		= $(this).data("modal");
+
+	        document.getElementById("yeni_kategori_ust_id").value 	 = ust_id;
+	        document.getElementById("kategori_ad").value = kategori_ad;
+	        document.getElementById("ders_id").value 	 = ders_id;
+	        $('#'+ modal).modal( "show" );
+	    });
+		
+		$('.KategoriDuzenle').on("click", function(e) { 
+	        var kategori_ad = $(this).data("kategori_ad_duzenle");
+	        var modal 		= $(this).data("modal");
+	        var kategori 	= $(this).data("kategori");
+	        var islem 		= $(this).data("islem");
+	        var mufredet_id = $(this).data("id");
+
+	        if ( kategori == 1 ) {
+	        	$("[name='kategori_duzenle']").bootstrapSwitch('state', true, true);
+	        }else{
+	        	$("[name='kategori_duzenle']").bootstrapSwitch('state', false, false);
+	        }
+
+	        document.getElementById("mufredat_id").value 		 	= mufredet_id;
+	        document.getElementById("kategori_ad_duzenle").value 	= kategori_ad;
+	        document.getElementById("islem").value 					= islem;
+	        $('#'+ modal).modal( "show" );
+	    });
 
 		$('.gorevli').on("click", function(e) { 
 	        var id 	        = $(this).data("id");
