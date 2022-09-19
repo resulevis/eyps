@@ -1,8 +1,9 @@
 <?php
 $fn = new Fonksiyonlar();
 
-$islem          					= array_key_exists( 'islem', $_REQUEST )  		? $_REQUEST[ 'islem' ] 	    	: 'ekle';
+$islem          					= array_key_exists( 'islem', $_REQUEST )  		? $_REQUEST[ 'islem' ] 	    : 'ekle';
 $ders_yili_donem_id          		= array_key_exists( 'ders_yili_donem_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_donem_id' ] 	: 0;
+$ders_id          					= array_key_exists( 'ders_id', $_REQUEST ) 		? $_REQUEST[ 'ders_id' ] 	: 0;
 
 
 $kaydet_buton_yazi		= $islem == "guncelle"	? 'Güncelle'							: 'Kaydet';
@@ -25,7 +26,8 @@ SELECT
 FROM 
 	tb_mufredat
 WHERE 
-	ders_yili_donem_id = ?
+	ders_yili_donem_id  = ? AND
+	ders_id 			= ?
 SQL;
 
 $SQL_donemler_getir = <<< SQL
@@ -84,7 +86,7 @@ SQL;
 
 $donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
 $_SESSION[ "donem_id" ] = $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
-$mufredatlar 			= $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
+$mufredatlar 			= $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ], $ders_id ) )[ 2 ];
 $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
 
 ?>
@@ -106,6 +108,17 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 		<div class="card card-dark">
 			<div class="card-header">
 				<h3 class="card-title">Müfredat</h3>
+				<div class="form-group float-right mb-0">
+					<select class="form-control select2" name="ders_id" required  onchange="dersSecimi(this.value);">
+						<option value="">Ders Seçiniz...</option>
+						<?php foreach( $dersler AS $ders ){ ?>
+							<option value="<?php echo $ders[ "id" ];?>" <?php echo $ders[ "id" ] == $ders_id ? 'selected' : null; ?>>
+								( <?php echo $ders[ "ders_kodu" ];?> )&nbsp;&nbsp;&nbsp; 
+								<b><?php echo $ders[ "adi" ];?></b>
+							</option>
+						<?php } ?>
+					</select>
+				</div>	
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
@@ -125,7 +138,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 										$renk = 1;
 									} 
 
-									if( $kategori['kategori'] == 0 ){
+									if( $kategori['kategori'] == 0){
 										//$html .= '<li><div class="ders-kapsa bg-renk'.$renk.'"> '.$kategori[ "adi" ].$kategori[ "id" ].'</div></li>';
 										$html .= "<li><div class='ders-kapsa bg-renk$renk '> $kategori[adi]
 										<a href='#' id='$kategori[id]' data-id='$kategori[id]' class='btn btn-warning float-right btn-xs KategoriDuzenle' data-kategori_ad_duzenle='$kategori[adi]' data-modal='kategori_duzenle' data-islem='guncelle' data-kategori='$kategori[kategori]'>Düzenle</a>
@@ -153,7 +166,10 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 							$html .='</ul>';
 							return $html;
 						}
-						echo kategoriListele2($mufredatlar);
+						if( count( $mufredatlar ) ) 
+							echo kategoriListele2($mufredatlar);
+						
+
 					?>
 					</li>
 				</ul>
@@ -204,11 +220,11 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 					<div class="modal-body">
 						<input type="hidden" id="ust_id"  name="ust_id" >
 						<div class="form-group">
-							<label  class="control-label">Eklenecek Öğrenci</label>
+							<label  class="control-label">Ders</label>
 							<select class="form-control select2" name="ders_id" required>
 								<option value="">Seçiniz...</option>
 								<?php foreach( $dersler AS $ders ){ ?>
-									<option value="<?php echo $ders[ "id" ];?>">
+									<option value="<?php echo $ders[ "id" ];?>" <?php echo $ders[ "id" ] == $ders_id ? 'selected' : null; ?>>
 										( <?php echo $ders[ "ders_kodu" ];?> )&nbsp;&nbsp;&nbsp; 
 										<b><?php echo $ders[ "adi" ];?></b>
 									</option>
@@ -232,7 +248,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 					</div>
 					<div class="modal-footer justify-content-between">
 						<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
-						<button type="submit" class="btn btn-danger ">Evet</button>
+						<button type="submit" class="btn btn-danger ">Kaydet</button>
 					</div>
 				</form>
 			</div>
@@ -276,7 +292,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 					</div>
 					<div class="modal-footer justify-content-between">
 						<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
-						<button type="submit" class="btn btn-danger">Evet</button>
+						<button type="submit" class="btn btn-danger">Kaydet</button>
 					</div>
 				</form>
 			</div>
@@ -308,7 +324,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 					</div>
 					<div class="modal-footer justify-content-between">
 						<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
-						<button type="submit" class="btn btn-danger">Evet</button>
+						<button type="submit" class="btn btn-danger">Kaydet</button>
 					</div>
 				</form>
 			</div>
@@ -365,4 +381,14 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 	            $('#gorevliEkleModal').modal( "show" )
 	        });
 	    });
+	    function dersSecimi(ders_id){
+			var  url 			= window.location;
+			var origin		= url.origin;
+			var path			= url.pathname;
+			var search		= (new URL(document.location)).searchParams;
+			var modul   		= search.get('modul');
+			var ders_id  	= "&ders_id="+ders_id;
+			
+			window.location.replace(origin + path+'?modul='+modul+''+ders_id);
+		}
 	</script>
