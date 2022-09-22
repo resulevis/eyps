@@ -185,7 +185,7 @@ $komiteler				= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'donem_id' 
 						</div-->
 						<input type="hidden" name="islem" value="ekle">
 						<div class="form-group">
-							<label  class="control-label">Eklenecek Öğrenci</label>
+							<label  class="control-label">Komite Seçiniz</label>
 							<select class="form-control select2" name="komite_id" required>
 								<option value="">Seçiniz...</option>
 								<?php  foreach( $komiteler AS $komite ){ ?>
@@ -229,7 +229,7 @@ $komiteler				= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'donem_id' 
 						<div class="card-body">
 						<!-- GENEL BİLGİLER -->
 							<div class="form-group">
-								<label  class="control-label">Eklenecek Öğrenci</label>
+								<label  class="control-label">Komite Seçiniz</label>
 								<select class="form-control select2" name="komite_id" required>
 									<option value="">Seçiniz...</option>
 									<?php  foreach( $komiteler AS $komite ){ ?>

@@ -5,6 +5,7 @@ $fn		= new Fonksiyonlar();
 
 $islem				= array_key_exists( 'islem', $_REQUEST )	? $_REQUEST[ 'islem' ]	: 'ekle';
 $mufredat_id 		= array_key_exists( 'id', $_REQUEST ) 		? $_REQUEST[ 'id' ] 	: 0;
+$ders_id 			= array_key_exists( 'ders_id', $_REQUEST ) 	? $_REQUEST[ 'ders_id' ] : 0;
 
 
 $SQL_mufredat_ekle = <<< SQL
@@ -112,5 +113,5 @@ switch( $islem ) {
 
 $_SESSION[ 'sonuclar' ] 		= $___islem_sonuc;
 $_SESSION[ 'sonuclar' ][ 'id' ] = $mufredat_id;
-header( "Location:../../index.php?modul=mufredat");
+header( "Location:../../index.php?modul=mufredat&ders_id=$ders_id");
 ?>

@@ -5,6 +5,7 @@ $islem          					= array_key_exists( 'islem', $_REQUEST )  		? $_REQUEST[ 'i
 $ders_yili_donem_id          		= array_key_exists( 'ders_yili_donem_id', $_REQUEST ) ? $_REQUEST[ 'ders_yili_donem_id' ] 	: 0;
 $ders_id          					= array_key_exists( 'ders_id', $_REQUEST ) 		? $_REQUEST[ 'ders_id' ] 	: 0;
 
+if ( $ders_id > 0 ) $_SESSION[ "ders_id" ] = $ders_id;
 
 $kaydet_buton_yazi		= $islem == "guncelle"	? 'Güncelle'							: 'Kaydet';
 $kaydet_buton_cls		= $islem == "guncelle"	? 'btn btn-warning btn-sm pull-right'	: 'btn btn-success btn-sm pull-right';
@@ -84,10 +85,21 @@ WHERE
 	d.aktif 			= 1
 SQL;
 
+$SQL_soru_tipi_getir = <<< SQL
+SELECT
+	*
+FROM
+	tb_soru_turleri
+WHERE
+	universite_id 	= ?
+SQL;
+
+
 $donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
-$_SESSION[ "donem_id" ] = $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
-$mufredatlar 			= $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ], $ders_id ) )[ 2 ];
+@$_SESSION[ "donem_id" ] = $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
+@$mufredatlar 			= $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ], $_SESSION[ "ders_id"] ) )[ 2 ];
 $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
+$soruTurleri 	 		= $vt->select($SQL_soru_tipi_getir, array( $_SESSION[ "universite_id" ] ) )[ 2 ];
 
 ?>
 
@@ -112,7 +124,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 					<select class="form-control select2" name="ders_id" required  onchange="dersSecimi(this.value);">
 						<option value="">Ders Seçiniz...</option>
 						<?php foreach( $dersler AS $ders ){ ?>
-							<option value="<?php echo $ders[ "id" ];?>" <?php echo $ders[ "id" ] == $ders_id ? 'selected' : null; ?>>
+							<option value="<?php echo $ders[ "id" ];?>" <?php echo $ders[ "id" ] == @$_SESSION[ "ders_id" ] ? 'selected' : null; ?>>
 								( <?php echo $ders[ "ders_kodu" ];?> )&nbsp;&nbsp;&nbsp; 
 								<b><?php echo $ders[ "adi" ];?></b>
 							</option>
@@ -122,7 +134,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 			</div>
 			<!-- /.card-header -->
 			<div class="card-body p-0">
-				<ul class="tree">
+				<ul class="tree mr-5">
 					<li> <div class='ders-kapsa bg-renk5'> Ana Kategori 
 							<a href='#' class='btn btn-dark float-right btn-xs KategoriEkle' id='0' data-id='0' data-kategori_ad ='Ana Kategori' data-modal='yeni_ana_kategori_ekle'>Kategori Ekle</a>
 						</div>
@@ -140,9 +152,17 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 
 									if( $kategori['kategori'] == 0){
 										//$html .= '<li><div class="ders-kapsa bg-renk'.$renk.'"> '.$kategori[ "adi" ].$kategori[ "id" ].'</div></li>';
-										$html .= "<li><div class='ders-kapsa bg-renk$renk '> $kategori[adi]
-										<a href='#' id='$kategori[id]' data-id='$kategori[id]' class='btn btn-warning float-right btn-xs KategoriDuzenle' data-kategori_ad_duzenle='$kategori[adi]' data-modal='kategori_duzenle' data-islem='guncelle' data-kategori='$kategori[kategori]'>Düzenle</a>
-										</div></li>";
+										$html .= "<li>
+													<div class='ders-kapsa bg-renk$renk '> $kategori[adi]
+														<span class='m-0 p-0'>
+															<button modul= 'mufredat' yetki_islem='sil' class='btn btn-xs ml-1 btn-danger float-right' data-href='_modul/mufredat/mufredatSEG.php?islem=sil&id=$kategori[id]' data-toggle='modal' data-target='#sil_onay'>Sil</button>
+
+															<a href='#' id='$kategori[id]' class='btn btn-light float-right btn-xs ml-1 modalAc' data-mufredat_id='$kategori[id]'  data-kategori_ad='$kategori[adi]' data-modal='soru_ekle' data-ders_id='$kategori[ders_id]' >Soru Ekle</a>
+
+															<a href='#' id='$kategori[id]' data-id='$kategori[id]' class='btn btn-warning float-right btn-xs modalAc' data-kategori_ad_duzenle='$kategori[adi]' data-modal='kategori_duzenle' data-islem='guncelle' data-kategori='$kategori[kategori]'>Düzenle</a>
+														</span>
+													</div>
+												</li>";
 
 									}
 									if( $kategori['kategori'] == 1 ){
@@ -150,7 +170,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 										<span>
 											<button modul= 'mufredat' yetki_islem='sil' class='btn btn-xs ml-1 btn-danger float-right' data-href='_modul/mufredat/mufredatSEG.php?islem=sil&id=$kategori[id]' data-toggle='modal' data-target='#sil_onay'>Sil</button>
 
-											<a href='#' id='$kategori[id]' data-id='$kategori[id]' data-ders_id='$kategori[ders_id]' class='btn btn-warning float-right btn-xs ml-1 KategoriDuzenle'data-kategori_ad_duzenle='$kategori[adi]' data-modal='kategori_duzenle' data-islem='guncelle' data-kategori ='$kategori[kategori]' >Düzenle</a>
+											<a href='#' id='$kategori[id]' data-id='$kategori[id]' data-ders_id='$kategori[ders_id]' class='btn btn-warning float-right btn-xs ml-1 modalAc'data-kategori_ad_duzenle='$kategori[adi]' data-modal='kategori_duzenle' data-islem='guncelle' data-kategori ='$kategori[kategori]' >Düzenle</a>
 
 											<a href='#' class='btn btn-dark float-right btn-xs KategoriEkle' id='$kategori[id]' data-id='$kategori[id]' data-kategori_ad ='$kategori[adi]' data-ders_id='$kategori[ders_id]' data-modal='kategori_ekle'>Kategori Ekle</a>
 										</span>
@@ -173,6 +193,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 					?>
 					</li>
 				</ul>
+				<?php if ( count( $mufredatlar ) < 1) echo '<div class="alert alert-warning m-5">Ders için müfredat eklenmemiş</div>'; ?>
 
 			</div>
 			<!-- /.card -->
@@ -306,7 +327,7 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4 class="modal-title">Yeni Ana Kategori Ekle</h4>
+					<h4 class="modal-title">Kategori Düzenle</h4>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
@@ -323,8 +344,67 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 
 					</div>
 					<div class="modal-footer justify-content-between">
-						<button type="button" class="btn btn-success" data-dismiss="modal">İptal</button>
-						<button type="submit" class="btn btn-danger">Kaydet</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">İptal</button>
+						<button type="submit" class="btn btn-success">Kaydet</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+
+	<!--MUFREDAT -->
+	<div class="modal fade" id="soru_ekle">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Soru Ekleme</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form class="form-horizontal" action = "_modul/sorular/sorularSEG.php" method = "POST">
+					<div class="modal-body">
+						<input type="hidden" id="islem" name="islem">
+						<input type="hidden" id="soru_mufredat_id" name="mufredat_id">
+						<input type="hidden" id="soru_ders_id" name="ders_id">
+
+						<div class="form-group">
+							<label class="control-label">Seçilen Müfredat</label>
+							<input required type="text" class="form-control"  autocomplete="off" id="mufredat_adi" disabled>
+						</div>
+						<div class="form-group">
+							<label class="control-label">Soru</label>
+							<textarea name="soru" class="form-control" rows="2"></textarea>
+						</div>
+
+						<div class="form-group">
+							<select class="form-control select2" name="ders_id" required >
+								<option value="">Soru Türü Seçiniz...</option>
+								<?php foreach( $soruTurleri AS $tur ){ ?>
+									<option value="<?php echo $tur[ "id" ]; ?>">
+										<?php echo $tur[ "adi" ]; ?>
+									</option>
+								<?php } ?>
+							</select>
+						</div>	
+						
+						<div class="form-group">
+							<label for="exampleInputFile">Soru Dosyası</label>
+							<div class="input-group">
+								<div class="custom-file">
+									<label class="custom-file-label" for="exampleInputFile">Dosya Seç</label>
+									<input type="file" class="custom-file-input OzlukDosya " name = "OzlukDosya" >
+								</div>
+							</div>
+						</div>
+						
+
+					</div>
+					<div class="modal-footer justify-content-between">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">İptal</button>
+						<button type="submit" class="btn btn-success">Kaydet</button>
 					</div>
 				</form>
 			</div>
@@ -350,23 +430,37 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 	        $('#'+ modal).modal( "show" );
 	    });
 		
-		$('.KategoriDuzenle').on("click", function(e) { 
-	        var kategori_ad = $(this).data("kategori_ad_duzenle");
-	        var modal 		= $(this).data("modal");
-	        var kategori 	= $(this).data("kategori");
-	        var islem 		= $(this).data("islem");
-	        var mufredet_id = $(this).data("id");
+		$('.modalAc').on("click", function(e) { 
+	        if ( modal == "soru_ekle" ){
 
-	        if ( kategori == 1 ) {
-	        	$("[name='kategori_duzenle']").bootstrapSwitch('state', true, true);
+	        	var kategori_ad = $(this).data("kategori_ad");
+		        var modal 		= $(this).data("modal");
+		        var mufredet_id = $(this).data("mufredat_id");
+
+	        	document.getElementById("soru_mufredat_id").value 		= mufredet_id;
+		        document.getElementById("mufredat_adi").value 			= kategori_ad;
+		        document.getElementById("islem").value 					= islem;
+
 	        }else{
-	        	$("[name='kategori_duzenle']").bootstrapSwitch('state', false, false);
-	        }
 
-	        document.getElementById("mufredat_id").value 		 	= mufredet_id;
-	        document.getElementById("kategori_ad_duzenle").value 	= kategori_ad;
-	        document.getElementById("islem").value 					= islem;
-	        $('#'+ modal).modal( "show" );
+	        	var kategori_ad = $(this).data("kategori_ad_duzenle");
+		        var modal 		= $(this).data("modal");
+		        var kategori 	= $(this).data("kategori");
+		        var islem 		= $(this).data("islem");
+		        var mufredet_id = $(this).data("id");
+
+	        	if ( kategori == 1 ) {
+		        	$("[name='kategori_duzenle']").bootstrapSwitch('state', true, true);
+		        }else{
+		        	$("[name='kategori_duzenle']").bootstrapSwitch('state', false, false);
+		        }
+
+		        document.getElementById("mufredat_id").value 		 	= mufredet_id;
+		        document.getElementById("kategori_ad_duzenle").value 	= kategori_ad;
+		        document.getElementById("islem").value 					= islem;
+	        }	
+		        
+		    $('#'+ modal).modal( "show" );
 	    });
 
 		$('.gorevli').on("click", function(e) { 
@@ -382,11 +476,11 @@ $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] )
 	        });
 	    });
 	    function dersSecimi(ders_id){
-			var  url 			= window.location;
+			var  url 		= window.location;
 			var origin		= url.origin;
-			var path			= url.pathname;
+			var path		= url.pathname;
 			var search		= (new URL(document.location)).searchParams;
-			var modul   		= search.get('modul');
+			var modul   	= search.get('modul');
 			var ders_id  	= "&ders_id="+ders_id;
 			
 			window.location.replace(origin + path+'?modul='+modul+''+ders_id);
