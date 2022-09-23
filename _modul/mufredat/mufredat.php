@@ -431,18 +431,16 @@ $soruTurleri 	 		= $vt->select($SQL_soru_tipi_getir, array( $_SESSION[ "universi
 	    });
 		
 		$('.modalAc').on("click", function(e) { 
+			var modal 		= $(this).data("modal");
 	        if ( modal == "soru_ekle" ){
 
 	        	var kategori_ad = $(this).data("kategori_ad");
-		        var modal 		= $(this).data("modal");
 		        var mufredet_id = $(this).data("mufredat_id");
-
+		        
 	        	document.getElementById("soru_mufredat_id").value 		= mufredet_id;
 		        document.getElementById("mufredat_adi").value 			= kategori_ad;
 		        document.getElementById("islem").value 					= islem;
-
 	        }else{
-
 	        	var kategori_ad = $(this).data("kategori_ad_duzenle");
 		        var modal 		= $(this).data("modal");
 		        var kategori 	= $(this).data("kategori");
@@ -450,9 +448,9 @@ $soruTurleri 	 		= $vt->select($SQL_soru_tipi_getir, array( $_SESSION[ "universi
 		        var mufredet_id = $(this).data("id");
 
 	        	if ( kategori == 1 ) {
-		        	$("[name='kategori_duzenle']").bootstrapSwitch('state', true, true);
+		        	$( "[name='kategori_duzenle']" ).bootstrapSwitch( 'state', true, true);
 		        }else{
-		        	$("[name='kategori_duzenle']").bootstrapSwitch('state', false, false);
+		        	$( "[name='kategori_duzenle']" ).bootstrapSwitch( 'state', false, false);
 		        }
 
 		        document.getElementById("mufredat_id").value 		 	= mufredet_id;
