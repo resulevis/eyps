@@ -53,3 +53,27 @@ div.dt-button-collection div.dropdown-menu {
 .bolumTablo tr{
 	height: 40px;
 }
+.r-0{
+	right: 0;
+}
+.r-1{
+	right: 10px;
+}
+.r-2{
+	right: 20px;
+}
+.t-0{
+	top: 0;
+}
+.t-1{
+	top: 5px;
+}
+.t-2{
+	top: 10px;
+}
+.secenek .secenekSil{
+	display: none;
+}
+.secenek:hover .secenekSil{
+	display: block;
+}
