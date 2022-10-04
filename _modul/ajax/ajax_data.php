@@ -333,6 +333,49 @@ WHERE
 	ogrenci_id  		= ?
 SQL;
 
+$SQL_sorular = <<< SQL
+SELECT
+	sb.*,
+	m.adi AS mufredat_adi,
+	CONCAT(u.adi," ", oe.adi, " ", oe.soyadi ) AS ogretim_elemani,
+	st.adi AS soru_turu,
+	st.coklu_secenek,
+	st.metin,
+	st.id AS soru_turu_id	
+FROM 
+	tb_soru_bankasi AS sb
+LEFT JOIN 
+	tb_mufredat AS m ON m.id = sb.mufredat_id
+LEFT JOIN 
+	tb_ogretim_elemanlari AS oe ON oe.id = sb.ogretim_elemani_id
+LEFT JOIN 
+	tb_unvanlar AS u ON u.id = oe.unvan_id
+LEFT JOIN 
+	tb_soru_turleri AS st ON st.id = sb.soru_turu_id
+WHERE
+	sb.program_id 			= ? AND
+	sb.ders_yili_donem_id 	= ? AND
+	sb.id 					= ? 
+SQL;
+
+$SQL_soru_turleri = <<< SQL
+SELECT
+	*
+FROM 
+	tb_soru_turleri
+WHERE 
+	universite_id = ? 
+SQL;
+
+$SQL_soru_secenekleri = <<< SQL
+SELECT
+	*
+FROM 
+	tb_soru_secenekleri
+WHERE 
+	soru_id = ? 
+SQL;
+
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
@@ -720,6 +763,152 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 	case 'aktifDonem':
 		$_SESSION[ 'donem_id' ]		= $_REQUEST['id'];
+	break;
+	case 'soruSecenekGetir':
+
+		$soruGetir 		 = $vt->select( $SQL_sorular, array( $_SESSION[ "program_id" ], $_SESSION[ "donem_id" ], $_REQUEST[ "id" ] ) )[2][0];
+		$soruTurleri 	 = $vt->select( $SQL_soru_turleri, array( $_SESSION[ "universite_id" ] ) )[2]; 
+
+		$soruOption     = '';
+
+		foreach( $soruTurleri AS $tur ){
+			$soruOption .= "<option value='$tur[id]'  data-coklu_secenek ='$tur[coklu_secenek]' data-metin ='$tur[metin]'".( $soruGetir[ 'soru_turu_id' ] == $tur[ 'id' ] ? 'selected' : null  ).">$tur[adi]</option>";
+		}
+
+		if ( $soruGetir[ 'coklu_secenek' ] == 0 AND $soruGetir[ 'metin' ] == 0 ){
+			$tur = 'radio';
+			$secenekEkleBtn = '<span class="btn btn-secondary float-right " id="secenekEkle" data-secenek_tipi="radio" onclick="secenekEkle(this);">Seçenek Ekle</span><div class="clearfix"></div>';
+		}else if( $soruGetir[ 'coklu_secenek' ] == 1 AND $soruGetir[ 'metin' ] == 0 ){
+			$tur = 'checkbox';
+			$secenekEkleBtn = '<span class="btn btn-secondary float-right " id="secenekEkle" data-secenek_tipi="checkbox" onclick="secenekEkle(this);">Seçenek Ekle</span><div class="clearfix"></div>';
+		}else if( $soruGetir[ 'coklu_secenek' ] == 0 AND $soruGetir[ 'metin' ] == 1 ){
+			$tur = 'metin';
+		}	
+
+		$soruSecenekleri = $vt->select( $SQL_soru_secenekleri, array( $soruGetir[ "id" ] ) )[2];
+		/*Onceden soruyu alan öğrenci var ise soru üzerinde değişikliğe izin verilmeyecek ama öğrenciye atanan soru yok ise degişişkliğe izin verilecek*/
+		$secenekler ='';
+		$soruCevaplari = array("","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","R","S");
+		$say 		= 1;
+		$editor 	= $soruGetir[ "editor" ] == 1 ? 'summernote' : '';
+		$checked 	= $soruGetir[ "editor" ] == 1 ? 'checked' : '';
+		$script  	= $soruGetir[ "editor" ] == 1 ? "$('.summernote').summernote({focus: true})" : '';
+ 		foreach ( $soruSecenekleri as $secenek ) {
+			$secenekler .= "<div class='secenek'>
+							<div  class='col-sm m-1 btn text-left bg-light inputLabel2'>
+								<label for='$soruCevaplari[$say]' class='float-left soruSecenek'>$soruCevaplari[$say] ) &nbsp;</label>
+								<div class='icheck-success d-inline'>
+									<input type='$tur' name='dogruSecenek[]' class='inputSecenek' id='$soruCevaplari[$say]' value='$soruCevaplari[$say]' required ".($secenek["dogru_secenek"] == 1 ? 'checked': '').">
+									<label  class='d-flex inputLabel1'>
+										<textarea name='cevap-$soruCevaplari[$say]' class='textareaSecenek $editor  form-control col-sm-12' rows='1' required>$secenek[secenek]</textarea>
+										<span class='secenekSil position-absolute r-2 t-1'><i class='fas fa-trash-alt'></i></span>
+									</label>
+								</div>
+							</div>
+						</div>";
+			$say++;
+		}
+
+
+		$sonuc = "
+				<form class='form-horizontal' action = '_modul/soruBankasi/soruBankasiSEG.php' method = 'POST' enctype='multipart/form-data'>
+					<div class='modal-header'>
+						<h4 class='modal-title'>Soru Ekleme</h4>
+						<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+							<span aria-hidden='true'>&times;</span>
+						</button>
+					</div>
+				
+					<div class='modal-body'>
+						<input type='hidden' id='soru_id' name='soru_id' value='$soruGetir[id]'>
+						<input type='hidden' id='islem' name = 'islem' value='guncelle'>
+
+						<div class='form-group'>
+							<label class='control-label'>Seçilen Müfredat</label>
+							<input required type='text' class='form-control'  autocomplete='off' id='mufredat_adi' disabled value='$soruGetir[mufredat_adi]'>
+						</div>
+						<div class='form-group'>
+							<label class='control-label'>Soru</label>
+							<textarea name='soru' class='form-control soru' rows='2'>$soruGetir[soru]</textarea>
+						</div>
+
+						<div class='form-group'>
+							<div class='col-sm-6 float-left'>
+								<label class='control-label'>Soru Puanı</label>
+								<input type='text' name='puan' class='form-control' required value='$soruGetir[puan]'>
+							</div>
+							<div class='col-sm-6 float-left'>
+								<label class='control-label'>Zorluk Derecesi</label>
+								<select class='form-control' name='zorluk_derecesi' required>
+									<option value='1' ".($soruGetir['zorluk_derecesi'] == 1 ? 'selected' : null).">1</option>
+									<option value='2' ".($soruGetir['zorluk_derecesi'] == 2 ? 'selected' : null).">2</option>
+									<option value='3' ".($soruGetir['zorluk_derecesi'] == 3 ? 'selected' : null).">3</option>
+									<option value='4' ".($soruGetir['zorluk_derecesi'] == 4 ? 'selected' : null).">4</option>
+									<option value='5' ".($soruGetir['zorluk_derecesi'] == 5 ? 'selected' : null).">5</option>
+								</select>
+							</div>
+						</div>
+						<div class='clearfix'></div>
+						<div class='form-group mt-2'>
+							<label for='exampleInputFile'>Soru Dosyası</label>
+							".(
+
+								$soruGetir[ 'soru_dosyasi' ] != '' ? '<a href="" class=\'btn btn-success form-control\'>Dosyayı Gör</a>' : "<div class='input-group'>
+								<div class='custom-file'>
+									<label class='custom-file-label' for='exampleInputFile'>Dosya Seç</label>
+									<input type='file' class='custom-file-input file ' name = 'file'  >
+								</div>
+							</div>"
+
+							)."
+							
+						</div>
+
+						<div class='form-group'>
+							<label class='control-label'>Soru Türü</label>
+							<select class='form-control select2' name='soru_turu_id' required onchange='secenekOku(this);'>
+								<option value=''>Soru Türü Seçiniz...</option>
+								$soruOption
+							</select>
+						</div>	
+						<div class='float-right'>
+							<label  class='control-label'>Editör </label>
+							<div class='bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off' >
+								<div class='bootstrap-switch-container' >
+									<input type='checkbox'  name='editor' $checked data-bootstrap-switch=' data-off-color='danger' data-on-text='Açık' data-off-text='Kapalı' data-on-color='success' >
+								</div>
+							</div>
+						</div>
+						<div id ='secenekler'>$secenekler</div>
+						<div id='secenekEkleBtn'>
+							$secenekEkleBtn
+						</div>
+						<div class='clearfix'></div>
+						<div class='form-group'>
+							<label class='control-label'>Etiket</label>
+							<input type='text' class='form-control' name='etiket' placeholder='Soru Etiketlerini , ile ayırabilirsiniz.' value='$soruGetir[etiket]' >
+						</div>
+					</div>
+
+					<div class='modal-footer justify-content-between'>
+						<button type='button' class='btn btn-danger' data-dismiss='modal'>İptal</button>
+						<button type='submit' class='btn btn-success'>Kaydet</button>
+					</div>
+				</form>
+				<script>
+					$('.soru').summernote();
+					$script
+					$('.note-editor').each(function() {
+	                    $(this).addClass('col-sm');
+	                })
+	                $(\"input[name='editor']\").bootstrapSwitch()
+					$('#secenekler').on('click', '.secenekSil', function (e) {
+			            $(this).closest('.secenek').remove();
+			            harflendir();
+			        });
+		        </script>";
+		echo $sonuc;
+
 	break;
 	
 	case 'cevap_turune_gore_secenek_ver':

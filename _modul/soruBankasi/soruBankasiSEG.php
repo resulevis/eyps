@@ -31,7 +31,9 @@ SET
 	program_id 		 	= ?, 
 	ders_id 		 	= ?, 
 	zorluk_derecesi 	= ?, 
-	puan 		 		= ? 
+	puan 		 		= ?, 
+	etiket 		 		= ?,
+	editor 		 		= ?
 SQL;
 
 $SQL_secenek_ekle = <<< SQL
@@ -81,6 +83,8 @@ $vt->islemBaslat();
 switch( $islem ) {
 	case 'ekle':
 
+		$editor = array_key_exists( "editor" , $_REQUEST) ? 1 : 0;
+
 		$soru_dosyasi = "";
 		if( isset( $_FILES[ "file"]["tmp_name"] ) and $_FILES[ "file"][ 'size' ] > 0 ) {
 			$soru_dosyasi	= uniqid() ."." . pathinfo( $_FILES[ "file"][ 'name' ], PATHINFO_EXTENSION );
@@ -96,7 +100,9 @@ switch( $islem ) {
 			$_SESSION[ "program_id" ], 
 			$_REQUEST[ "ders_id" ],
 			$_REQUEST[ "zorluk_derecesi" ],
-			$_REQUEST[ "puan" ]
+			$_REQUEST[ "puan" ],
+			$_REQUEST[ "etiket" ],
+			$editor
 		);
 
 		$sonuc = $vt->insert( $SQL_ekle, $degerler );

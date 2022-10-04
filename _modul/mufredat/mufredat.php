@@ -357,15 +357,16 @@ $soruTurleri 	 		= $vt->select($SQL_soru_tipi_getir, array( $_SESSION[ "universi
 
 	<!--MUFREDAT -->
 	<div class="modal fade" id="soru_ekle" >
-		<div class="modal-dialog modal-lg">
+		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title">Soru Ekleme</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
 				<form class="form-horizontal" action = "_modul/soruBankasi/soruBankasiSEG.php" method = "POST" enctype="multipart/form-data">
+					<div class="modal-header">
+						<h4 class="modal-title">Soru Ekleme</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				
 					<div class="modal-body">
 						<input type="hidden" id="soru_mufredat_id" name="mufredat_id">
 						<input type="hidden" id="soru_ders_id" name="ders_id">
@@ -376,7 +377,7 @@ $soruTurleri 	 		= $vt->select($SQL_soru_tipi_getir, array( $_SESSION[ "universi
 						</div>
 						<div class="form-group">
 							<label class="control-label">Soru</label>
-							<textarea name="soru" class="form-control" rows="2"></textarea>
+							<textarea name="soru" class="form-control soru" rows="2"></textarea>
 						</div>
 
 						<div class="form-group">
@@ -418,11 +419,25 @@ $soruTurleri 	 		= $vt->select($SQL_soru_tipi_getir, array( $_SESSION[ "universi
 								<?php } ?>
 							</select>
 						</div>	
+						<div class="float-right">
+							<label  class="control-label">Editör </label>
+							<div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off" >
+								<div class="bootstrap-switch-container" >
+									<input type="checkbox" name="editor" data-bootstrap-switch="" data-off-color="danger" data-on-text="Açık" data-off-text="Kapalı" data-on-color="success" >
+								</div>
+							</div>
+						</div>
+						<div class="clearfix"></div>
+						
 						<div id ="secenekler"></div>
 						<div id="secenekEkleBtn">
 							<span class="btn float-right " id="secenekEkle"  ></span>
 						</div>
 						<div class="clearfix"></div>
+						<div class="form-group">
+							<label class="control-label">Etiket</label>
+							<input type="text" class="form-control" name="etiket" placeholder="Soru Etiketlerini , ile ayırabilirsiniz." >
+						</div>
 					</div>
 
 					<div class="modal-footer justify-content-between">
@@ -437,8 +452,8 @@ $soruTurleri 	 		= $vt->select($SQL_soru_tipi_getir, array( $_SESSION[ "universi
 	</div>
 	
 	<script>
+        $('.soru').summernote();
 
-		var soruSecenekleri = ["","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","R","S"];
 		$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
 			$( this ).find( '.btn-evet' ).attr( 'href', $( e.relatedTarget ).data( 'href' ) );
 		} );
@@ -510,93 +525,6 @@ $soruTurleri 	 		= $vt->select($SQL_soru_tipi_getir, array( $_SESSION[ "universi
 			
 			window.location.replace(origin + path+'?modul='+modul+''+ders_id);
 		}
-
-		function secenekOku(e){
-			var metin 		 	= $('option:selected',e).data("metin");
-			var coklu_secenek 	= $('option:selected',e).data("coklu_secenek");
-			$("#secenekler").empty();
-			if ( coklu_secenek == 0 && metin == 0 ){
-				$("#secenekEkleBtn").empty();
-				$("#secenekEkleBtn").append('<span class="btn btn-secondary float-right " id="secenekEkle" data-secenek_tipi="radio" onclick="secenekEkle(this);">Seçenek Ekle</span><div class="clearfix"></div>');
-				
-			}else if( coklu_secenek == 1 && metin == 0 ){
-				$("#secenekEkleBtn").empty();
-				$("#secenekEkleBtn").append('<span class="btn btn-secondary float-right " id="secenekEkle" data-secenek_tipi="checkbox" onclick="secenekEkle(this);">Seçenek Ekle</span><div class="clearfix"></div>');
-			}else if(coklu_secenek == 0 && metin == 1){
-				$("#secenekEkleBtn").empty();
-				$("#secenekEkleBtn").append('<div class="alert alert-warning">Açık Uçlu Soru Tipi Secilmiştir!</div>');
-
-			}
-		}
-
-		function harflendir(){
-			/*Şıkları isimlerini güncelleme */
-			var secenekSayisi = 1;
-			$(".soruSecenek").each(function( index, element ) {
-	            $(this).empty();
-	            $(this).append(soruSecenekleri[secenekSayisi] + ' ) &nbsp;');
-	            secenekSayisi = secenekSayisi+1;
-	        })	 
-
-			/*Secilen input radi ve checkbxların isimlerini ve idlerini değiştirme*/
-	        var inputSayisi = 1;
-	        $(".inputSecenek").each(function( index, element ) {
-	           	this.value 	= soruSecenekleri[inputSayisi];
-	           	this.id 	= soruSecenekleri[inputSayisi];
-	           	inputSayisi +=1;
-	        })
-
-	        /*Textarea isimlerini değitirme*/
-	        var cevapSayisi = 1;
-	        $(".textareaSecenek").each(function( index, element ) {
-	           	this.name = 'cevap-'+soruSecenekleri[cevapSayisi];
-	           	cevapSayisi +=1;
-	        })
-
-	        //input Labellerine ait for degerlerini değiştirme
-	        var labelSayisi1 = 1;
-	        $(".inputLabel1").each(function( index, element ) {
-	           	this.setAttribute("for",soruSecenekleri[labelSayisi1]);
-	           	labelSayisi1 +=1;
-	        })
-	        var labelSayisi2 = 1;
-	        $(".inputLabel2").each(function( index, element ) {
-	           	this.setAttribute("for",soruSecenekleri[labelSayisi2]);
-	           	labelSayisi2 +=1;
-	        })
-	        
-
-	        return secenekSayisi;
-		}
-		
-		function secenekEkle(e) {
-			var tip 			= $(e).data("secenek_tipi"); 
-			var secenekSayisi 	= 1;
-			secenekSayisi 		=  harflendir();
-			var required 		= "";
-
-			if( tip == "radio" ){
-				required = "required";
-			}
-	        var data = '<div class="secenek">'+
-							'<label for="'+ soruSecenekleri[ secenekSayisi ] +'" class="col-sm m-1 btn text-left bg-light inputLabel2">'+
-								'<label class="float-left soruSecenek">' + soruSecenekleri[secenekSayisi] + ' ) &nbsp;</label>'+
-								'<div class="icheck-success d-inline">'+
-									'<input type="'+ tip +'" name="dogruSecenek[]" class="inputSecenek" id="'+ soruSecenekleri[ secenekSayisi ] +'" value="'+ soruSecenekleri[ secenekSayisi ] +'" '+ required +'>'+
-									'<label for ="'+ soruSecenekleri[ secenekSayisi ] +'" class="d-flex inputLabel1">'+
-										'<textarea name="cevap-'+ soruSecenekleri[ secenekSayisi ]  +'"  class="textareaSecenek form-control col-sm-12" rows="1" required></textarea>'+
-										'<span  class="secenekSil position-absolute r-2 t-1" ><i class="fas fa-trash-alt" ></i></span>'+
-									'</label>'+	
-								'</div>'+
-							'</label>'+
-						'</div>';
-	        $("#secenekler").append(data);
-	    };
-
-		$('#secenekler').on("click", ".secenekSil", function (e) {
-		    $(this).closest(".secenek").remove();
-		    harflendir();
-		});
 
 
 	</script>
