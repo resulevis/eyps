@@ -376,6 +376,17 @@ WHERE
 	soru_id = ? 
 SQL;
 
+$SQL_sinav_oku = <<< SQL
+SELECT
+	*
+FROM
+	tb_sinavlar
+WHERE
+	id 			= ?
+SQL;
+
+
+
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
@@ -813,7 +824,7 @@ switch( $_POST[ 'islem' ] ) {
 		$sonuc = "
 				<form class='form-horizontal' action = '_modul/soruBankasi/soruBankasiSEG.php' method = 'POST' enctype='multipart/form-data'>
 					<div class='modal-header'>
-						<h4 class='modal-title'>Soru Ekleme</h4>
+						<h4 class='modal-title'>Soru Güncelleme</h4>
 						<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
 							<span aria-hidden='true'>&times;</span>
 						</button>
@@ -840,11 +851,11 @@ switch( $_POST[ 'islem' ] ) {
 							<div class='col-sm-6 float-left'>
 								<label class='control-label'>Zorluk Derecesi</label>
 								<select class='form-control' name='zorluk_derecesi' required>
-									<option value='1' ".($soruGetir['zorluk_derecesi'] == 1 ? 'selected' : null).">1</option>
-									<option value='2' ".($soruGetir['zorluk_derecesi'] == 2 ? 'selected' : null).">2</option>
-									<option value='3' ".($soruGetir['zorluk_derecesi'] == 3 ? 'selected' : null).">3</option>
-									<option value='4' ".($soruGetir['zorluk_derecesi'] == 4 ? 'selected' : null).">4</option>
-									<option value='5' ".($soruGetir['zorluk_derecesi'] == 5 ? 'selected' : null).">5</option>
+									<option value='1' ".($soruGetir['zorluk_derecesi'] == 1 ? 'selected' : null).">Çok Kolay</option>
+									<option value='2' ".($soruGetir['zorluk_derecesi'] == 2 ? 'selected' : null).">Kolay</option>
+									<option value='3' ".($soruGetir['zorluk_derecesi'] == 3 ? 'selected' : null).">Orta</option>
+									<option value='4' ".($soruGetir['zorluk_derecesi'] == 4 ? 'selected' : null).">Zor</option>
+									<option value='5' ".($soruGetir['zorluk_derecesi'] == 5 ? 'selected' : null).">Çok Zor</option>
 								</select>
 							</div>
 						</div>
@@ -875,7 +886,7 @@ switch( $_POST[ 'islem' ] ) {
 							<label  class='control-label'>Editör </label>
 							<div class='bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off' >
 								<div class='bootstrap-switch-container' >
-									<input type='checkbox'  name='editor' $checked data-bootstrap-switch=' data-off-color='danger' data-on-text='Açık' data-off-text='Kapalı' data-on-color='success' >
+									<input type='checkbox'  name='editor' $checked data-bootstrap-switch='' data-off-color='danger' data-on-text='Açık' data-off-text='Kapalı' data-on-color='success' >
 								</div>
 							</div>
 						</div>
@@ -901,7 +912,22 @@ switch( $_POST[ 'islem' ] ) {
 					$('.note-editor').each(function() {
 	                    $(this).addClass('col-sm');
 	                })
-	                $(\"input[name='editor']\").bootstrapSwitch()
+	                $(\"input[name='editor']\").bootstrapSwitch();
+
+	                $('input[name=\"editor\"]').on('switchChange.bootstrapSwitch', function(event, state) {
+			            if (state == true ){
+			                $('.textareaSecenek').summernote({focus: true})
+			                $(\".note-editor\").each(function() {
+			                    $(this).addClass(\"col-sm\");
+			                })
+			            }else{
+			                $(\".textareaSecenek\").each(function( index, element ) {
+			                    $(this).summernote('code');
+			                    $(this).summernote('destroy'); 
+			                })
+			            }
+			        });
+
 					$('#secenekler').on('click', '.secenekSil', function (e) {
 			            $(this).closest('.secenek').remove();
 			            harflendir();
@@ -910,6 +936,140 @@ switch( $_POST[ 'islem' ] ) {
 		echo $sonuc;
 
 	break;
+
+	case 'sinavGetir':
+		$sinavGetir = $vt->select( $SQL_sinav_oku, array( $_REQUEST[ "id" ] ) )[2][0];
+		$komiteler 	= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
+		$komiteOption =  '';
+		foreach( $komiteler AS $komite ) {
+			$komiteOption .=" <option value='$komite[id]' ".($sinavGetir['komite_id'] == $komite['id'] ? 'selected' : null)."> $komite[ders_kodu] - $komite[adi]</option>";
+		}
+
+		$icerik = "
+		<div class='card card-outline p-2'>
+        	<span class='btn btn-sm btn-danger position-sticky' id='kapat'>Kapat</span>
+            <div class='container' style='padding: 20px 20px 0 20px;margin-top: 10px;'>
+
+                <form id = 'kayit_formu' action = '_modul/sinavlar/sinavlarSEG.php' method = 'POST'>
+                	<input type='hidden' value='guncelle' name='islem'>
+                	<input type='hidden' value='$_REQUEST[id]' name='sinav_id'>
+                    <div class='form-group'>
+                        <label  class='control-label'>Dönem</label>
+                        <select class='form-control select2' name='komite_id' required>
+                            <option value='>Seçiniz...</option>
+                            $komiteOption
+                        </select>
+                    </div>
+                    <div class='form-group'>
+                        <label  class='control-label'>Sınav Adı</label>
+                        <input type='text' name='adi' class='form-control' value='$sinavGetir[adi]'>
+                    </div>
+
+                    <div class='form-group'>
+                        <label  class='control-label'>Açıklama</label>
+                        <textarea class='form-control summernote' rows='3' name='aciklama'>$sinavGetir[aciklama]</textarea>
+                    </div>
+                    <div class='form-group'>
+                        <label  class='control-label'>Sınav Öncesi Açıklama</label>
+                        <textarea class='form-control summernote' rows='3' name='sinav_oncesi_aciklama'>$sinavGetir[sinav_oncesi_aciklama]</textarea>
+                    </div>
+                    <div class='form-group'>
+                        <label  class='control-label'>Sınav Sonrası Açıklama</label>
+                        <textarea class='form-control summernote' rows='3' name='sinav_sonrasi_aciklama'>$sinavGetir[sinav_oncesi_aciklama]</textarea>
+                    </div>
+
+                    <div class='form-group'>
+                        <label  class='control-label'>Sınav Süresi</label>
+                        <input type='text' name='sinav_suresi' class='form-control' value='$sinavGetir[sinav_suresi]'>
+                    </div>
+
+                    <div class='form-group'>
+                        <label  class='control-label'>İp Sınırlandırması</label>
+                        <input type='text' name='ip_adresi' class='form-control' placeholder='192.168........' value='$sinavGetir[ip_adresi]'>
+                    </div>
+                    
+                    <div class='col-sm-6 float-left '>
+	                    <div class='form-group'>
+							<label class='control-label'>Sınav Başlangıç Tarihi</label>
+							<div class='input-group date' id='baslangicTarihi' data-target-input='nearest'>
+								<div class='input-group-append' data-target='#baslangicTarihi' data-toggle='datetimepicker'>
+									<div class='input-group-text'><i class='fa fa-calendar'></i></div>
+								</div>
+								<input autocomplete='off' type='text' name='baslangic_tarihi' class='form-control form-control-sm datetimepicker-input' data-target='#baslangicTarihi' data-toggle='datetimepicker' value='".date('d.m.Y', strtotime($sinavGetir['sinav_baslangic_tarihi']))."'/>
+							</div>
+						</div>
+	                </div>
+	                <div class='col-sm-6 float-left'>
+	                    <div class='form-group'>
+							<label class='control-label'>Sınav Başlangıç Tarihi</label>
+							<div class='input-group date' id='baslangicSaati' data-target-input='nearest'>
+								<div class='input-group-append' data-target='#baslangicSaati' data-toggle='datetimepicker'>
+									<div class='input-group-text'><i class='fa fa-clock'></i></div>
+								</div>
+								<input autocomplete='off' type='text' name='baslangic_saati' class='form-control form-control-sm datetimepicker-input' data-target='#baslangicSaati' data-toggle='datetimepicker' value='".date('H:m', strtotime($sinavGetir['sinav_baslangic_saati']))."'/>
+							</div>
+						</div>
+	                </div>
+
+	                <div class='col-sm-6 float-left '>
+	                    <div class='form-group'>
+							<label class='control-label'>Sınav Bitiş Tarihi</label>
+							<div class='input-group date' id='bitisTarihi' data-target-input='nearest'>
+								<div class='input-group-append' data-target='#bitisTarihi' data-toggle='datetimepicker'>
+									<div class='input-group-text'><i class='fa fa-calendar'></i></div>
+								</div>
+								<input autocomplete='off' type='text' name='bitis_tarihi' class='form-control form-control-sm datetimepicker-input' data-target='#bitisTarihi' data-toggle='datetimepicker' value='".date('d.m.Y', strtotime($sinavGetir['sinav_bitis_tarihi']))."'/>
+							</div>
+						</div>
+	                </div>
+	                <div class='col-sm-6 float-left'>
+	                    <div class='form-group'>
+							<label class='control-label'>Sınav Bitiş Tarihi</label>
+							<div class='input-group date' id='bitisSaati' data-target-input='nearest'>
+								<div class='input-group-append' data-target='#bitisSaati' data-toggle='datetimepicker'>
+									<div class='input-group-text'><i class='fa fa-clock'></i></div>
+								</div>
+								<input autocomplete='off' type='text' name='bitis_saati' class='form-control form-control-sm datetimepicker-input' data-target='#bitisSaati' data-toggle='datetimepicker' value='".date('H:m', strtotime($sinavGetir['sinav_bitis_saati']))."'/>
+							</div>
+						</div>
+	                </div>
+	                <div class='form-group'>
+						<label  class='control-label'>Soruları Karıştır</label>
+						<div class='bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off' >
+							<div class='bootstrap-switch-container' >
+								<input type='checkbox' name='sorulari_karistir'  data-bootstrap-switch='' data-off-color='danger' data-on-text='Evet' data-off-text='Hayır' data-on-color='success' ".($sinavGetir['sorulari_karistir'] == 1 ? 'checked':null)." >
+							</div>
+						</div>
+					</div>
+
+					<div class='form-group'>
+						<label  class='control-label'>Seçenekleri Karıştır</label>
+						<div class='bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-off' >
+							<div class='bootstrap-switch-container' >
+								<input type='checkbox' name='secenekleri_karistir' data-bootstrap-switch='' data-off-color='danger' data-on-text='Evet' data-off-text='Hayır' data-on-color='success' ".($sinavGetir['secenekleri_karistir'] == 1 ? 'checked':null).">
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class=''>
+						<button type='reset' class='btn btn-danger kapat' >İptal</button>
+						<button type='submit' class='btn btn-success float-right' >Kaydet</button>
+					</div>
+                </form>
+            </div>
+        </div>
+        <script>
+        	$('.summernote').summernote();
+        	$(\"input[name='sorulari_karistir']\").bootstrapSwitch();
+        	$(\"input[name='secenekleri_karistir']\").bootstrapSwitch();
+        	$('#kapat, .kapat').on('click', function(e) { 
+				document.getElementById('sinavDetay').classList.toggle('d-none');
+				document.getElementById('golgelik').classList.toggle('d-none');
+		    });
+        </script>";
+        echo $icerik;
+	break;
+	
 	
 	case 'cevap_turune_gore_secenek_ver':
 		$sonuc = "";
