@@ -124,7 +124,6 @@ WHERE
 ORDER BY bil.ekleme_tarihi DESC
 SQL;
 
-
 $SQL_ilceler_getir = <<< SQL
 SELECT
 	*
@@ -181,7 +180,7 @@ SQL;
 /*Donem yılına ait dersler listesi*/
 $SQL_donem_dersleri_getir = <<< SQL
 select
-	dd.ders_id as id,
+	dd.id as id,
 	d.adi,
 	d.ders_kodu 
 from 
@@ -225,7 +224,6 @@ WHERE
 	universite_id  		= ? AND
 	id 					= ? 
 SQL;
-
 
 $SQL_komite_dersler_getir = <<< SQL
 select 
@@ -385,7 +383,19 @@ WHERE
 	id 			= ?
 SQL;
 
-
+$SQL_sinav_ogrencileri = <<< SQL
+SELECT
+	so.id,
+	o.adi,
+	o.soyadi,
+	o.ogrenci_no
+FROM
+	tb_sinav_ogrencileri AS so
+LEFT JOIN
+	tb_ogrenciler AS o ON o.id = so.ogrenci_id
+WHERE
+	so.sinav_id 	= ?
+SQL;
 
 $vt = new VeriTabani();
 
@@ -945,7 +955,8 @@ switch( $_POST[ 'islem' ] ) {
 			$komiteOption .=" <option value='$komite[id]' ".($sinavGetir['komite_id'] == $komite['id'] ? 'selected' : null)."> $komite[ders_kodu] - $komite[adi]</option>";
 		}
 
-		$icerik = "
+		/*Sınava Ait detaylar yer alıyor*/
+		$sinavDetay = "
 		<div class='card card-outline p-2'>
         	<span class='btn btn-sm btn-danger position-sticky' id='kapat'>Kapat</span>
             <div class='container' style='padding: 20px 20px 0 20px;margin-top: 10px;'>
@@ -954,9 +965,9 @@ switch( $_POST[ 'islem' ] ) {
                 	<input type='hidden' value='guncelle' name='islem'>
                 	<input type='hidden' value='$_REQUEST[id]' name='sinav_id'>
                     <div class='form-group'>
-                        <label  class='control-label'>Dönem</label>
-                        <select class='form-control select2' name='komite_id' required>
-                            <option value='>Seçiniz...</option>
+                        <label  class='control-label'>Komite</label>
+                        <select class='form-control select2' name='komite_id' required disabled>
+                            <option value=''>Seçiniz...</option>
                             $komiteOption
                         </select>
                     </div>
@@ -975,7 +986,7 @@ switch( $_POST[ 'islem' ] ) {
                     </div>
                     <div class='form-group'>
                         <label  class='control-label'>Sınav Sonrası Açıklama</label>
-                        <textarea class='form-control summernote' rows='3' name='sinav_sonrasi_aciklama'>$sinavGetir[sinav_oncesi_aciklama]</textarea>
+                        <textarea class='form-control summernote' rows='3' name='sinav_sonrasi_aciklama'>$sinavGetir[sinav_sonrasi_aciklama]</textarea>
                     </div>
 
                     <div class='form-group'>
@@ -1067,7 +1078,136 @@ switch( $_POST[ 'islem' ] ) {
 				document.getElementById('golgelik').classList.toggle('d-none');
 		    });
         </script>";
-        echo $icerik;
+
+        $ogrenciler 		 = $vt->select($SQL_sinav_ogrencileri, array($_REQUEST[ "id" ]))[2];
+        $ogrenciListesi 	 = '';
+        foreach ( $ogrenciler as $ogrenci ) {	
+        	$ogrenciListesi .= "<div class=' w-100 sinav-ogrencileri'>
+				            		<div class='col-sm-1 float-left'>
+				            			<div class='card-tools'>
+											<div class='icheck-primary'>
+												<input type='checkbox' name='sinavOgrenciNo[]' id='sinavOgrenciNo$ogrenci[id]' value='$ogrenci[id]'>
+												<label for='sinavOgrenciNo$ogrenci[id]'></label>
+											</div>
+										</div>
+				            		</div>
+				            		<div class='col-sm-4 float-left'>
+				            			<span>$ogrenci[adi]</span>
+				            		</div>
+				            		<div class='col-sm-3 float-left'>
+				            			<span>$ogrenci[soyadi]</span>
+				            		</div>
+				            		<div class='col-sm-3 float-left'>
+				            			<span>$ogrenci[ogrenci_no]</span>
+				            		</div>
+				            	</div>";
+        }
+
+
+
+
+        $sonuc = "
+        <div class='card card-primary card-tabs h-100 mb-0'>
+          	<div class='card-header p-0 pt-1'>
+	            <ul class='nav nav-tabs' id='custom-tabs-one-tab' role='tablist'>
+		            <li class='nav-item'>
+		                <a class='nav-link active' id='sinavDetayTab-tab' data-toggle='pill' href='#sinavDetayTab' role='tab' aria-controls='sinavDetayTab' aria-selected='true'>Sınav Detayı</a>
+		            </li>
+		            <li class='nav-item'>
+		                <a class='nav-link' id='ogrenciler-tab' data-toggle='pill' href='#ogrenciler' role='tab' aria-controls='ogrenciler' aria-selected='false'>Öğrenciler</a>
+		            </li>
+		            <li class='nav-item'>
+		                <a class='nav-link' id='ogrenciEkle-tab' data-toggle='pill' href='#ogrenciEkle' role='tab' aria-controls='ogrenciEkle' aria-selected='false'>Öğrenci Ata</a>
+		            </li>
+		            <li class='nav-item'>
+		                <a class='nav-link' id='sorular-tab' data-toggle='pill' href='#sorular' role='tab' aria-controls='sorular' aria-selected='false'>Sorular</a>
+		            </li>
+		            <li class='nav-item'>
+		              	<a class='nav-link' id='soruEkle-tab' data-toggle='pill' href='#soruEkle' role='tab' aria-controls='soruEkle' aria-selected='false'>Soru Ekle</a>
+		            </li>
+	            </ul>
+          	</div>
+          	<div class='card-body'>
+	            <div class='tab-content' id='custom-tabs-one-tabContent'>
+		            <div class='tab-pane fade show active' id='sinavDetayTab' role='tabpanel' aria-labelledby='sinavDetayTab-tab'>
+		                $sinavDetay
+		            </div>
+		            <div class='tab-pane fade' id='ogrenciler' role='tabpanel' aria-labelledby='ogrenciler-tab'>
+		                <div class='row'>
+		                	<div class='col-sm-12 m-0'>
+		                		<div class='col-sm-6 m-0 p-0 float-left'>
+		                			<input type='text' onkeypress='alert();' class='form-control ogrenci-ara' placeholder='Öğrenci Ara'>
+		                			<code>Sınava Eklemek İstediğiniz Öğrenciyi Arayıp Çıkan sonuca tıklayınız. </code>
+		                		</div>
+		                		
+		                		<div class='col-sm-3 float-left'>
+		                			<a href='' class='btn btn-danger w-100 '><i class='fas fa-trash-alt'></i> Seçilen Öğrencileri Çıkar</a>
+		                		</div>
+		                		<div class='col-sm-3 float-left m-0'>
+		                			<a href='' class='btn btn-danger w-100'><i class='fas fa-upload'></i> Tümünü Çıkar</a>
+		                		</div>
+		                	</div>
+		                </div>
+		                <div class='row d-flex justify-content-between w-100 mt-5'>
+		                	<div class='col'>
+		                		<div class='title '>
+		                			<span class='oturum-title'>Oturum Kullanıcı Listesi</span>
+		                		</div>
+		                	</div>
+			                <div class='col'>
+			                	<div class='title float-right'>
+			                		<span class='d-flex align-items-center'>Seçili öğrenci : 0</span>
+			                	</div>
+			                </div>
+			            </div>
+			            <div class='row mt-5'>
+			            	<div class='w-100 mb-1 d-flex align-items-center sinav-ogrencileri-baslik'>
+			            		<div class='col-sm-1 float-left'>
+			            			<div class='card-tools'>
+										<div class='icheck-primary'>
+											<input type='checkbox' id='tumunuSec'  >
+											<label for='tumunuSec'></label>
+										</div>
+									</div>
+			            		</div>
+			            		<div class='col-sm-4 float-left font-weight-bold'>
+			            			<span>Ad</span>
+			            		</div>
+			            		<div class='col-sm-3 float-left font-weight-bold'>
+			            			<span>Soyad</span>
+			            		</div>
+			            		<div class='col-sm-3 float-left font-weight-bold'>
+			            			<span>Kullanıcı adı</span>
+			            		</div>
+			            	</div>
+			            	<div class='clearfix w-100'></div>
+			            	<hr>
+			            	$ogrenciListesi
+			            </div>
+		            </div>
+		            <div class='tab-pane fade' id='ogrenciEkle' role='tabpanel' aria-labelledby='ogrenciEkle-tab'>
+		                öğrenci Ekle
+		            </div>
+		            <div class='tab-pane fade' id='sorular' role='tabpanel' aria-labelledby='sorular-tab'>
+		                Sorukar
+		            </div>
+		            <div class='tab-pane fade' id='soruEkle' role='tabpanel' aria-labelledby='soruEkle-tab'>
+		                 Soru
+		            </div>
+		            <div class='tab-pane'><span class='btn btn-danger'>Kapat</span></div>
+	            </div>
+          	</div>
+          <!-- /.card -->
+        </div>
+        <script type='text/javascript'>
+		    $('#tumunuSec').on('change', function(e) {
+			  	checkboxes = document.getElementsByName('sinavOgrenciNo[]');
+	      		for(var i=0, n=checkboxes.length;i<n;i++) {
+	        		checkboxes[i].checked = this.checked;
+		      	}
+			});
+        </script>";
+        echo $sonuc;
 	break;
 	
 	

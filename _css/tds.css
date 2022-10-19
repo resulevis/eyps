@@ -105,3 +105,29 @@ div.dt-button-collection div.dropdown-menu {
     z-index: 9999;
     color: #fff;
 }
+.sinav-ogrencileri{
+	padding: 10px 5px;
+	background-color: #ddd;
+	margin-bottom: 2px;
+	border-radius: 5px;
+	display: flex;
+	align-items: center;
+}
+.sinav-ogrencileri:hover{
+	background-color: #eee;
+}
+
+[class*=icheck-]>input:first-child+input[type=hidden]+label::before, [class*=icheck-]>input:first-child+label::before{
+	border: 1px solid #7c7a76;
+}
+.sinav-ogrencileri-baslik{
+	border-bottom: 2px solid #7c7a76;
+	padding: 10px;
+	border-radius: 10px;
+}
+.ogrenci-ara{
+	border: 0;
+    border-bottom: 1px solid #3d9970;
+    border-radius: 10px;
+    padding-left: 22px;
+}

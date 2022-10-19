@@ -108,7 +108,7 @@ $sinavlar 				= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_
 			<div class="card-header">
 				<h3 class="card-title" id="dersAdi">Komite Sınavları</h3>	
 				<div class="float-right">
-					<span class="btn btn-outline-light btn-sm" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Soru Ekle</span>
+					<span class="btn btn-outline-light btn-sm" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Sınav Ekle</span>
 				</div>
 			</div>
 			<!-- /.card-header -->
@@ -190,7 +190,7 @@ $sinavlar 				= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_
 
                 <form id = "kayit_formu" action = "_modul/sinavlar/sinavlarSEG.php" method = "POST">
                     <div class="form-group">
-                        <label  class="control-label">Dönem</label>
+                        <label  class="control-label">Komite</label>
                         <select class="form-control select2" name="komite_id" required>
                             <option value="">Seçiniz...</option>
                             <?php 
@@ -300,7 +300,7 @@ $sinavlar 				= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_
         </div>
 	</aside>
 
-	<div class="sinavDuzenleSidebar d-none" id="sinavDetay"></div>
+	<div class="sinavDuzenleSidebar d-none h-100" id="sinavDetay"></div>
 	<div class="golgelik d-none" id="golgelik">Kapat</div>
 	<script>
 		$(function () {
@@ -437,16 +437,14 @@ $sinavlar 				= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_
 	            $("#" + modal).append(response);
 	        });
 	        var height = window.innerHeight;
+	        document.getElementById("sinavDetay").classList.toggle("d-none");
+			document.getElementById("golgelik").classList.toggle("d-none");
 		    document.getElementById('sinavDetay').style.height = height+'px';
 		    document.getElementById('sinavDetay').style.overflowY = 'scroll';
 	    });
 
-	    $('#kapat , #golgelik, .sinavGetir ').on("click", function(e) { 
-			document.getElementById("sinavDetay").classList.toggle("d-none");
+	    $('#kapat , #golgelik').on("click", function(e) { 
 			document.getElementById("golgelik").classList.toggle("d-none");
+			document.getElementById("sinavDetay").classList.toggle("d-none");
 	    });
-
-	    
-		
-	   
 	</script>
