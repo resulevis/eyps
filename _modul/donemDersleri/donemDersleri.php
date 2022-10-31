@@ -223,7 +223,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 					
 				<?php } ?>
 					<div class="card-footer">
-						<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
+						<button modul= 'donemDersleri' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
 						<button onclick="window.location.href = '?modul=donemDersleri&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 					</div>
 			</form>
@@ -264,7 +264,7 @@ $dersler			= $vt->select( $SQL_dersler_getir, array( $ders_yili_id,$program_id, 
 								<li>
 									<div class="ders-kapsa bg-renk3">
 										<?php echo $donem[ "adi" ]  ?>
-										<a href="?modul=donemDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'donem_id' ] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>
+										<a modul="donemDersleri" yetki_islem="duzenle" href="?modul=donemDersleri&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'donem_id' ] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>
 									</div>
 								<ul class="ders-ul">
 				<?php 

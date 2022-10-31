@@ -262,7 +262,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 				<?php } ?>
 				<div class="clearfix"></div>
 					<div class="card-footer">
-						<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
+						<button modul= 'komiteler' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
 						<button onclick="window.location.href = '?modul=komiteler&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 						<a href="javascript:void()"  modul= "komiteler" yetki_islem="kaydet" class="btn btn-default btn-sm float-right" onclick="komiteEkle()" style="display:none;" id="komiteEkleBtn">Komite Ekle</a>
 					</div>
@@ -304,7 +304,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 								<li>
 									<div class="ders-kapsa bg-renk4">
 										<?php echo $donem[ "adi" ]  ?>
-										<a href="?modul=komiteler&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>
+										<a modul="komiteler" yetki_islem="duzenle" href="?modul=komiteler&islem=guncelle&ders_yili_id=<?php echo $ders_yili[ 'id' ] ?>&program_id=<?php echo $program[ 'id' ] ?>&donem_id=<?php echo $donem[ 'id' ] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>
 									</div>
 								<ul class="ders-ul">
 				<?php 

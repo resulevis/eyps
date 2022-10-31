@@ -171,8 +171,8 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 											<li>
 												<div class="ders-kapsa bg-renk5"><?php echo $ders[ "ders_kodu" ]  ?> - <?php echo $ders[ "adi" ]; ?> 
 													<span class="row">
-														<a class="float-right btn btn-light gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyesiEkle"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevli Ekle</a>
-														<a class="float-right btn btn-dark gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyeleri"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevliler</a>
+														<a modul="komiteDersOgretimUyeleri" yetki_islem="gorevli-ekle" class="float-right btn btn-light gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyesiEkle"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevli Ekle</a>
+														<a modul="komiteDersOgretimUyeleri" yetki_islem="gorevli-listesi" class="float-right btn btn-dark gorevli m-1" data-id="<?php echo $ders[ 'id' ]; ?>" data-url="./_modul/ajax/ajax_data.php" data-div="gorevli" data-islem="ogretimUyeleri"  data-modul="<?php echo $_REQUEST['modul'] ?>">Görevliler</a>
 													</span>
 												</div>
 											</li>				

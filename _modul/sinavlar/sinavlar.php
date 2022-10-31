@@ -447,4 +447,224 @@ $sinavlar 				= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_
 			document.getElementById("golgelik").classList.toggle("d-none");
 			document.getElementById("sinavDetay").classList.toggle("d-none");
 	    });
+
+	    function seciliOgrenciCikar(id){
+	    	var sinav_id = id;
+	    	// Formdan gelen degerleri degerler değişkenine atıyoruz
+            var degerler = $("#seciliOgrenciler").serialize();
+            // Ajax Methodunu Başlatıyoru<
+            $.ajax({          
+                type: "post", // gönderme tipi
+                url: "./_modul/ajax/ajax_data.php", // gönderdiğimiz dosya
+                data : degerler+'&modul=sinavlar&islem=ogrenciCikar&id='+sinav_id, // gönderilcek veriler
+                dataType: "json",
+                success : function(cevap){ // eğer başarılı ise
+                    /*Ajax tarfından gelen mesaj verilecek*/
+                    mesajVer( cevap.mesaj, cevap.renk );
+                    
+                    /*Veri tabanından öğrenci silinmiş ise */
+                    if( cevap.durum == 1 ){
+                    	cevap.idler.forEach(satirSil);
+						function satirSil(item, index, arr) {
+						  	document.getElementById("sinavOgrenciNo"+item).closest(".sinav-ogrencileri").remove();
+						}
+                    }
+                }
+            });
+	    }
+	    function seciliOgrenciEkle(id){
+	    	var sinav_id = id;
+	    	// Formdan gelen degerleri degerler değişkenine atıyoruz
+            var degerler = $("#ekleSeciliOgrenciler").serialize();
+            // Ajax Methodunu Başlatıyoru<
+            $.ajax({          
+                type: "post", // gönderme tipi
+                url: "./_modul/ajax/ajax_data.php", // gönderdiğimiz dosya
+                data : degerler+'&modul=sinavlar&islem=ogrenciEkle&id='+sinav_id, // gönderilcek veriler
+                dataType: "json",
+                success : function(cevap){ // eğer başarılı ise
+                    /*Ajax tarfından gelen mesaj verilecek*/
+                    mesajVer( cevap.mesaj, cevap.renk );
+                    
+                    /*Veri tabanından öğrenci silinmiş ise */
+                    if( cevap.durum == 1 ){
+                    	cevap.idler.forEach(satirSil);
+						function satirSil(item, index, arr) {
+						  	document.getElementById("ekleSinavOgrenciNo"+item).closest(".sinav-ogrencileri").remove();
+						}
+                    }
+                }
+            });
+	    }
+	    function load_data(kelime){
+			if ( kelime.length > 2 ){
+				var form_data = new FormData();
+				form_data.append('kelime', kelime);
+				form_data.append('modul', 'donemOgrencileri');
+				form_data.append('islem', 'ogrenciAra');
+
+				var ajax_request = new XMLHttpRequest();
+
+				ajax_request.open('POST', './_modul/ajax/ajax_data.php');
+
+				ajax_request.send(form_data);
+
+				ajax_request.onreadystatechange = function()
+				{
+					if(ajax_request.readyState == 4 && ajax_request.status == 200)
+					{
+						var response = JSON.parse(ajax_request.responseText);
+
+						var html = "<div class='list-group gelenOgrenci'>";
+
+						if(response.length > 0)
+						{
+							for(var count = 0; count < response.length; count++)
+							{
+								
+								html += '<div class="list-group-item list-group-item-action p-0 d-flex justify-content-between rounded-0 border-bottom" onclick="javascript:ogrenciSec(this);" data-ogrenci_id="'+response[count].id+'" data-ogrenci_adi="'+response[count].adi+'" data-ogrenci_no="'+response[count].ogrenci_no+'">'+
+											'<a href="#" class="p-2 text-dark"  >'+response[count].adi+' - '+response[count].ogrenci_no+'</a>'+
+										'</div>';
+							}
+						}
+						else
+						{
+							html += '<a href="#" class="list-group-item list-group-item-action disabled">Öğrenci Bulunamadı.</a>';
+						}
+
+						html += '</div>';
+						document.getElementById('aramaSonuclari').innerHTML = html;
+					}
+				}
+			}else{
+				document.getElementById('aramaSonuclari').innerHTML = '';
+			}
+		}
+		function ogrenciSec(a){
+			var ogrenci_id 	= $(a).data("ogrenci_id");
+			var ogrenci_adi = $(a).data("ogrenci_adi");
+			var ogrenci_no 	= $(a).data("ogrenci_no");
+			
+			if ( $("#eklenecekOgrenci"+ogrenci_id).length == 0 ) {
+				var html = "<div class=' w-100 sinav-ogrencileri' id='eklenecekOgrenci"+ogrenci_id+"'>"+
+		            		"<div class='col-sm-1 float-left'>"+
+		            			"<div class='card-tools'>"+
+									"<div class='icheck-primary'>"+
+										"<input type='checkbox' name='ekleSinavOgrenciNo[]' onchange='javascript:ekleSeciliOgrenciSay();' id='ekleSinavOgrenciNo"+ogrenci_id+"' value='"+ogrenci_id+"' class='ekleSecilenOgrenci'>"+
+										"<label for='ekleSinavOgrenciNo"+ogrenci_id+"' ></label>"+
+									"</div>"+
+								"</div>"+
+		            		"</div>"+
+		            		"<div class='col-sm-7 float-left'>"+
+		            			"<span id='ogrenciAdi'>"+ogrenci_adi+"</span>"+
+		            		"</div>"+
+		            		"<div class='col-sm-3 float-left'>"+
+		            			"<span>"+ogrenci_no+"</span>"+
+		            		"</div>"+
+		            	"</div>"; 
+
+		        $("#ekleSeciliOgrenciler").append(html);
+		    }
+		}
+
+		function soru_load_data(kelime,sinav_id){
+			if ( kelime.length > 2 ){
+				var ogretim_elemani_id 	= document.getElementById('selectOgretimElemaniId').value;
+				var ders_id 			= document.getElementById('selectDersId').value;
+				var form_data = new FormData();
+				form_data.append('kelime', kelime);
+				form_data.append('ogretim_elemani_id', ogretim_elemani_id);
+				form_data.append('ders_id', ders_id);
+				form_data.append('modul', 'sinavlar');
+				form_data.append('islem', 'soruAra');
+
+				var ajax_request = new XMLHttpRequest();
+
+				ajax_request.open('POST', './_modul/ajax/ajax_data.php');
+
+				ajax_request.send(form_data);
+
+				ajax_request.onreadystatechange = function()
+				{
+					if(ajax_request.readyState == 4 && ajax_request.status == 200)
+					{
+						var response = JSON.parse(ajax_request.responseText);
+
+						var html = "<div class='list-group gelenSoru'>";
+
+						if(response.length > 0)
+						{
+							for(var count = 0; count < response.length; count++)
+							{
+								
+								html += '<div class="list-group-item list-group-item-action p-0 d-flex justify-content-between rounded-0 border-bottom" onclick="javascript:soruSec('+response[count].id+','+sinav_id+');" data-soru_id="'+response[count].id+'" data-soru_adi="'+response[count].adi+'" >'+
+											'<a href="#" class="p-2 text-dark"  >'+response[count].adi+'</a>'+
+										'</div>';
+							}
+						}
+						else
+						{
+							html += '<a href="#" class="list-group-item list-group-item-action disabled">Soru Bulunamadı.</a>';
+						}
+
+						html += '</div>';
+						document.getElementById('soruAramaSonuclari').innerHTML = html;
+					}
+				}
+			}else{
+				document.getElementById('soruAramaSonuclari').innerHTML = '';
+			}
+		}
+		function soruSec(soru_id, sinav_id){
+	    	var sinav_id 			= sinav_id;
+	    	var soru_id  			= soru_id;
+			var ogretim_elemani_id 	= document.getElementById('selectOgretimElemaniId').value;
+			var ders_id 			= document.getElementById('selectDersId').value;
+            // Ajax Methodunu Başlatıyoruz
+            $.ajax({          
+                type: "post", // gönderme tipi
+                url: "./_modul/ajax/ajax_data.php", // gönderdiğimiz dosya
+                data : 'modul=sinavlar&islem=soruEkle&sinav_id='+sinav_id+'&soru_id='+soru_id+'&ogretim_elemani_id='+ogretim_elemani_id+'&ders_id='+ders_id, // gönderilcek veriler
+                dataType: "json",
+                success : function(cevap){ // eğer başarılı ise
+                    /*Ajax tarfından gelen mesaj verilecek*/
+                    mesajVer( cevap.mesaj, cevap.renk );
+                    
+                    /*Veri tabanından öğrenci silinmiş ise */
+                    if( cevap.durum == 1 ){
+                    	cevap.idler.forEach(satirSil);
+						function satirSil(item, index, arr) {
+						  	document.getElementById("ekleSinavOgrenciNo"+item).closest(".sinav-ogrencileri").remove();
+						}
+                    }
+                }
+            });
+	    }
+
+	    function ogretimElemaniSinavDersGetir(id,sinav_id){
+			if ( id != '' || sinav_id != '') {
+	            $.ajax({          
+	                type: "post", // gönderme tipi
+	                url: "./_modul/ajax/ajax_data.php", // gönderdiğimiz dosya
+	                data : 'modul=sinavlar&islem=dersler&ogretim_elemani_id='+id+'&sinav_id='+sinav_id, // gönderilcek veriler
+	                dataType: "json",
+	                success : function(cevap){ // eğer başarılı ise
+	                    /*Ajax tarfından gelen mesaj verilecek*/
+	                    $("#ogretimElemaniSinavDersGetir1").empty();
+						document.getElementById('ogretimElemaniSinavDersGetir1').innerHTML = cevap.cevap;
+	                }
+	            });
+	        }
+	    }
+
+		function ekleSeciliOgrenciSay(){
+			var ogrenciSayisi = $('.ekleSecilenOgrenci:checked').length;
+	      	$('#ogrenciSayisi').empty();
+	      	$('#ogrenciSayisi').append(ogrenciSayisi);
+	      	if( ogrenciSayisi > 0 ){
+	      		$('#ekleBtnSeciliOgrenci').prop('disabled', false);
+			}else{
+				$('#ekleBtnSeciliOgrenci').prop('disabled', true);
+			}
+	    }
 	</script>

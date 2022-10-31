@@ -106,7 +106,7 @@ div.dt-button-collection div.dropdown-menu {
     color: #fff;
 }
 .sinav-ogrencileri{
-	padding: 10px 5px;
+	padding: 5px 5px;
 	background-color: #ddd;
 	margin-bottom: 2px;
 	border-radius: 5px;
@@ -125,7 +125,7 @@ div.dt-button-collection div.dropdown-menu {
 	padding: 10px;
 	border-radius: 10px;
 }
-.ogrenci-ara{
+.arama{
 	border: 0;
     border-bottom: 1px solid #3d9970;
     border-radius: 10px;

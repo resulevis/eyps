@@ -269,7 +269,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 					<div class="card-footer">
 						
 						<?php if ( $islem == "ekle" ){ ?>
-							<button modul= 'programlar' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
+							<button modul= 'donemGorevlileri' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls ?> pull-right"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi ?></button>
 						<?php } ?> 
 						<button onclick="window.location.href = '?modul=donemGorevlileri&islem=ekle'" type="reset" class="btn btn-primary btn-sm pull-right" ><span class="fa fa-plus"></span> Temizle / Yeni Kayıt</button>
 					</div>
@@ -314,7 +314,7 @@ $donem_gorevlileri  = $vt->select( $SQL_ogretim_elemani_getir, array( $ders_yili
 							<li>
 								<div class="ders-kapsa bg-renk3">
 									<?php echo $kategori[ "adi" ] ?>
-									<a href="?modul=donemGorevlileri&islem=guncelle&ders_yili_id=<?php echo $_SESSION[ 'aktif_yil' ]; ?>&program_id=<?php echo $_SESSION[ 'program_id' ]; ?>&donem_id=<?php echo $donem["donem_id"]; ?>&gorev_kategori_id=<?php echo $kategori['id'] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>		
+									<a modul="donemGorevlileri" yetki_islem="duzenle" href="?modul=donemGorevlileri&islem=guncelle&ders_yili_id=<?php echo $_SESSION[ 'aktif_yil' ]; ?>&program_id=<?php echo $_SESSION[ 'program_id' ]; ?>&donem_id=<?php echo $donem["donem_id"]; ?>&gorev_kategori_id=<?php echo $kategori['id'] ?>" class="btn btn-dark float-right btn-xs">Düzenle</a>		
 								</div> <!-- Second level node -->
 							<ul class="ders-ul">
 				<?php 		
