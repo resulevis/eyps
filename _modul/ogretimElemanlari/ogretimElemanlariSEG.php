@@ -17,8 +17,16 @@ $degerler[]		= $_SESSION['universite_id'];
 
 foreach( $_REQUEST as $alan => $deger ) {
 	if( $alan == 'islem' or  $alan == 'PHPSESSID' or  $alan == 'ogretim_elemani_id') continue;
-		$alanlar[]		= $alan;
-		$degerler[]		= $deger;
+		if( $alan == 'sifre'){
+			$sifre = md5($deger);
+			if( $deger != ''  ){
+				$alanlar[]		= $alan;
+				$degerler[]		= $sifre;
+			}
+		}else{
+			$alanlar[]		= $alan;
+			$degerler[]		= $deger;
+		}
 }
 
 $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';
@@ -60,6 +68,12 @@ switch( $islem ) {
 		$ogretim_elamani_id = $son_eklenen_id;
 	break;
 	case 'guncelle':
+		if( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 ){
+			if ( $_REQUEST[ "ogretim_elemani_id" ] != $_SESSION[ "kullanici_id" ] ){
+				die("Hata İşlem Yapmaktasınız.");
+			}
+		}
+		
 		//Güncellenecek olan tarife giriş yapılan firmaya mı ait oldugu kontrol ediliyor Eger firmaya ait ise Güncellenecektir.
 		$tek_ogretim_elemani_oku = $vt->select( $SQL_tek_ogretim_elemani_oku, array( $ogretim_elamani_id ) ) [ 2 ];
 		if (count( $tek_ogretim_elemani_oku ) > 0) {

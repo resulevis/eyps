@@ -30,6 +30,7 @@ SET
 	ders_yili_donem_id 	= ?, 
 	program_id 		 	= ?, 
 	ders_id 		 	= ?, 
+	ogretim_elemani_id 	= ?, 
 	zorluk_derecesi 	= ?, 
 	puan 		 		= ?, 
 	etiket 		 		= ?,
@@ -74,8 +75,7 @@ WHERE
 SQL;
 
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
-echo '<pre>';
-print_r($_FILES);
+
 $dizin =  "../../soruDosyalari";
 
 
@@ -91,6 +91,13 @@ switch( $islem ) {
 			$hedef_yol		= $dizin.'/'.$soru_dosyasi;
 			move_uploaded_file( $_FILES[ "file"][ 'tmp_name' ], $hedef_yol );
 		}
+		
+		if( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 ){
+			if ( $_REQUEST[ "ogretim_elemani_id" ] != $_SESSION[ "kullanici_id" ] ){
+				die("Hata İşlem Yapmaktasınız.");
+			}
+		}
+
 		$degerler      = array( 
 			$_REQUEST[ "soru" ],
 			$_REQUEST[ "soru_turu_id" ], 
@@ -99,6 +106,7 @@ switch( $islem ) {
 			$_SESSION[ "donem_id" ], 
 			$_SESSION[ "program_id" ], 
 			$_REQUEST[ "ders_id" ],
+			$_REQUEST[ "ogretim_elemani_id" ],
 			$_REQUEST[ "zorluk_derecesi" ],
 			$_REQUEST[ "puan" ],
 			$_REQUEST[ "etiket" ],

@@ -13,7 +13,7 @@ SELECT
 	 k.*
 	,CASE k.super WHEN 1 THEN "Süper" ELSE r.adi END AS rol_adi
 FROM
-	tb_sistem_kullanici AS k
+	view_giris_kontrol AS k
 JOIN
 	tb_roller AS r ON k.rol_id = r.id
 WHERE
@@ -94,17 +94,18 @@ if( !$sorguSonuc[ 0 ] ) {
 		$_SESSION[ 'giris_var' ]		= 'evet';
 		$_SESSION[ 'yil' ]				= date('Y');
 		$_SESSION[ 'super' ]			= $kullaniciBilgileri[ 'super' ];
-		$_SESSION[ 'universite_id' ]	= $kullaniciBilgileri[ 'universiteler' ];
+		$_SESSION[ 'universite_id' ]	= $kullaniciBilgileri[ 'universite_id' ];
+		$_SESSION[ 'kullanici_turu' ]	= $kullaniciBilgileri[ 'kullanici_turu' ];
 
-		$aktif_yil 						= $vt->selectSingle( $SQL_aktif_yil, array( $kullaniciBilgileri[ 'universiteler' ] ) )[ 2 ];
-		$ders_yillari 					= $vt->select( $SQL_ders_yillari, array( $kullaniciBilgileri[ 'universiteler' ] ) )[ 2 ];
+		$aktif_yil 						= $vt->selectSingle( $SQL_aktif_yil, array( $kullaniciBilgileri[ 'universite_id' ] ) )[ 2 ];
+		$ders_yillari 					= $vt->select( $SQL_ders_yillari, array( $kullaniciBilgileri[ 'universite_id' ] ) )[ 2 ];
 		$_SESSION[ 'aktif_yil' ]		= $aktif_yil[ "id" ];
 		$_SESSION[ 'ders_yillari' ]		= $ders_yillari;
 
-		$aktif_program_id				= $vt->selectSingle( $SQL_aktif_program, array( $kullaniciBilgileri[ 'universiteler' ] ) )[ 2 ];
+		$aktif_program_id				= $vt->selectSingle( $SQL_aktif_program, array( $kullaniciBilgileri[ 'universite_id' ] ) )[ 2 ];
 		$_SESSION[ 'program_id' ]		= $aktif_program_id[ "id" ];
 
-		$programlar 					= $vt->select( $SQL_programlar, array( $kullaniciBilgileri[ 'universiteler' ] ) )[ 2 ];
+		$programlar 					= $vt->select( $SQL_programlar, array( $kullaniciBilgileri[ 'universite_id' ] ) )[ 2 ];
 		$_SESSION[ 'programlar' ]		= $programlar;
 
 

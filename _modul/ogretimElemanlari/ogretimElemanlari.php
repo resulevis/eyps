@@ -12,10 +12,8 @@ if( array_key_exists( 'sonuclar', $_SESSION ) ) {
 	echo "<script>mesajVer('$mesaj', '$mesaj_turu')</script>";
 }
 
-
 $islem					= array_key_exists( 'islem'		         ,$_REQUEST ) ? $_REQUEST[ 'islem' ]				: 'ekle';
 $ogretim_elemani_id		= array_key_exists( 'ogretim_elemani_id' ,$_REQUEST ) ? $_REQUEST[ 'ogretim_elemani_id' ]	: 0;
-
 
 $satir_renk				= $ogretim_elemani_id > 0	? 'table-warning'						: '';
 $kaydet_buton_yazi		= $ogretim_elemani_id > 0	? 'Güncelle'							: 'Kaydet';
@@ -40,6 +38,23 @@ WHERE
 ORDER BY u.sira ASC, oe.adi ASC
 SQL;
 
+$SQL_ogretim_elemani = <<< SQL
+SELECT 
+	oe.id,
+	CONCAT( u.adi, ' ', oe.adi, ' ', oe.soyadi ) AS o_adi,
+	f.adi AS fakulte_adi,
+	abd.adi AS anabilim_dali_adi
+FROM 
+	tb_ogretim_elemanlari AS oe
+LEFT JOIN tb_fakulteler AS f ON f.id = oe.fakulte_id
+LEFT JOIN tb_anabilim_dallari AS abd ON abd.id = oe.anabilim_dali_id
+LEFT JOIN tb_unvanlar AS u ON u.id = oe.unvan_id
+WHERE
+	oe.universite_id 	= ? AND
+	oe.id 				= ? AND
+	oe.aktif 		  	= 1 
+ORDER BY u.sira ASC, oe.adi ASC
+SQL;
 
 $SQL_tek_ogretim_elemani_oku = <<< SQL
 SELECT 
@@ -90,8 +105,14 @@ SQL;
 $unvanlar							= $vt->select( $SQL_unvanlar, array( $_SESSION[ 'universite_id'] ) )[ 2 ];
 $anabilim_dallari					= $vt->select( $SQL_anabilim_dallari, array( $_SESSION[ 'universite_id'] ) )[ 2 ];
 $fakulteler							= $vt->select( $SQL_fakulteler, array( $_SESSION[ 'universite_id'] ) )[ 2 ];
-$ogretimElemanlari					= $vt->select( $SQL_tum_ogretimElemanlari, array( $_SESSION[ 'universite_id'] ) )[ 2 ];
 @$tek_ogretim_elemani				= $vt->select( $SQL_tek_ogretim_elemani_oku, array( $ogretim_elemani_id ) )[ 2 ][ 0 ];		
+
+if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 ){
+	$ogretimElemanlari				= $vt->select( $SQL_ogretim_elemani, array( $_SESSION[ 'universite_id'],$_SESSION[ 'kullanici_id'] ) )[ 2 ];
+}else{
+	$ogretimElemanlari				= $vt->select( $SQL_tum_ogretimElemanlari, array( $_SESSION[ 'universite_id'] ) )[ 2 ];
+}
+
 
 ?>
 
@@ -240,7 +261,10 @@ $ogretimElemanlari					= $vt->select( $SQL_tum_ogretimElemanlari, array( $_SESSI
 										<label class="control-label">E Mail</label>
 										<input required type="email" class="form-control" name ="email" value = "<?php echo $tek_ogretim_elemani[ "email" ]; ?>"  autocomplete="off">
 									</div>
-									
+									<div class="form-group">
+										<label  class="control-label">Şifre</label>
+										<input <?php echo $islem == 'ekle' ? 'required' : ''; ?> type="text" class="form-control" name ="sifre" value = "<?php echo $islem == 'ekle' ? rand(111111, 999999 ): '';  ?>">
+									</div>
 									<div class="form-group">
 										<label class="control-label">Cep Telefonu</label>
 										<input required type="text" class="form-control" name ="cep_tel" value = "<?php echo $tek_ogretim_elemani[ "cep_tel" ]; ?>"  autocomplete="off">

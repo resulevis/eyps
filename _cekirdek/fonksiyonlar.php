@@ -34,9 +34,9 @@ SQL;
 SELECT
 	super
 FROM
-	tb_sistem_kullanici
+	view_giris_kontrol
 WHERE
-	id = ?
+	id = ? AND kullanici_turu = ?
 SQL;
 
 	const SQL_yetki = <<< SQL
@@ -57,7 +57,7 @@ SELECT
 FROM
 	tb_modul AS m
 LEFT JOIN
-	tb_sistem_kullanici AS ku ON ku.id = ?
+	view_giris_kontrol AS ku ON ku.id = ? AND ku.kullanici_turu = ?
 JOIN
 	tb_roller AS r ON ku.rol_id = r.id
 SQL;
@@ -266,7 +266,7 @@ SQL;
 	/* Süper kullanıcı olup olmadığını kontrol ediyor. */
 	public function superKullanici( $kul_id = 0 ) {
 		if( !$kul_id ) $kul_id = $_SESSION[ 'kullanici_id' ];
-		$sonuc = $this->vt->selectSingle( self::SQL_super, array( $kul_id ) );
+		$sonuc = $this->vt->selectSingle( self::SQL_super, array( $kul_id, $_SESSION[ 'kullanici_turu' ]) );
 		return  $sonuc[ 2 ][ 'super' ] * 1;
 	}
 
@@ -296,7 +296,7 @@ SQL;
 
 	public function tumYetkileriVer( $id ) {
 		if( !$id ) return array();
-		$sonuc				= $this->vt->select( self::SQL_yetki,  array( $id ) );
+		$sonuc				= $this->vt->select( self::SQL_yetki,  array( $id, $_SESSION[ 'kullanici_turu' ] ) );
 		$yetkiler			= array();
 		$kullaniciAdi 		= '';
 		$ad 				= '';
@@ -350,7 +350,7 @@ SQL;
 	/* İstenilen kullanıcının tüm modülleri varsa yetki işlemleri ile birlikte verir. */
 	public function modulYetkileriVer( $id, $anahtarDegerAyni = false ) {
 		if( !$id ) return array();
-		$sonuc					= $this->vt->select( self::SQL_yetki,  array( $id ) );
+		$sonuc					= $this->vt->select( self::SQL_yetki,  array( $id, $_SESSION[ "kullanici_turu" ] ) );
 
 		$modulDizisiIndexli		= array();
 		$modulDizisiAnahtarli	= array();

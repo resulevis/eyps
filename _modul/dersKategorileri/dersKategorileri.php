@@ -143,7 +143,7 @@ $dersKategorileri	= $vt->select( $SQL_tum_ders_kategorileri, array( $_SESSION[ '
 										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_dersYili[ "adi" ]; ?>"  autocomplete="off">
 									</div>
 									<div class="card-footer">
-										<button modul= 'fakulte' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<button modul= 'dersKategorileri' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>

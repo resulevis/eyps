@@ -96,7 +96,7 @@ $donemler			= $vt->select( $SQL_tum_donemler, 	array( $_SESSION[ 'universite_id'
 						<h3 class="card-title">Dönemler</h3>
 						<div class = "card-tools">
 							<button type="button" data-toggle = "tooltip" title = "Tam sayfa göster" class="btn btn-tool" data-card-widget="maximize"><i class="fas fa-expand fa-lg"></i></button>
-							<a id = "yeni_fakulte" data-toggle = "tooltip" title = "Yeni Üviversite Ekle" href = "?modul=donemler&islem=ekle" class="btn btn-tool" ><i class="fas fa-plus fa-lg"></i></a>
+							<a id = "yeni_donem" data-toggle = "tooltip" title = "Yeni Üviversite Ekle" href = "?modul=donemler&islem=ekle" class="btn btn-tool" ><i class="fas fa-plus fa-lg"></i></a>
 						</div>
 					</div>
 					<div class="card-body">
@@ -110,17 +110,17 @@ $donemler			= $vt->select( $SQL_tum_donemler, 	array( $_SESSION[ 'universite_id'
 								</tr>
 							</thead>
 							<tbody>
-								<?php $sayi = 1; foreach( $donemler AS $fakulte ) { ?>
-								<tr oncontextmenu="fun();" class ="fakulte-Tr <?php if( $fakulte[ 'id' ] == $donem_id ) echo $satir_renk; ?>" data-id="<?php echo $fakulte[ 'id' ]; ?>">
+								<?php $sayi = 1; foreach( $donemler AS $donem ) { ?>
+								<tr oncontextmenu="fun();" class ="donem-Tr <?php if( $donem[ 'id' ] == $donem_id ) echo $satir_renk; ?>" data-id="<?php echo $donem[ 'id' ]; ?>">
 									<td><?php echo $sayi++; ?></td>
-									<td><?php echo $fakulte[ 'adi' ]; ?></td>
+									<td><?php echo $donem[ 'adi' ]; ?></td>
 									<td align = "center">
-										<a modul = 'donemler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=donemler&islem=guncelle&donem_id=<?php echo $fakulte[ 'id' ]; ?>" >
+										<a modul = 'donemler' yetki_islem="duzenle" class = "btn btn-sm btn-warning btn-xs" href = "?modul=donemler&islem=guncelle&donem_id=<?php echo $donem[ 'id' ]; ?>" >
 											Düzenle
 										</a>
 									</td>
 									<td align = "center">
-										<button modul= 'donemler' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/donemler/donemlerSEG.php?islem=sil&donem_id=<?php echo $fakulte[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
+										<button modul= 'donemler' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/donemler/donemlerSEG.php?islem=sil&donem_id=<?php echo $donem[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>
 									</td>
 								</tr>
 								<?php } ?>
@@ -167,7 +167,7 @@ $donemler			= $vt->select( $SQL_tum_donemler, 	array( $_SESSION[ 'universite_id'
 										<input required type="text" class="form-control" name ="adi" value = "<?php echo $tek_donem[ "adi" ]; ?>"  autocomplete="off">
 									</div>
 									<div class="card-footer">
-										<button modul= 'fakulte' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
+										<button modul= 'donemler' yetki_islem="kaydet" type="submit" class="<?php echo $kaydet_buton_cls; ?>"><span class="fa fa-save"></span> <?php echo $kaydet_buton_yazi; ?></button>
 									</div>
 								</form>
 							</div>

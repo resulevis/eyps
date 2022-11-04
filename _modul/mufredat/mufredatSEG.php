@@ -17,6 +17,7 @@ SET
 	ders_yili_donem_id 	= ?,
 	program_id 			= ?,
 	ders_id 			= ?,
+	ogretim_elemani_id 	= ?,
 	kategori 			= ?
 SQL;
 
@@ -47,17 +48,28 @@ SQL;
 
 $degerler = array();
 
+echo '<pre>';
+echo $_REQUEST[ "ogretim_elemani_id" ];
+
+print_r($_REQUEST);
 $___islem_sonuc = array( 'hata' => false, 'mesaj' => 'İşlem başarı ile gerçekleşti', 'id' => 0 );
 switch( $islem ) {
 	case 'ekle':
 
-		$kategori = $_REQUEST[ "kategori" ] == "on" ? 1 : 0;
+		if( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 ){
+			if ( $_REQUEST[ "ogretim_elemani_id" ] != $_SESSION[ "kullanici_id" ] ){
+				die("Hata İşlem Yapmaktasınız.");
+			}
+		}
+		$kategori 	= $_REQUEST[ "kategori" ] 	== "on" ? 1 : 0;
+		$ust_id   	= $_REQUEST[ "ust_id" ] 	== "" 	? 0 : $_REQUEST[ "ust_id" ];
 
-		$degerler[] = $_REQUEST[ "ust_id" ];
+		$degerler[] = $ust_id;
 		$degerler[] = $_REQUEST[ "adi" ];
 		$degerler[] = $_SESSION[ "donem_id" ];
 		$degerler[] = $_SESSION[ "program_id" ];
 		$degerler[] = $_REQUEST[ "ders_id" ];
+		$degerler[] = $_REQUEST[ "ogretim_elemani_id" ];
 		$degerler[] = $kategori;
 
 		$sonuc = $vt->insert( $SQL_mufredat_ekle, $degerler );

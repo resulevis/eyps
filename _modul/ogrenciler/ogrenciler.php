@@ -227,7 +227,10 @@ $ogrenciler							= $vt->select( $SQL_tum_ogrenciler, array( $_SESSION[ 'univers
 										<label class="control-label">E Mail</label>
 										<input required type="email" class="form-control" name ="email" value = "<?php echo $tek_ogrenci[ "email" ]; ?>"  autocomplete="off">
 									</div>
-									
+									<div class="form-group">
+										<label  class="control-label">Şifre</label>
+										<input <?php echo $islem == 'ekle' ? 'required' : ''; ?> type="text" class="form-control" name ="sifre" value = "<?php echo $islem == 'ekle' ? rand(111111, 999999 ): '';  ?>">
+									</div>
 									<div class="form-group">
 										<label class="control-label">Cep Telefonu</label>
 										<input required type="tel" class="form-control" name ="cep_tel" value = "<?php echo $tek_ogrenci[ "cep_tel" ]; ?>" pattern="[0-9]{10}" placeholder="5555555555" autocomplete="off">

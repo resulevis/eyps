@@ -84,10 +84,45 @@ WHERE
 	s.aktif 			= 1
 SQL;
 
+$SQL_ogretim_elemani_sinavlar_getir = <<< SQL
+SELECT 
+	s.id AS sinav_id,
+	k.adi AS komite_adi,
+	k.ders_kodu AS ders_kodu,
+	s.adi AS sinav_adi,
+	s.sinav_baslangic_tarihi,
+	s.sinav_baslangic_saati,
+	s.sinav_bitis_tarihi,
+	s.sinav_bitis_saati,
+	s.sinav_suresi 
+FROM 
+	tb_sinavlar AS s
+LEFT JOIN 
+	tb_komiteler 		AS k  ON k.id 			= s.komite_id
+LEFT JOIN 
+	tb_komite_dersleri 	AS kd ON kd.komite_id 	= k.id
+LEFT JOIN 
+	tb_donem_dersleri 	AS dd ON dd.id 			= kd.donem_ders_id
+LEFT JOIN 
+	tb_dersler 			AS d  ON d.id 			= dd.ders_id
+LEFT JOIN 
+	tb_komite_dersleri_ogretim_uyeleri AS kdou ON kdou.komite_ders_id = kd.id
+WHERE 
+	kdou.ogretim_uyesi_id 	= ? AND
+	s.universite_id 	 	= ? AND
+	s.donem_id				= ? AND
+	s.aktif 				= 1
+
+SQL;
 $donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
 @$_SESSION[ "donem_id" ]= $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
 $komiteler 				= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ "aktif_yil" ], $_SESSION[ "donem_id" ], $_SESSION[ "program_id" ] ) )[2];
-$sinavlar 				= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "donem_id" ] ) )[2];
+
+if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 ){
+	$sinavlar 			= $vt->select( $SQL_ogretim_elemani_sinavlar_getir, array(  $_SESSION[ "kullanici_id" ],$_SESSION[ "universite_id" ], $_SESSION[ "donem_id" ] ) )[2];
+}else{
+	$sinavlar 			= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "donem_id" ] ) )[2];
+}
 ?>
 
 <div class="row">
@@ -144,7 +179,7 @@ $sinavlar 				= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_
 							</td>
 							<td><?php echo $sinav[ 'sinav_suresi' ]; ?></td>
 							<td align = "center">
-								<button modul= 'sinavlar' yetki_islem="sinavDetay" class="btn btn-xs btn-dark sinavGetir" data-modal="sinavDetay" data-islem="sinavGetir" data-modul="<?php echo $_REQUEST[ 'modul' ] ?>" data-url="./_modul/ajax/ajax_data.php" data-id="<?php echo $sinav[ 'sinav_id' ]; ?>"  >Sınav Detayı</button>
+								<button modul= 'sinavlar' yetki_islem="detaylar" class="btn btn-xs btn-dark sinavGetir" data-modal="sinavDetay" data-islem="sinavGetir" data-modul="<?php echo $_REQUEST[ 'modul' ] ?>" data-url="./_modul/ajax/ajax_data.php" data-id="<?php echo $sinav[ 'sinav_id' ]; ?>"  >Sınav Detayı</button>
 							</td>
 							<td align = "center">
 								<button modul= 'sinavlar' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/sinavlar/sinavlarSEG.php?islem=sil&id=<?php echo $sinav[ 'sinav_id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>

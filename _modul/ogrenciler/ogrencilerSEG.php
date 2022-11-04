@@ -37,8 +37,17 @@ $degerler[]		= $idleri_cek[ "program_id" ];
 
 foreach( $_REQUEST as $alan => $deger ) {
 	if( $alan == 'islem' or  $alan == 'PHPSESSID' or  $alan == 'ogrenci_id') continue;
-		$alanlar[]		= $alan;
-		$degerler[]		= $deger;
+		if( $alan == 'sifre'){
+			$sifre = md5($deger);
+			if( $deger != ''  ){
+				$alanlar[]		= $alan;
+				$degerler[]		= $sifre;
+			}
+		}else{
+			$alanlar[]		= $alan;
+			$degerler[]		= $deger;
+		}
+		
 }
 
 $SQL_ekle		.= implode( ' = ?, ', $alanlar ) . ' = ?';

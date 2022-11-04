@@ -107,18 +107,43 @@ WHERE
 	sb.ders_id 				= ?
 SQL;
 
+$SQL_ogretim_elemani_sorular = <<< SQL
+SELECT
+	sb.*,
+	m.adi AS mufredat_adi,
+	CONCAT(u.adi," ", oe.adi, " ", oe.soyadi ) AS ogretim_elemani,
+	st.adi AS soru_turu
+FROM 
+	tb_soru_bankasi AS sb
+LEFT JOIN 
+	tb_mufredat AS m ON m.id = sb.mufredat_id
+LEFT JOIN 
+	tb_ogretim_elemanlari AS oe ON oe.id = sb.ogretim_elemani_id
+LEFT JOIN 
+	tb_unvanlar AS u ON u.id = oe.unvan_id
+LEFT JOIN 
+	tb_soru_turleri AS st ON st.id = sb.soru_turu_id
+WHERE
+	sb.program_id 			= ? AND
+	sb.ders_yili_donem_id 	= ? AND 
+	sb.ders_id 				= ? AND
+	sb.ogretim_elemani_id   = ? 
+SQL;
 
 $donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
 @$_SESSION[ "donem_id" ] = $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
 @$mufredatlar 			= $vt->select($SQL_mufredat_getir, array( $_SESSION[ "donem_id" ], $_SESSION[ "ders_id"] ) )[ 2 ];
 $dersler 	 			= $vt->select($SQL_dersler_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
-$sorular 	 			= $vt->select($SQL_sorular, array( $_SESSION[ "program_id" ],$_SESSION[ "donem_id" ], $_SESSION[ "ders_id"] ) )[ 2 ];
+if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 ){
+	$sorular 	 			= $vt->select($SQL_ogretim_elemani_sorular, array( $_SESSION[ "program_id" ],$_SESSION[ "donem_id" ], $_SESSION[ "ders_id"], $_SESSION[ "kullanici_id" ] ) )[ 2 ];
+}else{
+	$sorular 	 			= $vt->select($SQL_sorular, array( $_SESSION[ "program_id" ],$_SESSION[ "donem_id" ], $_SESSION[ "ders_id"] ) )[ 2 ];
+}
 
 ?>
 
 <div class="row">
 	<div class="col-sm-12 mb-2 d-flex">
-
 		<?php 
 			foreach( $donemler AS $donem ){ ?>
 				<label for="donemCard<?php echo $donem[ "id" ] ?>" class="col-sm m-1 pt-3 pb-3 bg-<?php echo $_SESSION[ 'donem_id' ] == $donem[ 'id' ] ? 'olive' : 'navy' ?> btn text-left">
@@ -169,7 +194,7 @@ $sorular 	 			= $vt->select($SQL_sorular, array( $_SESSION[ "program_id" ],$_SES
 							<td><?php echo $soru[ 'mufredat_adi' ]; ?></td>
 							<td><?php echo $soru[ 'ogretim_elemani' ]; ?></td>
 							<td align = "center">
-								<button modul= 'soruBankasi' yetki_islem="soruDetay" class="btn btn-xs btn-dark soruGetir" data-modal="soruDetay" data-islem="soruSecenekGetir" data-modul="<?php echo $_REQUEST[ 'modul' ] ?>" data-url="./_modul/ajax/ajax_data.php" data-id="<?php echo $soru[ 'id' ]; ?>"  >Detaylar</button>
+								<button modul= 'soruBankasi' yetki_islem="detaylar" class="btn btn-xs btn-dark soruGetir" data-modal="soruDetay" data-islem="soruSecenekGetir" data-modul="<?php echo $_REQUEST[ 'modul' ] ?>" data-url="./_modul/ajax/ajax_data.php" data-id="<?php echo $soru[ 'id' ]; ?>"  >Detaylar</button>
 							</td>
 							<td align = "center">
 								<button modul= 'soruBankasi' yetki_islem="sil" class="btn btn-xs btn-danger" data-href="_modul/soruBankasi/soruBankasiSEG.php?islem=sil&id=<?php echo $soru[ 'id' ]; ?>" data-toggle="modal" data-target="#sil_onay">Sil</button>

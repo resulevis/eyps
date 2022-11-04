@@ -1048,7 +1048,7 @@ switch( $_POST[ 'islem' ] ) {
 							</div>
 						</div>
 						<div id ='secenekler'>$secenekler</div>
-						<div id='secenekEkleBtn'>
+						<div modul='soruBankasi' yetki_islem='secenek-ekle' id='secenekEkleBtn'>
 							$secenekEkleBtn
 						</div>
 						<div class='clearfix'></div>
@@ -1060,7 +1060,7 @@ switch( $_POST[ 'islem' ] ) {
 
 					<div class='modal-footer justify-content-between'>
 						<button type='button' class='btn btn-danger' data-dismiss='modal'>İptal</button>
-						<button type='submit' class='btn btn-success'>Kaydet</button>
+						<button modul='soruBankasi' yetki_islem='guncelle' type='submit' class='btn btn-warning'>Güncelle</button>
 					</div>
 				</form>
 				<script>
@@ -1138,7 +1138,7 @@ switch( $_POST[ 'islem' ] ) {
 		            				<b>$say )</b>$soru[soru]
 		            			</div>
 		            			<div class='col-sm-1'>
-		            				<a href='javascript:sil($soru[id]);' class='btn btn-sm btn-outline-danger'><i class='fas fa-trash-alt'></i></a>
+		            				<a  modul='sinavlar' yetki_islem='sinav-soru-sil'  href='javascript:sil($soru[id]);' class='btn btn-sm btn-outline-danger'><i class='fas fa-trash-alt'></i></a>
 		            			</div>
 		            		</div>";
 		    $say++;
@@ -1253,7 +1253,7 @@ switch( $_POST[ 'islem' ] ) {
 					<hr>
 					<div class=''>
 						<button type='reset' class='btn btn-danger kapat' >İptal</button>
-						<button type='submit' class='btn btn-success float-right' >Kaydet</button>
+						<button modul='sinavlar' yetki_islem='guncelle' type='submit' class='btn btn-warning float-right' >Güncelle</button>
 					</div>
                 </form>
             </div>
@@ -1293,19 +1293,19 @@ switch( $_POST[ 'islem' ] ) {
         <div class='card card-primary card-tabs h-100 mb-0'>
           	<div class='card-header p-0 pt-1'>
 	            <ul class='nav nav-tabs' id='custom-tabs-one-tab' role='tablist'>
-		            <li class='nav-item'>
+		            <li modul='sinavlar' yetki_islem='detaylar' class='nav-item'>
 		                <a class='nav-link active' id='sinavDetayTab-tab' data-toggle='pill' href='#sinavDetayTab' role='tab' aria-controls='sinavDetayTab' aria-selected='true'>Sınav Detayı</a>
 		            </li>
-		            <li class='nav-item'>
+		            <li modul='sinavlar' yetki_islem='ogrenci-listesi' class='nav-item'>
 		                <a class='nav-link' id='ogrenciler-tab' data-toggle='pill' href='#ogrenciler' role='tab' aria-controls='ogrenciler' aria-selected='false'>Öğrenciler</a>
 		            </li>
-		            <li class='nav-item'>
+		            <li modul='sinavlar' yetki_islem='ogrenci-ekle' class='nav-item'>
 		                <a class='nav-link' id='ogrenciEkle-tab' data-toggle='pill' href='#ogrenciEkle' role='tab' aria-controls='ogrenciEkle' aria-selected='false'>Öğrenci Ata</a>
 		            </li>
-		            <li class='nav-item'>
+		            <li modul='sinavlar' yetki_islem='sorular' class='nav-item'>
 		                <a class='nav-link' id='sorular-tab' data-toggle='pill' href='#sorular' role='tab' aria-controls='sorular' aria-selected='false'>Sorular</a>
 		            </li>
-		            <li class='nav-item'>
+		            <li modul='sinavlar' yetki_islem='soru-ekle'class='nav-item'>
 		              	<a class='nav-link' id='soruEkle-tab' data-toggle='pill' href='#soruEkle' role='tab' aria-controls='soruEkle' aria-selected='false'>Soru Ekle</a>
 		            </li>
 	            </ul>
@@ -1315,7 +1315,7 @@ switch( $_POST[ 'islem' ] ) {
 		            <div class='tab-pane fade show active' id='sinavDetayTab' role='tabpanel' aria-labelledby='sinavDetayTab-tab'>
 		                $sinavDetay
 		            </div>
-		            <div class='tab-pane fade' id='ogrenciler' role='tabpanel' aria-labelledby='ogrenciler-tab'>
+		            <div modul='sinavlar' yetki_islem='ogrenci-listesi' class='tab-pane fade' id='ogrenciler' role='tabpanel' aria-labelledby='ogrenciler-tab'>
 		                <div class='row'>
 		                	<div class='col-sm-12 m-0'>
 		                		<div class='col-sm-12 m-0 p-0 float-left mt-2 mb-3'>
@@ -1323,10 +1323,10 @@ switch( $_POST[ 'islem' ] ) {
 		                		</div>
 		                		
 		                		<div class='col-sm-6 float-left'>
-		                			<button onclick='javascript:seciliOgrenciCikar($_REQUEST[id]);' class='btn btn-danger w-100 ' id='btnSeciliOgrenciCikar' disabled><i class='fas fa-trash-alt'></i> Seçilen Öğrencileri Çıkar</button>
+		                			<button modul='sinavlar' yetki_islem='ogrenci-cikar' onclick='javascript:seciliOgrenciCikar($_REQUEST[id]);' class='btn btn-danger w-100 ' id='btnSeciliOgrenciCikar' disabled><i class='fas fa-trash-alt'></i> Seçilen Öğrencileri Çıkar</button>
 		                		</div>
 		                		<div class='col-sm-6 float-left m-0'>
-		                			<button  class='btn btn-danger w-100' id='tumOgrencileriSil' data-id='$_REQUEST[id]'><i class='fas fa-upload'></i> Tümünü Çıkar</button>
+		                			<button modul='sinavlar' yetki_islem='ogrenci-cikar' class='btn btn-danger w-100' id='tumOgrencileriSil' data-id='$_REQUEST[id]'><i class='fas fa-upload'></i> Tümünü Çıkar</button>
 		                		</div>
 		                	</div>
 		                </div>
@@ -1366,7 +1366,7 @@ switch( $_POST[ 'islem' ] ) {
 			            	</form>
 			            </div>
 		            </div>
-		            <div class='tab-pane fade' id='ogrenciEkle' role='tabpanel' aria-labelledby='ogrenciEkle-tab'>
+		            <div modul='sinavlar' yetki_islem='ogrenci-ekle' class='tab-pane fade' id='ogrenciEkle' role='tabpanel' aria-labelledby='ogrenciEkle-tab'>
 		                <div class='row'>
 		                	<div class='col-sm-12 m-0'>
 		                		<div class='col-sm-12 m-0 p-0 float-left mt-2 mb-3'>
@@ -1375,10 +1375,10 @@ switch( $_POST[ 'islem' ] ) {
 		                		</div>
 		                		
 		                		<div class='col-sm-6 float-left'>
-		                			<button onclick='javascript:seciliOgrenciEkle($_REQUEST[id]);' class='btn btn-danger w-100 ' id='ekleBtnSeciliOgrenci' disabled><i class='fas fa-user-plus'></i> Seçilen Öğrencileri Ekle</button>
+		                			<button modul='sinavlar' yetki_islem='ogrenci-ekle' onclick='javascript:seciliOgrenciEkle($_REQUEST[id]);' class='btn btn-danger w-100 ' id='ekleBtnSeciliOgrenci' disabled><i class='fas fa-user-plus'></i> Seçilen Öğrencileri Ekle</button>
 		                		</div>
 		                		<div class='col-sm-6 float-left m-0'>
-		                			<button  class='btn btn-success w-100' id='tumOgrencileriEkle' data-id='$_REQUEST[id]'><i class='fas fa-upload'></i> Tüm Öğrencileri Ekle</button>
+		                			<button modul='sinavlar' yetki_islem='ogrenci-ekle' class='btn btn-success w-100' id='tumOgrencileriEkle' data-id='$_REQUEST[id]'><i class='fas fa-upload'></i> Tüm Öğrencileri Ekle</button>
 		                		</div>
 		                	</div>
 		                </div>
@@ -1418,7 +1418,7 @@ switch( $_POST[ 'islem' ] ) {
 			            	</form>
 			            </div>
 		            </div>
-		            <div class='tab-pane fade' id='sorular' role='tabpanel' aria-labelledby='sorular-tab'>
+		            <div  modul='sinavlar' yetki_islem='sorular'  class='tab-pane fade' id='sorular' role='tabpanel' aria-labelledby='sorular-tab'>
 		                <div class='row'>
 		                	<h2>Soru Sorulacak Ders Listesi</h2>
 			            	<div class='w-100 mb-2 d-flex align-items-center sinav-ogrencileri-baslik'>
