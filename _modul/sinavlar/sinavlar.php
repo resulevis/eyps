@@ -138,12 +138,11 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 		
 	</div>
 	<div class="col-md-12">
-		<div class="control-sidebar" id="sinavDetay"></div>
 		<div class="card card-dark" id = "card_sorular">
 			<div class="card-header">
 				<h3 class="card-title" id="dersAdi">Komite Sınavları</h3>	
 				<div class="float-right">
-					<span class="btn btn-outline-light btn-sm" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Sınav Ekle</span>
+					<span class="btn btn-outline-light btn-sm sagSidebar" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Sınav Ekle</span>
 				</div>
 			</div>
 			<!-- /.card-header -->
@@ -218,7 +217,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 		<!-- /.modal-dialog -->
 	</div>
 	
-	<div class="control-sidebar sinavDuzenleSidebar sinavEklemeBar w-100 h-100 bottom-0 top-0 pb-3" >
+	<div class="control-sidebar sinavEklemeBar h-100 bottom-0 top-0 pb-3" >
         <div class="card card-outline">
             <div class="container" style="padding: 20px;margin-top: 10px;">
 			<span class="py-3 mb-5 d-block fixed-top btn btn-sm btn-danger position-sticky" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Kapat</span>
@@ -336,7 +335,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
         </div>
 	</div>
 
-	
+	<div class="sinavDuzenleSidebar d-none" id="sinavDetay"></div>
 	<div class="golgelik d-none" id="golgelik">Kapat</div>
 	<script>
 		$(function () {
@@ -474,13 +473,13 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 	        });
 	        var height = window.innerHeight;
 	        document.getElementById("sinavDetay").classList.toggle("d-none");
-			//document.getElementById("golgelik").classList.toggle("d-none");
+			document.getElementById("golgelik").classList.toggle("d-none");
 		    document.getElementById('sinavDetay').style.height = height+'px';
 		    document.getElementById('sinavDetay').style.overflowY = 'scroll';
 	    });
 
 	    $('#kapat , #golgelik').on("click", function(e) { 
-			//document.getElementById("golgelik").classList.toggle("d-none");
+			document.getElementById("golgelik").classList.toggle("d-none");
 			document.getElementById("sinavDetay").classList.toggle("d-none");
 	    });
 

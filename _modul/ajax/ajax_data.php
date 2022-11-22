@@ -1655,7 +1655,7 @@ switch( $_POST[ 'islem' ] ) {
         	$(\"input[name='secenekleri_karistir']\").bootstrapSwitch();
         	$('#kapat, .kapat').on('click', function(e) { 
 				document.getElementById('sinavDetay').classList.toggle('d-none');
-				//document.getElementById('golgelik').classList.toggle('d-none');
+				document.getElementById('golgelik').classList.toggle('d-none');
 		    });
 
 		    $('#tumOgrencileriSil').on('click', function(e) {

@@ -288,7 +288,15 @@ function startTimer() {
     setRemainingPathColor(timeLeft);
 
     if (timeLeft === 0) {
-      onTimesUp();
+      	onTimesUp();
+	  	var data_url 	= './_modul/ajax/ajax_data.php';
+		$.post(data_url, { islem : "sinavBitir" }, function (response) {
+			var sonuc = JSON.parse(response);
+			if(sonuc.durum == 1){
+				location.reload();	
+			}
+		});
+
     }
   }, 1000);
 }
