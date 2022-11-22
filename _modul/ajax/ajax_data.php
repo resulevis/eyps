@@ -1989,7 +1989,6 @@ switch( $_POST[ 'islem' ] ) {
 				$sonuc[ "durum" ]   = 1;
 				$sonuc[ "mesaj" ] 	= "$resim
 										<span class='soru-baslik'>".$soruGetir[2][0][ "soru" ]."</span>
-										adj asdahjdg <br><br><br><br><br>aksjdhjasdhl <br>askjflhaksjfhls <br>askljfhlkashfkl<br> asdjagskagjk ajdgsjadg<br>jgkfksgfagfjgja<br>jkagsdgasjkgfads<br>sajasagdhgfj<br>jhgkvbageyfs<br><br><br><br><br>
 										<div class='soru-secenekleri'>
 											$secenekler
 										</div> 
