@@ -290,13 +290,16 @@ function startTimer() {
     if (timeLeft === 0) {
       	onTimesUp();
 	  	var data_url 	= './_modul/ajax/ajax_data.php';
-		$.post(data_url, { islem : "sinavBitir" }, function (response) {
-			var sonuc = JSON.parse(response);
-			if(sonuc.durum == 1){
-				location.reload();	
+		<?php
+			if( array_key_exists( "okudum_anladım",$_SESSION ) ){
+				echo "$.post(data_url, { islem : 'sinavBitir' }, function (response) {
+					var sonuc = JSON.parse(response);
+					if(sonuc.durum == 1){
+						location.reload();	
+					}
+				});";
 			}
-		});
-
+		?>
     }
   }, 1000);
 }
