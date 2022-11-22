@@ -1321,22 +1321,22 @@ switch( $_POST[ 'islem' ] ) {
                     <div class='col-sm-6 float-left '>
 	                    <div class='form-group'>
 							<label class='control-label'>Sınav Başlangıç Tarihi</label>
-							<div class='input-group date' id='baslangicTarihi' data-target-input='nearest'>
-								<div class='input-group-append' data-target='#baslangicTarihi' data-toggle='datetimepicker'>
+							<div class='input-group date' id='baslangicTarihi2' data-target-input='nearest'>
+								<div class='input-group-append' data-target='#baslangicTarihi2' data-toggle='datetimepicker'>
 									<div class='input-group-text'><i class='fa fa-calendar'></i></div>
 								</div>
-								<input autocomplete='off' type='text' name='baslangic_tarihi' class='form-control form-control-sm datetimepicker-input' data-target='#baslangicTarihi' data-toggle='datetimepicker' value='".date('d.m.Y', strtotime($sinavGetir['sinav_baslangic_tarihi']))."'/>
+								<input autocomplete='off' type='text' name='baslangic_tarihi' class='form-control form-control-sm datetimepicker-input' data-target='#baslangicTarihi2' data-toggle='datetimepicker' value='".date('d.m.Y', strtotime($sinavGetir['sinav_baslangic_tarihi']))."'/>
 							</div>
 						</div>
 	                </div>
 	                <div class='col-sm-6 float-left'>
 	                    <div class='form-group'>
-							<label class='control-label'>Sınav Başlangıç Tarihi</label>
-							<div class='input-group date' id='baslangicSaati' data-target-input='nearest'>
-								<div class='input-group-append' data-target='#baslangicSaati' data-toggle='datetimepicker'>
+							<label class='control-label'>Sınav Başlangıç Saati</label>
+							<div class='input-group date' id='baslangicSaati2' data-target-input='nearest'>
+								<div class='input-group-append' data-target='#baslangicSaati2' data-toggle='datetimepicker'>
 									<div class='input-group-text'><i class='fa fa-clock'></i></div>
 								</div>
-								<input autocomplete='off' type='text' name='baslangic_saati' class='form-control form-control-sm datetimepicker-input' data-target='#baslangicSaati' data-toggle='datetimepicker' value='".date('H:m', strtotime($sinavGetir['sinav_baslangic_saati']))."'/>
+								<input autocomplete='off' type='text' name='baslangic_saati' class='form-control form-control-sm datetimepicker-input' data-target='#baslangicSaati2' data-toggle='datetimepicker' value='".date('H:m', strtotime($sinavGetir['sinav_baslangic_saati']))."'/>
 							</div>
 						</div>
 	                </div>
@@ -1344,22 +1344,22 @@ switch( $_POST[ 'islem' ] ) {
 	                <div class='col-sm-6 float-left '>
 	                    <div class='form-group'>
 							<label class='control-label'>Sınav Bitiş Tarihi</label>
-							<div class='input-group date' id='bitisTarihi' data-target-input='nearest'>
-								<div class='input-group-append' data-target='#bitisTarihi' data-toggle='datetimepicker'>
+							<div class='input-group date' id='bitisTarihi2' data-target-input='nearest'>
+								<div class='input-group-append' data-target='#bitisTarihi2' data-toggle='datetimepicker'>
 									<div class='input-group-text'><i class='fa fa-calendar'></i></div>
 								</div>
-								<input autocomplete='off' type='text' name='bitis_tarihi' class='form-control form-control-sm datetimepicker-input' data-target='#bitisTarihi' data-toggle='datetimepicker' value='".date('d.m.Y', strtotime($sinavGetir['sinav_bitis_tarihi']))."'/>
+								<input autocomplete='off' type='text' name='bitis_tarihi' class='form-control form-control-sm datetimepicker-input' data-target='#bitisTarihi2' data-toggle='datetimepicker' value='".date('d.m.Y', strtotime($sinavGetir['sinav_bitis_tarihi']))."'/>
 							</div>
 						</div>
 	                </div>
 	                <div class='col-sm-6 float-left'>
 	                    <div class='form-group'>
-							<label class='control-label'>Sınav Bitiş Tarihi</label>
-							<div class='input-group date' id='bitisSaati' data-target-input='nearest'>
-								<div class='input-group-append' data-target='#bitisSaati' data-toggle='datetimepicker'>
+							<label class='control-label'>Sınav Bitiş Saati</label>
+							<div class='input-group date' id='bitisSaati2' data-target-input='nearest'>
+								<div class='input-group-append' data-target='#bitisSaati2' data-toggle='datetimepicker'>
 									<div class='input-group-text'><i class='fa fa-clock'></i></div>
 								</div>
-								<input autocomplete='off' type='text' name='bitis_saati' class='form-control form-control-sm datetimepicker-input' data-target='#bitisSaati' data-toggle='datetimepicker' value='".date('H:m', strtotime($sinavGetir['sinav_bitis_saati']))."'/>
+								<input autocomplete='off' type='text' name='bitis_saati' class='form-control form-control-sm datetimepicker-input' data-target='#bitisSaati2' data-toggle='datetimepicker' value='".date('H:m', strtotime($sinavGetir['sinav_bitis_saati']))."'/>
 							</div>
 						</div>
 	                </div>
@@ -1648,6 +1648,58 @@ switch( $_POST[ 'islem' ] ) {
         </div>
 		$ekSureModal
         <script type='text/javascript'>
+			$(function () {
+				$('#baslangicTarihi2').datetimepicker({
+					//defaultDate: simdi,
+					format: 'DD.MM.yyyy',
+					icons: {
+					time: 'far fa-clock',
+					date: 'fa fa-calendar',
+					up: 'fa fa-arrow-up',
+					down: 'fa fa-arrow-down'
+					}
+				});
+			});
+
+			$(function () {
+				$('#baslangicSaati2').datetimepicker({
+					//defaultDate: simdi,
+					format: 'HH:mm',
+					icons: {
+					time: 'far fa-clock',
+					date: 'fa fa-calendar',
+					up: 'fa fa-arrow-up',
+					down: 'fa fa-arrow-down'
+					}
+				});
+			});
+
+			$(function () {
+				$('#bitisTarihi2').datetimepicker({
+					//defaultDate: simdi,
+					format: 'DD.MM.yyyy',
+					icons: {
+					time: 'far fa-clock',
+					date: 'fa fa-calendar',
+					up: 'fa fa-arrow-up',
+					down: 'fa fa-arrow-down'
+					}
+				});
+			});
+
+			$(function () {
+				$('#bitisSaati2').datetimepicker({
+					//defaultDate: simdi,
+					format: 'HH:mm',
+					icons: {
+					time: 'far fa-clock',
+					date: 'fa fa-calendar',
+					up: 'fa fa-arrow-up',
+					down: 'fa fa-arrow-down'
+					}
+				});
+			});
+		
         	$('.select2').select2();
 	        $('.summernote').summernote();
         	$(\"input[name='sorulari_karistir']\").bootstrapSwitch();

@@ -396,6 +396,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 			});
 		});
 		
+
 		$(".summernote").summernote();
 
 		$( '#sil_onay' ).on( 'show.bs.modal', function( e ) {
