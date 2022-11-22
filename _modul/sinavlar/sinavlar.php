@@ -138,7 +138,6 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 		
 	</div>
 	<div class="col-md-12">
-		<div class="control-sidebar" id="sinavDetay"></div>
 		<div class="card card-dark" id = "card_sorular">
 			<div class="card-header">
 				<h3 class="card-title" id="dersAdi">Komite Sınavları</h3>	
@@ -336,7 +335,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
         </div>
 	</div>
 
-	
+	<div class="sinavDuzenleSidebar d-none w-100" id="sinavDetay"></div>
 	<div class="golgelik d-none" id="golgelik">Kapat</div>
 	<script>
 		$(function () {
