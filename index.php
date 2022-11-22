@@ -144,14 +144,14 @@ if ( session_status() == PHP_SESSION_NONE ) {
 <script src="_js/sinav.js"></script>
 </head>
 <?php 
-	$SQL_modul_klasor = <<< SQL
-	SELECT
-		klasor
-	FROM
-		tb_modul
-	WHERE
-		modul = ?
-	SQL;
+$SQL_modul_klasor = <<< SQL
+SELECT
+	klasor
+FROM
+	tb_modul
+WHERE
+	modul = ?
+SQL;
 
 	if( array_key_exists( 'giris_var', $_SESSION ) && $_SESSION[ 'giris_var' ] == 'evet' ) { ?>
 		<body class="hold-transition sidebar-mini layout-fixed text-sm">
