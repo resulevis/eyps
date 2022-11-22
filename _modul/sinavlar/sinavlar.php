@@ -142,7 +142,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 			<div class="card-header">
 				<h3 class="card-title" id="dersAdi">Komite Sınavları</h3>	
 				<div class="float-right">
-					<span class="btn btn-outline-light btn-sm sagSidebar" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Sınav Ekle</span>
+					<span class="btn btn-outline-light btn-sm sagSidebar" id="sagSidebar"  href="#" role="button">Sınav Ekle</span>
 				</div>
 			</div>
 			<!-- /.card-header -->
@@ -217,10 +217,10 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 		<!-- /.modal-dialog -->
 	</div>
 	
-	<div class="control-sidebar sinavEklemeBar h-100 bottom-0 top-0 pb-3" >
+	<div class="sinavDuzenleSidebar d-none" id="sinavEkleId">
         <div class="card card-outline">
             <div class="container" style="padding: 20px;margin-top: 10px;">
-			<span class="py-3 mb-5 d-block fixed-top btn btn-sm btn-danger position-sticky" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Kapat</span>
+			<span class="py-3 mb-5 d-block fixed-top btn btn-sm btn-danger position-sticky" id="kapat2" data-widget="control-sidebar" data-slide="true" href="#" role="button">Kapat</span>
                 <form id = "kayit_formu" action = "_modul/sinavlar/sinavlarSEG.php" method = "POST">
                     <div class="form-group">
                         <label  class="control-label">Komite</label>
@@ -334,7 +334,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
             </div>
         </div>
 	</div>
-
+	<div class="golgelik d-none" id="golgelik2">Kapat</div>						
 	<div class="sinavDuzenleSidebar d-none" id="sinavDetay"></div>
 	<div class="golgelik d-none" id="golgelik">Kapat</div>
 	<script>
@@ -478,11 +478,21 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 		    document.getElementById('sinavDetay').style.overflowY = 'scroll';
 	    });
 
+		$('.sagSidebar').on("click", function(e) { 
+			var height = window.innerHeight;
+	        document.getElementById("sinavEkleId").classList.toggle("d-none");
+			document.getElementById("golgelik2").classList.toggle("d-none");
+			document.getElementById('sinavEkleId').style.height = height+'px';
+		    document.getElementById('sinavEkleId').style.overflowY = 'scroll';
+	    });
 	    $('#kapat , #golgelik').on("click", function(e) { 
 			document.getElementById("golgelik").classList.toggle("d-none");
 			document.getElementById("sinavDetay").classList.toggle("d-none");
 	    });
-
+	    $('#kapat2 , #golgelik2').on("click", function(e) { 
+			document.getElementById("golgelik2").classList.toggle("d-none");
+			document.getElementById("sinavEkleId").classList.toggle("d-none");
+	    });
 	    function seciliOgrenciCikar(id){
 	    	var sinav_id = id;
 	    	// Formdan gelen degerleri degerler değişkenine atıyoruz
