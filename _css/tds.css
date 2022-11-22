@@ -90,20 +90,27 @@ div.dt-button-collection div.dropdown-menu {
     z-index: 9999;
     overflow-y: hidden;
 }
+.scroll {
+    max-height: 95vh;
+	min-height: 95vh;
+    overflow-y: auto;
+}
+
 .golgelik{
     position: absolute;
     height: 100%;
-    width: 50%;
+    width: 100%;
     background: #000;
     opacity: 0.6;
     top: 0;
     left: 0;
     display: flex;
-    justify-content: center;
+    justify-content: right;
     align-items: center;
     font-size: 40px;
-    z-index: 9999;
+    z-index: 9998;
     color: #fff;
+	padding-right: 70%;
 }
 .sinav-ogrencileri{
 	padding: 5px 5px;

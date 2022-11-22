@@ -217,10 +217,16 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 		<!-- /.modal-dialog -->
 	</div>
 	
-	<div class="sinavDuzenleSidebar d-none" id="sinavEkleId">
-        <div class="card card-outline">
-            <div class="container" style="padding: 20px;margin-top: 10px;">
-			<span class="py-3 mb-5 d-block fixed-top btn btn-sm btn-danger position-sticky" id="kapat2" data-widget="control-sidebar" data-slide="true" href="#" role="button">Kapat</span>
+	<div class="sinavDuzenleSidebar d-none overflow-hidden" id="sinavEkleId">
+        <div class="card card-olive">
+			<div class='card-header'>
+				<h3 class="card-title">Yeni Sınav Ekle</h3>
+				<button type="button" class="close" id="kapat2" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+            <div class="card-body scroll" style="padding: 20px;margin-top: 10px;">
+			<!--span class="py-3 mb-5 d-block fixed-top btn btn-sm btn-danger position-sticky" id="kapatdad2" data-widget="control-sidebar" data-slide="true" href="#" role="button">Kapat</span-->
                 <form id = "kayit_formu" action = "_modul/sinavlar/sinavlarSEG.php" method = "POST">
                     <div class="form-group">
                         <label  class="control-label">Komite</label>
@@ -335,7 +341,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
         </div>
 	</div>
 	<div class="golgelik d-none" id="golgelik2">Kapat</div>						
-	<div class="sinavDuzenleSidebar d-none" id="sinavDetay"></div>
+	<div class="sinavDuzenleSidebar d-none overflow-hidden" id="sinavDetay"></div>
 	<div class="golgelik d-none" id="golgelik">Kapat</div>
 	<script>
 		$(function () {

@@ -1447,32 +1447,31 @@ switch( $_POST[ 'islem' ] ) {
 
         /*Çıktı*/
         $sonuc = "
-        <div class='card  card-tabs min-vh-100 mb-0'>
-          	<div class='card-header p-0 pt-3'>
-				<div class='container'>
-					<ul class='nav nav-tabs justify-content-center border-0' id='custom-tabs-one-tab' role='tablist'>
-						<li modul='sinavlar' yetki_islem='detaylar' class='nav-item col'>
-							<a class='nav-link btn btn-light text-bold  border-0 py-3 active' id='sinavDetayTab-tab' data-toggle='pill' href='#sinavDetayTab' role='tab' aria-controls='sinavDetayTab' aria-selected='true'>Sınav Detayı</a>
+        <div class='card card-olive card-tabs'>
+          	<div class='card-header  p-0 pt-1'>
+					<ul class='nav nav-tabs' id='custom-tabs-one-tab' role='tablist'>
+
+						<li modul='sinavlar' yetki_islem='detaylar' class='nav-item'>
+							<a class='nav-link active' id='sinavDetayTab-tab' data-toggle='pill' href='#sinavDetayTab' role='tab' aria-controls='sinavDetayTab' aria-selected='true'>Sınav Detayı</a>
 						</li>
-						<li modul='sinavlar' yetki_islem='ogrenci-listesi' class='nav-item col ml-1'>
-							<a class='nav-link btn btn-light text-bold  border-0 py-3' id='ogrenciler-tab' data-toggle='pill' href='#ogrenciler' role='tab' aria-controls='ogrenciler' aria-selected='false'>Öğrenciler</a>
+						<li modul='sinavlar' yetki_islem='ogrenci-listesi' class='nav-item'>
+							<a class='nav-link' id='ogrenciler-tab' data-toggle='pill' href='#ogrenciler' role='tab' aria-controls='ogrenciler' aria-selected='false'>Öğrenciler</a>
 						</li>
-						<li modul='sinavlar' yetki_islem='ogrenci-ekle' class='nav-item col ml-1'>
-							<a class='nav-link btn btn-light text-bold  border-0 py-3' id='ogrenciEkle-tab' data-toggle='pill' href='#ogrenciEkle' role='tab' aria-controls='ogrenciEkle' aria-selected='false'>Öğrenci Ata</a>
+						<li modul='sinavlar' yetki_islem='ogrenci-ekle' class='nav-item'>
+							<a class='nav-link' id='ogrenciEkle-tab' data-toggle='pill' href='#ogrenciEkle' role='tab' aria-controls='ogrenciEkle' aria-selected='false'>Öğrenci Ata</a>
 						</li>
-						<li modul='sinavlar' yetki_islem='sorular' class='nav-item col ml-1'>
-							<a class='nav-link btn btn-light text-bold  border-0 py-3' id='sorular-tab' data-toggle='pill' href='#sorular' role='tab' aria-controls='sorular' aria-selected='false'>Sorular</a>
+						<li modul='sinavlar' yetki_islem='sorular' class='nav-item'>
+							<a class='nav-link' id='sorular-tab' data-toggle='pill' href='#sorular' role='tab' aria-controls='sorular' aria-selected='false'>Sorular</a>
 						</li>
-						<li modul='sinavlar' yetki_islem='soru-ekle'class='nav-item col ml-1'>
-							<a class='nav-link btn btn-light text-bold  border-0 py-3' id='soruEkle-tab' data-toggle='pill' href='#soruEkle' role='tab' aria-controls='soruEkle' aria-selected='false'>Soru Ekle</a>
+						<li modul='sinavlar' yetki_islem='soru-ekle'class='nav-item'>
+							<a class='nav-link' id='soruEkle-tab' data-toggle='pill' href='#soruEkle' role='tab' aria-controls='soruEkle' aria-selected='false'>Soru Ekle</a>
 						</li>
-						<li modul='sinavlar' yetki_islem='soru-ekle'class='nav-item col ml-1'>
-							<a class='nav-link  border-0 py-3 btn btn-danger btn-sm kapat' id='soruEkle-tab' data-toggle='pill' href='#soruEkle' role='tab' aria-controls='soruEkle' aria-selected='false'>Kapat</a>
+						<li modul='sinavlar' yetki_islem='soru-ekle'class='nav-item'>
+							<a class='nav-link kapat' id='soruEkle-tab' data-toggle='pill' href='#soruEkle' role='tab' aria-controls='soruEkle' aria-selected='false'>Kapat</a>
 						</li>
 					</ul>
-				</div>
           	</div>
-          	<div class='card-body'>
+          	<div class='card-body scroll' style='padding: 20px;margin-top: 10px;'>
 	            <div class='tab-content' id='custom-tabs-one-tabContent'>
 		            <div class='tab-pane fade show active' id='sinavDetayTab' role='tabpanel' aria-labelledby='sinavDetayTab-tab'>
 		                $sinavDetay
