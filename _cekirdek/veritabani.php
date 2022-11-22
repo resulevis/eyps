@@ -130,4 +130,20 @@ class VeriTabani {
 		if( $this->hataTopluIslem ) $vt->rollBack();
 		else $vt->commit();
 	}
+	/* Tüm kayıtları oku */
+	public function selectExam( $sql, $id,$limit ) {
+		$vt			= $this->vt;
+		$sorguHazir	= $vt->prepare( $sql );
+		$sorguHazir->bindParam(1, $id,PDO::PARAM_INT);
+		$sorguHazir->bindParam(2, $limit,PDO::PARAM_INT);
+		$sorguHazir->execute();
+		$sonuc		= $sorguHazir->fetchAll( PDO::FETCH_ASSOC );
+		$hataDizi	= $sorguHazir->errorInfo();
+		$hataMesaj	= str_replace( "'", "\'", $hataDizi[ 2 ] );
+		if( $hataDizi[ 0 ] != "00000" ) {
+			$this->hataLocal		= true;
+			$this->hataTopluIslem	= true;
+		}
+		return array( $this->hataLocal, '"'. $hataMesaj . '"', $sonuc, count( $sonuc ) );
+	}
 }

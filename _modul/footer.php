@@ -142,7 +142,6 @@
                     $(this).summernote('destroy'); 
                 })
             }
-
         });
         
         

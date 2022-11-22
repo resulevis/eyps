@@ -86,7 +86,7 @@ SQL;
 
 $SQL_ogretim_elemani_sinavlar_getir = <<< SQL
 SELECT 
-	s.id AS sinav_id,
+	DISTINCT s.id AS sinav_id,
 	k.adi AS komite_adi,
 	k.ders_kodu AS ders_kodu,
 	s.adi AS sinav_adi,
@@ -112,7 +112,6 @@ WHERE
 	s.universite_id 	 	= ? AND
 	s.donem_id				= ? AND
 	s.aktif 				= 1
-
 SQL;
 $donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
 @$_SESSION[ "donem_id" ]= $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
@@ -218,11 +217,10 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 		<!-- /.modal-dialog -->
 	</div>
 	
-	<aside class="control-sidebar sinavEklemeBar" >
+	<div class="control-sidebar sinavDuzenleSidebar sinavEklemeBar w-100 h-100 bottom-0 top-0 pb-3" >
         <div class="card card-outline">
-        	<span class="btn btn-sm btn-danger position-sticky" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Kapat</span>
             <div class="container" style="padding: 20px;margin-top: 10px;">
-
+			<span class="py-3 mb-5 d-block fixed-top btn btn-sm btn-danger position-sticky" id="sagSidebar" data-widget="control-sidebar" data-slide="true" href="#" role="button">Kapat</span>
                 <form id = "kayit_formu" action = "_modul/sinavlar/sinavlarSEG.php" method = "POST">
                     <div class="form-group">
                         <label  class="control-label">Komite</label>
@@ -325,17 +323,19 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 							</div>
 						</div>
 					</div>
-					<hr>
-					<div class="">
-						<button type="reset" class="btn btn-danger" >İptal</button>
-						<button type="submit" class="btn btn-success float-right" >Kaydet</button>
+					<hr class='w-100'>
+					<div>
+						<div class="container">
+							<button type="reset" class="btn btn-danger" >İptal</button>
+							<button type="submit" class="btn btn-success float-right" >Kaydet</button>
+						</div>
 					</div>
                 </form>
             </div>
         </div>
-	</aside>
+	</div>
 
-	<div class="sinavDuzenleSidebar d-none h-100" id="sinavDetay"></div>
+	<div class="sinavDuzenleSidebar d-none w-100" id="sinavDetay"></div>
 	<div class="golgelik d-none" id="golgelik">Kapat</div>
 	<script>
 		$(function () {
@@ -473,13 +473,13 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 	        });
 	        var height = window.innerHeight;
 	        document.getElementById("sinavDetay").classList.toggle("d-none");
-			document.getElementById("golgelik").classList.toggle("d-none");
+			//document.getElementById("golgelik").classList.toggle("d-none");
 		    document.getElementById('sinavDetay').style.height = height+'px';
 		    document.getElementById('sinavDetay').style.overflowY = 'scroll';
 	    });
 
 	    $('#kapat , #golgelik').on("click", function(e) { 
-			document.getElementById("golgelik").classList.toggle("d-none");
+			//document.getElementById("golgelik").classList.toggle("d-none");
 			document.getElementById("sinavDetay").classList.toggle("d-none");
 	    });
 
