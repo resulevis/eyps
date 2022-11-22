@@ -17,7 +17,7 @@ class VeriTabani {
                 $this->vt = new PDO( "mysql:host=192.168.1.10; dbname=eyps", "root", "Syn-tax1" ); 
 
             else
-                $this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_tds", "syntaxbi_tds_usr", "6vH@+S9C" );
+                $this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_eyps", "syntaxbi_eyps", "Bg5dz.S)ohhT" );
         } catch ( PDOException $e ) {
 			echo "Veritabanı bağlantısı sağlanamadı";
 			exit;
