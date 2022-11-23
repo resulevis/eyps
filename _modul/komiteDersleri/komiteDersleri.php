@@ -58,14 +58,14 @@ WHERE
 SQL;
 
 $SQL_dersler_getir = <<< SQL
-select 
+SELECT 
 	kd.id,
 	kd.teorik_ders_saati,
 	kd.uygulama_ders_saati,
 	kd.soru_sayisi,
 	d.adi,
 	d.ders_kodu
-from 
+FROM 
 	tb_komite_dersleri AS kd
 LEFT JOIN tb_donem_dersleri AS dd ON kd.donem_ders_id = dd.id
 LEFT JOIN tb_dersler AS d ON d.id = dd.ders_id
