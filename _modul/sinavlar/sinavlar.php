@@ -719,4 +719,17 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 				$('#ekleBtnSeciliOgrenci').prop('disabled', true);
 			}
 	    }
+		function soruSil(id, sinavId){
+			var data_url 	= './_modul/ajax/ajax_data.php';
+			$.post(data_url, { islem : "sinavSoruSil", soruId : id, modul:"sinavlar",sinavId:sinavId }, function (response) {
+				var sonuc = JSON.parse(response);
+				if(sonuc.durum == 1){
+					mesajVer( sonuc.mesaj , 'yesil');
+				}else{
+					mesajVer( sonuc.mesaj , 'kirmizi');
+				}
+			});
+			
+	    }
+		
 	</script>

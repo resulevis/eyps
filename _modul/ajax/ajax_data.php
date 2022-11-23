@@ -654,6 +654,20 @@ WHERE
 	sinav_id  	= ? AND
 	id  		= ? 
 SQL;
+
+$SQL_sinav_soru_sorgula = <<< SQL
+SELECT 
+	s.id
+FROM 
+	tb_sinavlar  AS s
+LEFT JOIN 
+	tb_sinav_sorulari AS ss ON ss.sinav_id = s.id
+WHERE 
+	s.id 						= ? AND
+	ss.soru_id 					= ? AND
+	s.sinav_bitis_tarihi     	>= ? AND
+	s.sinav_bitis_saati			> ? 
+SQL;
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
@@ -1229,7 +1243,7 @@ switch( $_POST[ 'islem' ] ) {
 		$dersListesi = '';
 		if( $_SESSION[ "kullanici_turu" ] == "ogretmen" AND $_SESSION[ "super" ] == 0 ){
 			$soruSorulacakDersListesi 	= $vt->select( $SQL_ogretim_elemani_soru_soracagi_dersler, array( $_SESSION[ "kullanici_id" ], $_REQUEST[ "id" ] ))[2];
-		}else if(  $_SESSION[ "kullanici_turu" ] == "Süper" AND $_SESSION[ "super" ] == 1 ){
+		}else if(  $_SESSION[ "kullanici_turu" ] == "admin" AND $_SESSION[ "super" ] == 1 ){
 			$soruSorulacakDersListesi 	= $vt->select( $SQL_soru_soracagi_dersler, array( $_REQUEST[ "id" ] ))[2];
 		}
 		
@@ -1259,7 +1273,7 @@ switch( $_POST[ 'islem' ] ) {
         $soruListesi = '';
 		if( $_SESSION[ "kullanici_turu" ] == "ogretmen" AND $_SESSION[ "super" ] == 0 ){
 			$ogretimUyesiSorulari = $vt->select( $SQL_ogretim_elemani_sinav_sorulari, array( $_REQUEST[ "id" ], $_SESSION[ "kullanici_id" ] ))[2];
-		}else if(  $_SESSION[ "kullanici_turu" ] == "Süper" AND $_SESSION[ "super" ] == 1 ){
+		}else if(  $_SESSION[ "kullanici_turu" ] == "admin" AND $_SESSION[ "super" ] == 1 ){
 			$ogretimUyesiSorulari = $vt->select( $SQL_sinav_sorulari, array( $_REQUEST[ "id" ] ))[2];
 		}
         
@@ -1269,7 +1283,7 @@ switch( $_POST[ 'islem' ] ) {
 		            				<b>$say )</b>$soru[soru]
 		            			</div>
 		            			<div class='col-sm-1'>
-		            				<a  modul='sinavlar' yetki_islem='sinav-soru-sil'  href='javascript:soruSil($soru[id]);' class='btn btn-sm btn-outline-danger'><i class='fas fa-trash-alt'></i></a>
+		            				<a  modul='sinavlar' yetki_islem='sinav-soru-sil'  href='javascript:soruSil($soru[id],$_REQUEST[id]);' class='btn btn-sm btn-outline-danger'><i class='fas fa-trash-alt'></i></a>
 		            			</div>
 		            		</div>";
 		    $say++;
@@ -1920,8 +1934,25 @@ switch( $_POST[ 'islem' ] ) {
 		echo json_encode($sonuc);
 
 	break;
-	case 'soruCikar':
+	case 'sinavSoruSil':
+		$sonuc 		= array();
 		/*Sinav Tarihi Geçmemiş ise işlem yapmaya devam et*/
+		$sinavId 	= array_key_exists("sinavId", $_REQUEST) ? $_REQUEST[ "sinavId" ]   : 0;
+		$soruId 	= array_key_exists("id", $_REQUEST) 	 ? $_REQUEST[ "id" ] 		: 0;
+		
+		echo date("Y-m-d").'-'.date("H:i")."<pre>";
+		
+		$soruSorgula = $vt->select( $SQL_sinav_soru_sorgula, array( $sinavId, $soruId, date("Y-m-d"), date("H:i:s")  ) );
+		print_r($soruSorgula[ 2 ] );
+		die;
+		if ( count($soruSorgula[ 2 ]) > 0 ){
+			$sonuc["durum"] = 1;
+			$sonuc["mesaj"] = 'Soru Silindi';
+		} else{
+			$sonuc["durum"] = 0;
+			$sonuc["mesaj"] = 'Silmek isteidğiniz soru bulunamadı veya sınav tarihi geçmiş durumda';
+		}
+		echo json_encode($sonuc);
 	break;
 	case 'soruGetir':
 		$sonuc = array();
