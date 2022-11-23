@@ -668,6 +668,14 @@ WHERE
 	s.sinav_bitis_tarihi     	>= ? AND
 	s.sinav_bitis_saati			> ? 
 SQL;
+
+$SQL_sinav_soru_sil = <<< SQL
+DELETE FROM
+	tb_sinav_sorulari
+WHERE
+	sinav_id  	= ? AND
+	soru_id 	= ? 
+SQL;
 $vt = new VeriTabani();
 
 switch( $_POST[ 'islem' ] ) {
@@ -1238,7 +1246,8 @@ switch( $_POST[ 'islem' ] ) {
 		foreach( $komiteler AS $komite ) {
 			$komiteOption .=" <option value='$komite[id]' ".($sinavGetir['komite_id'] == $komite['id'] ? 'selected' : null)."> $komite[ders_kodu] - $komite[adi]</option>";
 		}
-
+		$soruSorulacakDersListesi = array();
+		
 		/*Öğretim Görevlisinin Soru Ekleyeceği Dersler Listesi*/
 		$dersListesi = '';
 		if( $_SESSION[ "kullanici_turu" ] == "ogretmen" AND $_SESSION[ "super" ] == 0 ){
@@ -1269,8 +1278,9 @@ switch( $_POST[ 'islem' ] ) {
         }
 
         /*Soru Listesi*/
-        $say = 1;
-        $soruListesi = '';
+		$ogretimUyesiSorulari = array();
+        $say 					  = 1;
+        $soruListesi 			  = '';
 		if( $_SESSION[ "kullanici_turu" ] == "ogretmen" AND $_SESSION[ "super" ] == 0 ){
 			$ogretimUyesiSorulari = $vt->select( $SQL_ogretim_elemani_sinav_sorulari, array( $_REQUEST[ "id" ], $_SESSION[ "kullanici_id" ] ))[2];
 		}else if(  $_SESSION[ "kullanici_turu" ] == "admin" AND $_SESSION[ "super" ] == 1 ){
@@ -1278,12 +1288,12 @@ switch( $_POST[ 'islem' ] ) {
 		}
         
         foreach ( $ogretimUyesiSorulari as $soru ) {	
-        	$soruListesi .= "<div class='w-100 d-flex align-items-center sinav-ogrencileri' >
+        	$soruListesi .= "<div class='w-100 d-flex align-items-center sinav-sorulari' >
 		            			<div class='col-sm-11'>
-		            				<b>$say )</b>$soru[soru]
+		            				$soru[soru]
 		            			</div>
 		            			<div class='col-sm-1'>
-		            				<a  modul='sinavlar' yetki_islem='sinav-soru-sil'  href='javascript:soruSil($soru[id],$_REQUEST[id]);' class='btn btn-sm btn-outline-danger'><i class='fas fa-trash-alt'></i></a>
+		            				<a  modul='sinavlar' yetki_islem='sinav-soru-sil'  href='javascript:soruSil($soru[id],$_REQUEST[id]);' id='soruSil$soru[id]' class='btn btn-sm btn-outline-danger'><i class='fas fa-trash-alt'></i></a>
 		            			</div>
 		            		</div>";
 		    $say++;
@@ -1350,7 +1360,7 @@ switch( $_POST[ 'islem' ] ) {
 								<div class='input-group-append' data-target='#baslangicSaati2' data-toggle='datetimepicker'>
 									<div class='input-group-text'><i class='fa fa-clock'></i></div>
 								</div>
-								<input autocomplete='off' type='text' name='baslangic_saati' class='form-control form-control-sm datetimepicker-input' data-target='#baslangicSaati2' data-toggle='datetimepicker' value='".date('H:m', strtotime($sinavGetir['sinav_baslangic_saati']))."'/>
+								<input autocomplete='off' type='text' name='baslangic_saati' class='form-control form-control-sm datetimepicker-input' data-target='#baslangicSaati2' data-toggle='datetimepicker' value='".date('H:i', strtotime($sinavGetir['sinav_baslangic_saati']))."'/>
 							</div>
 						</div>
 	                </div>
@@ -1373,7 +1383,7 @@ switch( $_POST[ 'islem' ] ) {
 								<div class='input-group-append' data-target='#bitisSaati2' data-toggle='datetimepicker'>
 									<div class='input-group-text'><i class='fa fa-clock'></i></div>
 								</div>
-								<input autocomplete='off' type='text' name='bitis_saati' class='form-control form-control-sm datetimepicker-input' data-target='#bitisSaati2' data-toggle='datetimepicker' value='".date('H:m', strtotime($sinavGetir['sinav_bitis_saati']))."'/>
+								<input autocomplete='off' type='text' name='bitis_saati' class='form-control form-control-sm datetimepicker-input' data-target='#bitisSaati2' data-toggle='datetimepicker' value='".date('H:i', strtotime($sinavGetir['sinav_bitis_saati']))."'/>
 							</div>
 						</div>
 	                </div>
@@ -1937,17 +1947,20 @@ switch( $_POST[ 'islem' ] ) {
 	case 'sinavSoruSil':
 		$sonuc 		= array();
 		/*Sinav Tarihi Geçmemiş ise işlem yapmaya devam et*/
-		$sinavId 	= array_key_exists("sinavId", $_REQUEST) ? $_REQUEST[ "sinavId" ]   : 0;
-		$soruId 	= array_key_exists("id", $_REQUEST) 	 ? $_REQUEST[ "id" ] 		: 0;
-		
-		echo date("Y-m-d").'-'.date("H:i")."<pre>";
-		
-		$soruSorgula = $vt->select( $SQL_sinav_soru_sorgula, array( $sinavId, $soruId, date("Y-m-d"), date("H:i:s")  ) );
-		print_r($soruSorgula[ 2 ] );
-		die;
+		$sinavId 	= array_key_exists("sinavId", 	$_REQUEST) ? $_REQUEST[ "sinavId" ] : 0;
+		$soruId 	= array_key_exists("soruId", 	$_REQUEST)  ? $_REQUEST[ "soruId" ]	: 0;
+
+		$soruSorgula = $vt->select( $SQL_sinav_soru_sorgula, array( $sinavId, $soruId, "'".date("Y-m-d")."'", "'".date("H:i:s")."'"  ) );
+
 		if ( count($soruSorgula[ 2 ]) > 0 ){
-			$sonuc["durum"] = 1;
-			$sonuc["mesaj"] = 'Soru Silindi';
+			$soruSil = $vt->delete( $SQL_sinav_soru_sil, array( $sinavId, $soruId ) );
+			if( $soruSil[2] > 0 ){
+				$sonuc["durum"] = 1;
+				$sonuc["mesaj"] = 'Soru Silindi';
+			}else{
+				$sonuc["durum"] = 0;
+				$sonuc["mesaj"] = 'Soru Silinmedi tekrar deneyiniz.';
+			}
 		} else{
 			$sonuc["durum"] = 0;
 			$sonuc["mesaj"] = 'Silmek isteidğiniz soru bulunamadı veya sınav tarihi geçmiş durumda';

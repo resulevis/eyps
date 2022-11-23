@@ -112,7 +112,7 @@ div.dt-button-collection div.dropdown-menu {
     color: #fff;
 	padding-right: 70%;
 }
-.sinav-ogrencileri{
+.sinav-ogrencileri, .sinav-sorulari{
 	padding: 5px 5px;
 	background-color: #ddd;
 	margin-bottom: 2px;
@@ -120,7 +120,7 @@ div.dt-button-collection div.dropdown-menu {
 	display: flex;
 	align-items: center;
 }
-.sinav-ogrencileri:hover{
+.sinav-ogrencileri:hover, .sinav-sorulari:hover{
 	background-color: #eee;
 }
 

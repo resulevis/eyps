@@ -230,7 +230,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
                 <form id = "kayit_formu" action = "_modul/sinavlar/sinavlarSEG.php" method = "POST">
                     <div class="form-group">
                         <label  class="control-label">Komite</label>
-                        <select class="form-control select2" name="komite_id" required>
+                        <select class="form-control" name="komite_id" required>
                             <option value="">Seçiniz...</option>
                             <?php 
                                 foreach( $komiteler AS $komite ){
@@ -725,6 +725,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 				var sonuc = JSON.parse(response);
 				if(sonuc.durum == 1){
 					mesajVer( sonuc.mesaj , 'yesil');
+					document.getElementById("soruSil"+id).closest(".sinav-sorulari").remove();
 				}else{
 					mesajVer( sonuc.mesaj , 'kirmizi');
 				}
