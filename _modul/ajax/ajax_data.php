@@ -2307,7 +2307,7 @@ switch( $_POST[ 'islem' ] ) {
 				  <div class='card-header  p-0 pt-1'>
 						<ul class='nav nav-tabs' id='custom-tabs-one-tab' role='tablist'>
 							<li modul='sinavlar' yetki_islem='detaylar' class='nav-item'>
-								<a class='nav-link active' id='sorular-tab' data-toggle='pill' href='#sorular' role='tab' aria-controls='sorular' aria-selected='true'>Sınav Detayı</a>
+								<a class='nav-link active' id='sorular-tab' data-toggle='pill' href='#sorular' role='tab' aria-controls='sorular' aria-selected='true'>Şablon Soruları</a>
 							</li>
 						</ul>
 				  </div>
