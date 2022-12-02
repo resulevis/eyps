@@ -669,6 +669,47 @@ WHERE
 	s.sinav_bitis_saati			> ? 
 SQL;
 
+/*suanki tarih ve saatten önce başlamış olan soru var ise soru üzerinde değişiklik yapılmayacaktır.  */
+$SQL_soru_sorgula = <<< SQL
+SELECT 
+	s.id
+FROM 
+	tb_sinavlar  AS s
+LEFT JOIN 
+	tb_sinav_sorulari AS ss ON ss.sinav_id = s.id
+WHERE 
+	ss.soru_id 	= ? 
+SQL;
+
+$SQL_sablon_sorgula = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_anket_sablon 
+WHERE 
+	id 			= ? 
+SQL;
+
+$SQL_anket_sablon_sorulari = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_anket_sablon_sorulari 
+WHERE 
+	sablon_id 	= ? AND
+	aktif 		= 1
+SQL;
+
+$SQL_anket_sablon_soru_cek = <<< SQL
+SELECT 
+	*
+FROM 
+	tb_anket_sablon_sorulari 
+WHERE 
+	id 			= ? AND
+	aktif 		= 1
+SQL;
+
 $SQL_sinav_soru_sil = <<< SQL
 DELETE FROM
 	tb_sinav_sorulari
@@ -676,8 +717,111 @@ WHERE
 	sinav_id  	= ? AND
 	soru_id 	= ? 
 SQL;
+
+$SQL_anket_soru_sil = <<< SQL
+UPDATE
+	tb_anket_sablon_sorulari
+SET
+	aktif 		= 0 
+WHERE
+	id  		= ?
+SQL;
 $vt = new VeriTabani();
 
+$SQL_sinavlar_getir = <<< SQL
+SELECT
+	s.id AS id,
+	s.adi AS adi
+FROM
+	tb_sinavlar AS s
+LEFT JOIN tb_komiteler AS k ON s.komite_id = k.id 
+WHERE
+	s.universite_id 	= ? AND
+	s.donem_id 			= ? AND
+	s.aktif 			= 1
+SQL;
+
+$SQL_anket_ogrencileri = <<< SQL
+SELECT 
+	o.adi,
+	o.soyadi,
+	ao.anket_bitti,
+	o.ogrenci_no
+FROM 
+	tb_anket_ogrencileri AS ao 
+LEFT JOIN 
+	tb_ogrenciler AS o ON o.id = ao.ogrenci_id
+WHERE 
+	ao.anket_id = ?
+ORDER BY anket_bitti ASC
+SQL;
+
+$SQL_anket_detayi = <<< SQL
+SELECT 
+	ass.id,
+	ass.adi,
+	(SELECT 
+		COUNT(id) 
+	FROM 
+		tb_anket_ogrencileri AS ao 
+	WHERE 
+		ao.anket_bitti = 1 AND 
+		ao.anket_id = ac.anket_id 
+	) AS bitirenOgrenciSayisi,
+	(SELECT
+		COUNT(id)
+	FROM 
+		tb_anket_cevaplari
+	WHERE 
+		soru_id = ass.id AND
+		anket_id = ac.anket_id AND
+		cevap = 1
+	) AS cevapBir,
+	(SELECT
+		COUNT(id)
+	FROM 
+		tb_anket_cevaplari
+	WHERE 
+		soru_id = ass.id AND
+		anket_id = ac.anket_id AND
+		cevap = 2
+	) AS cevapIki
+	,
+	(SELECT
+		COUNT(id)
+	FROM 
+		tb_anket_cevaplari
+	WHERE 
+		soru_id = ass.id AND
+		anket_id = ac.anket_id AND
+		cevap = 3
+	) AS cevapUc,
+	(SELECT
+		COUNT(id)
+	FROM 
+		tb_anket_cevaplari
+	WHERE 
+		soru_id = ass.id AND
+		anket_id = ac.anket_id AND
+		cevap = 4
+	) AS cevapDort,
+	(SELECT
+		COUNT(id)
+	FROM 
+		tb_anket_cevaplari
+	WHERE 
+		soru_id = ass.id AND
+		anket_id = ac.anket_id AND
+		cevap = 5
+	) AS cevapBes
+from 
+	tb_anket_sablon_sorulari AS ass
+LEFT JOIN 
+	tb_anket_cevaplari AS ac ON ac.soru_id = ass.id
+WHERE 
+	ac.anket_id = ?
+GROUP BY ass.id
+SQL;
 switch( $_POST[ 'islem' ] ) {
 	case 'dersYillariListe':
 		$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION['universite_id'] ) )[ 2 ];
@@ -710,7 +854,6 @@ switch( $_POST[ 'islem' ] ) {
 					</script>';
 		echo $select;
 	break;
-
 	case 'donemListesi': 
 		if( $_REQUEST[ 'modul' ] == "donemDersleri" OR $_REQUEST[ 'modul' ] == "komiteler" OR $_REQUEST[ 'modul' ] == "komiteDersleri" ){
 			$ders_yili_donemler = $vt->select( $SQL_ders_yili_donemler_getir, array( $_REQUEST[ "program_id" ], $_REQUEST[ "ders_yili_id" ] ) )[ 2 ];
@@ -1082,13 +1225,13 @@ switch( $_POST[ 'islem' ] ) {
 
 		$soruGetir 		 = $vt->select( $SQL_sorular, array( $_SESSION[ "program_id" ], $_SESSION[ "donem_id" ], $_REQUEST[ "id" ] ) )[2][0];
 		$soruTurleri 	 = $vt->select( $SQL_soru_turleri, array( $_SESSION[ "universite_id" ] ) )[2]; 
-
-		$soruOption     = '';
+		$soruSorulmusMu  = $vt->select( $SQL_soru_sorgula, array( $_REQUEST[ "id" ] ) );
+		$soruOption      = '';
 
 		foreach( $soruTurleri AS $tur ){
 			$soruOption .= "<option value='$tur[id]'  data-coklu_secenek ='$tur[coklu_secenek]' data-metin ='$tur[metin]'".( $soruGetir[ 'soru_turu_id' ] == $tur[ 'id' ] ? 'selected' : null  ).">$tur[adi]</option>";
 		}
-
+		$secenekEkleBtn 	= '';
 		if ( $soruGetir[ 'coklu_secenek' ] == 0 AND $soruGetir[ 'metin' ] == 0 ){
 			$tur = 'radio';
 			$secenekEkleBtn = '<span class="btn btn-secondary float-right " id="secenekEkle" data-secenek_tipi="radio" onclick="secenekEkle(this);">Seçenek Ekle</span><div class="clearfix"></div>';
@@ -1123,9 +1266,13 @@ switch( $_POST[ 'islem' ] ) {
 			$say++;
 		}
 
+		/*Soru herhangi bir sınavda sorulmuş ise soru güncelleme işlemini pasif yapıyoruz*/
+		$formAction 	= $soruSorulmusMu[3] > 0 ? "" : "_modul/soruBankasi/soruBankasiSEG.php"; 
+		$guncelleBtn 	= $soruSorulmusMu[3] > 0 ? "" : "<button modul='soruBankasi' yetki_islem='guncelle' type='submit' class='btn btn-warning'>Güncelle</button>";
+		$mesaj 			= $soruSorulmusMu[3] > 0 ? "<div class='alert alert-warning text-center'>Bu soru sınavda sorulduğu için düzenleme aktif değildir</div>" : ""; 
 
 		$sonuc = "
-				<form class='form-horizontal' action = '_modul/soruBankasi/soruBankasiSEG.php' method = 'POST' enctype='multipart/form-data'>
+				<form class='form-horizontal' action = '$formAction' method = 'POST' enctype='multipart/form-data'>
 					<div class='modal-header'>
 						<h4 class='modal-title'>Soru Güncelleme</h4>
 						<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
@@ -1136,7 +1283,7 @@ switch( $_POST[ 'islem' ] ) {
 					<div class='modal-body'>
 						<input type='hidden' id='soru_id' name='soru_id' value='$soruGetir[id]'>
 						<input type='hidden' id='islem' name = 'islem' value='guncelle'>
-
+						$mesaj
 						<div class='form-group'>
 							<label class='control-label'>Seçilen Müfredat</label>
 							<input required type='text' class='form-control'  autocomplete='off' id='mufredat_adi' disabled value='$soruGetir[mufredat_adi]'>
@@ -1164,10 +1311,13 @@ switch( $_POST[ 'islem' ] ) {
 						</div>
 						<div class='clearfix'></div>
 						<div class='form-group mt-2'>
-							<label for='exampleInputFile'>Soru Dosyası</label>
+							<label for='exampleInputFile'>Soru Dosyası</label><div class='clearfix'></div>
 							".(
 
-								$soruGetir[ 'soru_dosyasi' ] != '' ? '<a href="" class=\'btn btn-success form-control\'>Dosyayı Gör</a>' : "<div class='input-group'>
+								$soruGetir[ 'soru_dosyasi' ] != '' ? 
+								'<a href="soruDosyalari/'.$soruGetir[ 'soru_dosyasi' ].'" target="blank" class="btn btn-success col-9 float-left">Dosyayı Gör</a>
+								<a href="javascript:resimSil('.$soruGetir[ 'soru_dosyasi' ].')" class="btn btn-danger col-3"><i class="fas fa-trash"></i></a>
+								' : "<div class='input-group'>
 								<div class='custom-file'>
 									<label class='custom-file-label' for='exampleInputFile'>Dosya Seç</label>
 									<input type='file' class='custom-file-input file ' name = 'file'  >
@@ -1206,7 +1356,7 @@ switch( $_POST[ 'islem' ] ) {
 
 					<div class='modal-footer justify-content-between'>
 						<button type='button' class='btn btn-danger' data-dismiss='modal'>İptal</button>
-						<button modul='soruBankasi' yetki_islem='guncelle' type='submit' class='btn btn-warning'>Güncelle</button>
+						$guncelleBtn
 					</div>
 				</form>
 				<script>
@@ -2123,6 +2273,226 @@ switch( $_POST[ 'islem' ] ) {
 		}
 		$vt->islemBitir();
 		echo json_encode($sonuc);
+	break;
+	case 'sablonSorulari':
+		$id  = array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;
+
+		$sablon = $vt->select( $SQL_sablon_sorgula, array( $id ) );
+
+		if( $sablon[3] < 1 ){
+			die;
+		}else{
+			
+			$sablon_sorulari = $vt->select( $SQL_anket_sablon_sorulari, array( $id ) );
+			$sorular = '';
+			if( $sablon_sorulari[3] > 0 ){
+				$say = 1;
+				foreach ( $sablon_sorulari[2] as $soru ) {
+					$sorular .= "<div class='col-12 mb-2' id='soru-$soru[id]'>
+									<div class='d-flex justify-content-between align-items-center pt-2 pb-2'>
+										<h5>Soru $say</h5>
+										<a href='javascript:anketSoruSil($soru[id]);' class='btn btn-danger' data-islem='anketSoruSil' data-id='$soru[id]'><i class='fa fa-close'></i> Sil</a>
+									</div>
+									<textarea name='soru[$soru[id]]' class='form-control' autocomplete='off'>$soru[adi]</textarea>
+									<hr class='w-100 border-secondary' >
+								</div>";
+					$say++;
+				}
+			}else{
+				$sorular = "<div class='alert alert-danger w-100'><b>Anket Sablonuna Ait Soru Bulunamadı</b></div>";
+			}
+			/*Çıktı*/
+			$sonuc = "
+			<div class='card card-olive card-tabs'>
+				  <div class='card-header  p-0 pt-1'>
+						<ul class='nav nav-tabs' id='custom-tabs-one-tab' role='tablist'>
+							<li modul='sinavlar' yetki_islem='detaylar' class='nav-item'>
+								<a class='nav-link active' id='sorular-tab' data-toggle='pill' href='#sorular' role='tab' aria-controls='sorular' aria-selected='true'>Sınav Detayı</a>
+							</li>
+						</ul>
+				  </div>
+				  <div class='card-body scroll' style='padding: 20px;margin-top: 10px;'>
+					<div class='tab-content' id='custom-tabs-one-tabContent'>
+						<div class='tab-pane fade show active' id='sorular' role='tabpanel' aria-labelledby='sorular-tab'>
+							<div class='col-12' data-item-container='true'>
+								<div class='row'>
+									<form action='_modul/anketler/sablonlarSEG.php' class='w-100'>
+										<input type='hidden' name='islem' value='guncelle'>
+										<input type='hidden' name='id' value='$id'>
+										$sorular
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				  </div>
+			  <!-- /.card -->
+			</div>
+			<script type='text/javascript'>
+				
+			</script>";
+			echo $sonuc;
+		}
+		
+		
+	break;
+	case 'anketSoruSil':
+		$sonuc = array();
+		$id  	= array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;
+		$soru 	= $vt->select( $SQL_anket_sablon_soru_cek, array( $id ) );
+
+		$sonuc["durum"] = 0;
+		$sonuc["mesaj"] = "Hatalı işlem gerçekleştirdiniz.";
+		$sonuc["renk"] 	= "kirmizi";
+
+		if( $soru[3] > 0 ){
+			$sil = $vt->update( $SQL_anket_soru_sil, array( $id ) );
+			if( $sil ){
+				$sonuc["durum"] = 1;
+				$sonuc["mesaj"] = "İşleminiz gerçekleşti";
+				$sonuc["renk"] 	= "yesil";
+				$sonuc["id"]	= $id;
+			}
+		}
+		echo json_encode($sonuc);
+	break;
+	case 'anketKategoriGetir':
+		$sonuc = array();
+		$id  	= array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;
+		$sonuc["durum"] = 0;
+		$sonuc["mesaj"] = "Hatalı işlem gerçekleştirdiniz.";
+		$sonuc["renk"] 	= "kirmizi";
+		$kategoriler = array();
+
+		/*
+		*Gelen id 1 İse Komite Listelenecek 2 İse Ders listelenece 3 İse Sınavlar listelenecek
+		*/
+		$baslik = "Kategori Seçiniz";
+		if( $id == 1  ){
+			$baslik 		= "Komite Seçiniz";
+			$kategoriler 	= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ "donem_id" ] ) )[ 2 ];
+		}else if( $id == 2 ){
+			$baslik 		= "Ders Seçiniz";
+			$kategoriler	= $vt->select( $SQL_donem_dersleri_getir, array( $_SESSION[ "donem_id" ]  ) )[2];
+		}else if( $id == 3 ){
+			$baslik 		= "Sınav Seçiniz";
+			$kategoriler 	= $vt->select( $SQL_sinavlar_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "donem_id" ] ) )[2];
+		}
+
+		$select = "<div class='form-group'><label for='alt-kategori'>$baslik</label><select required id='alt-kategori' name='alt-kategori-id' class='form-control'>";
+		
+		foreach ($kategoriler as $kategori) {
+			$select .= "<option value='$kategori[id]' >$kategori[adi]</option>";
+		}
+		$select .="</select></div>";
+
+		echo $select;
+
+	break;
+	case 'anketDetay':
+		$id  = array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;
+
+		$sablon = $vt->select( $SQL_anket_detayi, array( $id ) );
+
+		if( $sablon[3] < 1 ){
+			die;
+		}else{
+			
+			$say = 1;
+			$sorular ='';
+			foreach ( $sablon[2] as $soru ) {
+				$sorular .= "<div class='col-12 mb-2 gri-arkaplan rounded' id='soru-$soru[id]'>
+								<div class='col-12'>
+									<span class='soru d-block '>$soru[adi]<span>
+								</div>
+								<div class='row text-center'>
+									<div class='col-sm py-1 rounded float-left kirmizi'>
+										Hiç Katılmıyorum<br><hr class='w-100'>
+										Öğrenci Sayısı : <b>$soru[cevapBir]</b><br>
+										Yüzdelik Oranı : <b>%".round(((100* $soru["cevapBir"]) / $soru['bitirenOgrenciSayisi']),1)."</b>
+									</div>
+									<div class='col-sm py-1 rounded float-left turuncu'>
+										Biraz Katılıyorum<br><hr class='w-100'>
+										Öğrenci Sayısı : <b>$soru[cevapIki]</b><br>
+										Yüzdelik Oranı : <b>%".round(((100* $soru["cevapIki"]) / $soru['bitirenOgrenciSayisi']),1)."</b>
+									</div>
+									<div class='col-sm py-1 rounded float-left sari'>
+										Katılıyorum<br><hr class='w-100'>
+										Öğrenci Sayısı : <b>$soru[cevapUc]</b><br>
+										Yüzdelik Oranı : <b>%".round(((100* $soru["cevapUc"]) / $soru['bitirenOgrenciSayisi']),1)."</b>
+									</div>
+									<div class='col-sm py-1 rounded float-left mavi'>
+										Oldukça Katılıyorum<br><hr class='w-100'>
+										Öğrenci Sayısı : <b>$soru[cevapDort]</b><br>
+										Yüzdelik Oranı : <b>%".round(((100* $soru["cevapDort"]) / $soru['bitirenOgrenciSayisi']),1)."</b>
+									</div>
+									<div class='col-sm py-1 rounded float-left yesil'>
+										Tamamen Katılıyorum<br><hr class='w-100'>
+										Öğrenci Sayısı : <b>$soru[cevapBes]</b><br>
+										Yüzdelik Oranı : <b>%".round(((100* $soru["cevapBes"]) / $soru['bitirenOgrenciSayisi']),1)."</b>
+									</div>
+								</div>
+								<div class='clearfix'></div>
+							</div>";
+				$say++;
+			}
+
+			$ogrenciler 		 = $vt->select($SQL_anket_ogrencileri, array($id))[2];
+			$ogrenciListesi 	 = '';
+			foreach ( $ogrenciler as $ogrenci ) {	
+				$ogrenciListesi .= "<div class=' w-100 py-3 sinav-ogrencileri'>
+										<div class='col-sm-6 float-left'>
+											<span id='ogrenciAdi'>$ogrenci[adi] $ogrenci[soyadi]</span>
+										</div>
+										<div class='col-sm-3 float-left'>
+											<span>$ogrenci[ogrenci_no]</span>
+										</div>
+										<div class='col-sm-2 float-left'>
+											<span class='text-bold ".($ogrenci["anket_bitti"] == 1 ? 'text-success' : 'text-danger' )."'>".($ogrenci["anket_bitti"] == 1 ? 'Kullanıldı' : 'Kullanılmadı' )."</span>
+										</div>
+									</div>";
+			}
+			/*Çıktı*/
+			$sonuc = "
+			<div class='card card-olive card-tabs'>
+				  <div class='card-header  p-0 pt-1'>
+						<ul class='nav nav-tabs' id='custom-tabs-one-tab' role='tablist'>
+							<li modul='sinavlar' yetki_islem='detaylar' class='nav-item'>
+								<a class='nav-link active' id='sorular-tab' data-toggle='pill' href='#sorular' role='tab' aria-controls='sorular' aria-selected='true'>Anket Detayı</a>
+							</li>
+							<li modul='sinavlar' yetki_islem='detaylar' class='nav-item'>
+								<a class='nav-link' id='ogrenciler-tab' data-toggle='pill' href='#ogrenciler' role='tab' aria-controls='ogrenciler' aria-selected='true'>Öğrenci Listesi</a>
+							</li>
+						</ul>
+				  </div>
+				  <div class='card-body scroll' style='padding: 20px;margin-top: 10px;'>
+					<div class='tab-content' id='custom-tabs-one-tabContent'>
+						<div class='tab-pane fade show active' id='sorular' role='tabpanel' aria-labelledby='sorular-tab'>
+							<div class='col-12' data-item-container='true'>
+								<div class='row'>
+									<form action='_modul/anketler/sablonlarSEG.php' class='w-100'>
+										<input type='hidden' name='islem' value='guncelle'>
+										<input type='hidden' name='id' value='$id'>
+										$sorular
+									</form>
+								</div>
+							</div>
+						</div>
+						<div class='tab-pane fade ' id='ogrenciler' role='tabpanel' aria-labelledby='ogrenciler-tab'>
+							<div class='col-12' data-item-container='true'>
+								$ogrenciListesi
+							</div>
+						</div>
+					</div>
+				  </div>
+			  <!-- /.card -->
+			</div>
+			<script type='text/javascript'>
+				
+			</script>";
+			echo $sonuc;
+		}
+
 	break;
 	case 'cevap_turune_gore_secenek_ver':
 		$sonuc = "";

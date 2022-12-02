@@ -187,7 +187,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 					</thead>
 					<tbody>
 						<?php $sayi = 1; foreach( $sorular AS $soru ) { ?>
-						<tr oncontextmenu="fun();" class ="soru-Tr <?php if( $soru[ 'id' ] == $id ) echo $satir_renk; ?>" data-id="<?php echo $soru[ 'id' ]; ?>">
+						<tr class ="soru-Tr <?php if( $soru[ 'id' ] == $id ) echo $satir_renk; ?>" data-id="<?php echo $soru[ 'id' ]; ?>">
 							<td><?php echo $sayi++; ?></td>
 							<td><?php echo $soru[ 'soru_turu' ]; ?></td>
 							<td><?php echo $soru[ 'soru' ]; ?></td>
@@ -335,5 +335,8 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 	        $('#'+ modal).modal( "show" );
 
 	    });
+		function resimSil($soruId){
+			
+		}
 	   
 	</script>

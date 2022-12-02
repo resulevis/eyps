@@ -14,7 +14,7 @@ class VeriTabani {
 		try { 
             if( $_SERVER['SERVER_NAME'] == "localhost" )
 				
-                $this->vt = new PDO( "mysql:host=192.168.1.10; dbname=eyps", "root", "Syn-tax1" ); 
+                $this->vt = new PDO( "mysql:host=localhost; dbname=eyps", "root", "" ); 
 
             else
                 $this->vt = new PDO( "mysql:host=localhost; dbname=syntaxbi_eyps", "syntaxbi_eyps", "Bg5dz.S)ohhT" );

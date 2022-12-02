@@ -138,3 +138,27 @@ div.dt-button-collection div.dropdown-menu {
     border-radius: 10px;
     padding-left: 22px;
 }
+.gri-arkaplan{
+	padding : 10px 10px;
+	background-color: #f4f3f3;
+}
+.gri-arkaplan .soru{
+	font-size: 17px;
+    margin-bottom: 16px;
+	font-weight: bold;
+}
+.gri-arkaplan .kirmizi{
+	background:#ffbaba;
+}
+.gri-arkaplan .turuncu{
+	background:#ffd09b;
+}
+.gri-arkaplan .sari{
+	background:#fdf29d;
+}
+.gri-arkaplan .mavi{
+	background:#b6eafa;
+}
+.gri-arkaplan .yesil{
+	background:#6effb7;
+}
