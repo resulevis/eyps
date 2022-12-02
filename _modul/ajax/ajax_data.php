@@ -2392,7 +2392,7 @@ switch( $_POST[ 'islem' ] ) {
 	case 'anketDetay':
 		$ogrenciListesi = '';
 		$sorular 		= 'Herhangi bir Cevap Yapılmamıştır.';
-		$id  = array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;
+		$id  			= array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;
 
 		$sablon 		= $vt->select( $SQL_anket_detayi, array( $id ) );
 		$ogrenciler 	= $vt->select($SQL_anket_ogrencileri, array($id))[2];
@@ -2451,8 +2451,6 @@ switch( $_POST[ 'islem' ] ) {
 				$say++;
 			}
 
-			
-			$ogrenciListesi 	 = '';
 		}
 		$sonuc = "
 			<div class='card card-olive card-tabs'>
@@ -2481,6 +2479,18 @@ switch( $_POST[ 'islem' ] ) {
 						</div>
 						<div class='tab-pane fade ' id='ogrenciler' role='tabpanel' aria-labelledby='ogrenciler-tab'>
 							<div class='col-12' data-item-container='true'>
+								<div class='w-100 mb-1 d-flex align-items-center sinav-ogrencileri-baslik'>
+									<div class='col-sm-6 float-left font-weight-bold'>
+										<span>Ad Soyad</span>
+									</div>
+									<div class='col-sm-3 float-left font-weight-bold'>
+										<span>Öğrenci numarası</span>
+									</div>
+									<div class='col-sm-3 float-left font-weight-bold'>
+										<span>Kullanım</span>
+									</div>
+									
+								</div>
 								$ogrenciListesi
 							</div>
 						</div>
