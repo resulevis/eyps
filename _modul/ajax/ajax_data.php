@@ -2390,14 +2390,29 @@ switch( $_POST[ 'islem' ] ) {
 
 	break;
 	case 'anketDetay':
+		$ogrenciListesi = '';
+		$sorular 		= 'Herhangi bir Cevap Yapılmamıştır.';
 		$id  = array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;
 
-		$sablon = $vt->select( $SQL_anket_detayi, array( $id ) );
+		$sablon 		= $vt->select( $SQL_anket_detayi, array( $id ) );
+		$ogrenciler 	= $vt->select($SQL_anket_ogrencileri, array($id))[2];
+
+		foreach ( $ogrenciler as $ogrenci ) {	
+			$ogrenciListesi .= "<div class=' w-100 py-3 sinav-ogrencileri'>
+									<div class='col-sm-6 float-left'>
+										<span id='ogrenciAdi'>$ogrenci[adi] $ogrenci[soyadi]</span>
+									</div>
+									<div class='col-sm-3 float-left'>
+										<span>$ogrenci[ogrenci_no]</span>
+									</div>
+									<div class='col-sm-2 float-left'>
+										<span class='text-bold ".($ogrenci["anket_bitti"] == 1 ? 'text-success' : 'text-danger' )."'>".($ogrenci["anket_bitti"] == 1 ? 'Kullanıldı' : 'Kullanılmadı' )."</span>
+									</div>
+								</div>";
+		}
 		echo '<pre>';
 		print_r($sablon);
-		if( $sablon[3] < 1 ){
-			die;
-		}else{
+		if( $sablon[3] > 0 ){
 			
 			$say = 1;
 			$sorular ='';
@@ -2438,23 +2453,10 @@ switch( $_POST[ 'islem' ] ) {
 				$say++;
 			}
 
-			$ogrenciler 		 = $vt->select($SQL_anket_ogrencileri, array($id))[2];
+			
 			$ogrenciListesi 	 = '';
-			foreach ( $ogrenciler as $ogrenci ) {	
-				$ogrenciListesi .= "<div class=' w-100 py-3 sinav-ogrencileri'>
-										<div class='col-sm-6 float-left'>
-											<span id='ogrenciAdi'>$ogrenci[adi] $ogrenci[soyadi]</span>
-										</div>
-										<div class='col-sm-3 float-left'>
-											<span>$ogrenci[ogrenci_no]</span>
-										</div>
-										<div class='col-sm-2 float-left'>
-											<span class='text-bold ".($ogrenci["anket_bitti"] == 1 ? 'text-success' : 'text-danger' )."'>".($ogrenci["anket_bitti"] == 1 ? 'Kullanıldı' : 'Kullanılmadı' )."</span>
-										</div>
-									</div>";
-			}
-			/*Çıktı*/
-			$sonuc = "
+		}
+		$sonuc = "
 			<div class='card card-olive card-tabs'>
 				  <div class='card-header  p-0 pt-1'>
 						<ul class='nav nav-tabs' id='custom-tabs-one-tab' role='tablist'>
@@ -2491,8 +2493,7 @@ switch( $_POST[ 'islem' ] ) {
 			<script type='text/javascript'>
 				
 			</script>";
-			echo $sonuc;
-		}
+		echo $sonuc;
 
 	break;
 	case 'cevap_turune_gore_secenek_ver':
