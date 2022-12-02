@@ -2393,7 +2393,8 @@ switch( $_POST[ 'islem' ] ) {
 		$id  = array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;
 
 		$sablon = $vt->select( $SQL_anket_detayi, array( $id ) );
-
+		echo '<pre>';
+		print_r($sablon);
 		if( $sablon[3] < 1 ){
 			die;
 		}else{
