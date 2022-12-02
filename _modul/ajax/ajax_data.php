@@ -2410,8 +2410,6 @@ switch( $_POST[ 'islem' ] ) {
 									</div>
 								</div>";
 		}
-		echo '<pre>';
-		print_r($sablon);
 		if( $sablon[3] > 0 ){
 			
 			$say = 1;
