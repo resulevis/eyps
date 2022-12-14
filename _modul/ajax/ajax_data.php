@@ -822,6 +822,43 @@ WHERE
 	ac.anket_id = ?
 GROUP BY ass.id
 SQL;
+
+$SQL_sinav_sorgula = <<< SQL
+SELECT 
+	s.id,
+	s.adi,
+	s.aciklama,
+	s.sinav_oncesi_aciklama,
+	s.sinav_sonrasi_aciklama,
+	s.sinav_suresi,
+	s.soru_sayisi,
+	s.sinav_baslangic_tarihi,
+	s.sinav_baslangic_saati,
+	s.sinav_bitis_tarihi,
+	s.sinav_bitis_saati
+FROM 
+	tb_sinavlar  AS s
+LEFT JOIN 
+	tb_sinav_ogrencileri AS so ON so.sinav_id = s.id
+WHERE 
+	s.id 						= ? AND
+	so.ogrenci_id 				= ? AND
+	s.sinav_baslangic_tarihi 	<= ? AND
+	s.sinav_baslangic_saati 	<= ? AND
+	s.sinav_bitis_saati			> ? AND
+	so.sinav_bitti_mi 			= 0 
+SQL;
+
+$SQL_ogrenci_son_gorulme = <<< SQL
+UPDATE
+	tb_sinav_ogrencileri
+SET
+	son_gorulme = ? 
+WHERE
+	sinav_id  		= ? AND
+	ogrenci_id  	= ? AND
+	sinav_bitti_mi  = 0
+SQL;
 switch( $_POST[ 'islem' ] ) {
 	case 'dersYillariListe':
 		$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION['universite_id'] ) )[ 2 ];
@@ -1035,7 +1072,6 @@ switch( $_POST[ 'islem' ] ) {
 			$hata  = '<div class="alert alert-danger text-center">Dönem İçin Ders Eklenmemiş !!!</div>';
 		echo count( $dersler) > 0 ? $sonuc : $hata;
 	break;
-
 	case 'ogretimUyesiEkle':
 		$komite_ders_id  		= array_key_exists( 'id', $_REQUEST ) 	? $_REQUEST[ 'id' ] : 0 ;
 		$secili_ders 	 		= $vt->select( $SQL_komite_ders_getir, array( $komite_ders_id ) )[2][0];
@@ -2119,7 +2155,7 @@ switch( $_POST[ 'islem' ] ) {
 	break;
 	case 'soruGetir':
 		$sonuc = array();
-		if( !array_key_exists( "okudum_anladım", $_SESSION) ){
+		if( !array_key_exists( "okudum_anladim", $_SESSION) ){
 			die();
 		}
 		if ( !array_key_exists( "sorular", $_SESSION ) OR !array_key_exists( "id", $_REQUEST ) ) {
@@ -2251,7 +2287,14 @@ switch( $_POST[ 'islem' ] ) {
 		}
 	break;
 	case 'sinavBaslat':
-		$_SESSION["okudum_anladım"] = 'on';
+		if($_POST){
+			$sinav_id      	= array_key_exists( 'sinav_id', $_REQUEST ) ? $_REQUEST[ 'sinav_id' ] 	: 0;
+			$sinav_varmi 	= $vt->select( $SQL_sinav_sorgula, array( $sinav_id, $_SESSION["kullanici_id"], date("Y-m-d"), date("H:m:s"), date("H:m:s") ) )[2][0];
+			if( count( $sinav_varmi ) > 0 ){
+				$_SESSION["okudum_anladim"] = 'on';
+				$_SESSION["soru_id"] 		= 1;
+			}
+		}
 	break;
 	case 'sinavBitir':
 		$sonuc = array( "durum" => 0 );
@@ -2268,11 +2311,16 @@ switch( $_POST[ 'islem' ] ) {
 				unset( $_SESSION[ "cevaplanan" ] );
 				unset( $_SESSION[ "bakilan" ] );
 				unset( $_SESSION[ "soru_id" ] );
-				unset( $_SESSION[ "okudum_anladım" ] );
+				unset( $_SESSION[ "okudum_anladim" ] );
 			}
 		}
 		$vt->islemBitir();
 		echo json_encode($sonuc);
+	break;
+	case'sonGorulme':
+		if( array_key_exists( "okudum_anladim", $_SESSION ) AND $_POST ){
+			$son_gorulme 	= $vt->update( $SQL_ogrenci_son_gorulme, array( date("Y-m-d H:i:s"),$_REQUEST[ "sinav_id" ], $_SESSION[ "kullanici_id" ] ) );
+		}
 	break;
 	case 'sablonSorulari':
 		$id  = array_key_exists( "id", $_REQUEST ) ? $_REQUEST["id"] : 0;

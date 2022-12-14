@@ -13,15 +13,14 @@ SELECT
 	s.sinav_bitis_saati,
 	s.sinav_suresi,
 	s.soru_sayisi,
-	(SELECT sinav_bitti_mi from tb_sinav_ogrencileri WHERE ogrenci_id = ko.ogrenci_id ) AS sinav_bitti_mi 
+	(SELECT sinav_bitti_mi from tb_sinav_ogrencileri WHERE ogrenci_id = so.ogrenci_id AND sinav_id = s.id ) AS sinav_bitti_mi 
 FROM
 	tb_sinavlar AS s
 LEFT JOIN tb_komiteler AS k ON s.komite_id = k.id 
-LEFt JOIN tb_komite_ogrencileri AS ko ON ko.komite_id = k.id
 LEFT JOIN tb_sinav_ogrencileri AS so ON so.sinav_id = s.id
 WHERE
 	s.universite_id 	= ? AND
-	ko.ogrenci_id 		= ? AND 
+	so.ogrenci_id 		= ? AND 
 	s.aktif 			= 1
 SQL;
 

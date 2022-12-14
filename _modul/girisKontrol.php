@@ -1,5 +1,7 @@
 <?php
 include "../_cekirdek/fonksiyonlar.php";
+
+
 session_start();
 $_SESSION[ 'firma_turu' ] = $_POST[ 'firma' ];
 

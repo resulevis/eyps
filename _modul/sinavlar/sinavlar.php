@@ -168,12 +168,12 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 							<td><?php echo $sinav[ 'sinav_adi' ]; ?></td>
 							<td>
 								<?php 
-									echo date("d.m.Y", strtotime( $sinav[ 'sinav_baslangic_tarihi' ] ) ).' - '.date("H:m",strtotime( $sinav[ 'sinav_baslangic_saati' ] ));
+									echo date("d.m.Y", strtotime( $sinav[ 'sinav_baslangic_tarihi' ] ) ).' - '.date("H:i",strtotime( $sinav[ 'sinav_baslangic_saati' ] ));
 								?>
 							</td>
 							<td>
 								<?php 
-									echo date("d.m.Y", strtotime( $sinav[ 'sinav_bitis_tarihi' ] ) ).' - '.date("H:m",strtotime( $sinav[ 'sinav_bitis_saati' ] )); 
+									echo date("d.m.Y", strtotime( $sinav[ 'sinav_bitis_tarihi' ] ) ).' - '.date("H:i",strtotime( $sinav[ 'sinav_bitis_saati' ] )); 
 								?>
 							</td>
 							<td><?php echo $sinav[ 'sinav_suresi' ]; ?></td>

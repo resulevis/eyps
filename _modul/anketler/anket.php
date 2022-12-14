@@ -64,59 +64,61 @@ if( $anket[3] < 1 OR  $sorular[3] < 1 ) {
 			<form action="./_modul/anketler/anketSEG.php" method="post">
                 <input type="hidden" name="id" value="<?php echo $id; ?>">
                 <input type="hidden" name="islem" value="ekle" >
-                <div class="card-body p-2 table-responsive">
-                    <table  class="table table-bordered table-hover table-head-fixed table-striped dtr-inline" width = "100%" >
-                        <thead>
-                            <tr>
-                                <th style="width: 15px">#</th>
-                                <th class="mw-50">Soru</th>
-                                <th class="text-center" data-priority="1" style="width: 100px">Hiç Katılmıyorum</th>
-                                <th class="text-center" data-priority="1" style="width: 100px">Biraz Katılıyorum</th>
-                                <th class="text-center" data-priority="1" style="width: 100px">Katılıyorum	</th>
-                                <th class="text-center" data-priority="1" style="width: 100px">Oldukça Katılıyorum</th>
-                                <th class="text-center" data-priority="1" style="width: 100px">Tamamen Katılıyorum</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $sayi = 1; foreach( $sorular[2] AS $soru ) { ?>
-                                <tr class ="soru-Tr py-1 <?php if( $soru[ 'id' ] == $id ) echo $satir_renk; ?>" >
-                                    <td ><?php echo $sayi++; ?></td>
-                                    <td><b><?php echo $soru[ 'adi' ]; ?></b></td>
-                                    <td class="text-center">
-                                        <div class="icheck-success d-inline">
-                                            <input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>1"  class="Sec" value="1">
-                                            <label for="<?php echo $soru[ 'id' ]; ?>1"></label>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="icheck-success d-inline">
-                                            <input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>2"  class="Sec" value="2">
-                                            <label for="<?php echo $soru[ 'id' ]; ?>2"></label>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="icheck-success d-inline">
-                                            <input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>3"  class="Sec" value="3">
-                                            <label for="<?php echo $soru[ 'id' ]; ?>3"></label>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="icheck-success d-inline">
-                                            <input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>4"  class="Sec" value="4">
-                                            <label for="<?php echo $soru[ 'id' ]; ?>4"></label>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="icheck-success d-inline">
-                                            <input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>5"  class="Sec" value="5">
-                                            <label for="<?php echo $soru[ 'id' ]; ?>5"></label>
-                                        </div>
-                                    </td>
-                                    
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
+                <div class="card-body p-2">
+					<div class="table-responsive">
+						<table  class="table table-bordered table-hover table-head-fixed " width = "100%" >
+							<thead>
+								<tr>
+									<th style="width: 15px">#</th>
+									<th class="mw-50">Soru</th>
+									<th class="text-center" data-priority="1" style="width: 100px">Hiç Katılmıyorum</th>
+									<th class="text-center" data-priority="1" style="width: 100px">Biraz Katılıyorum</th>
+									<th class="text-center" data-priority="1" style="width: 100px">Katılıyorum	</th>
+									<th class="text-center" data-priority="1" style="width: 100px">Oldukça Katılıyorum</th>
+									<th class="text-center" data-priority="1" style="width: 100px">Tamamen Katılıyorum</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php $sayi = 1; foreach( $sorular[2] AS $soru ) { ?>
+									<tr class ="soru-Tr py-1 <?php if( $soru[ 'id' ] == $id ) echo $satir_renk; ?>" >
+										<td ><?php echo $sayi++; ?></td>
+										<td><b><?php echo $soru[ 'adi' ]; ?></b></td>
+										<td class="text-center">
+											<div class="icheck-success d-inline">
+												<input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>1"  class="Sec" value="1">
+												<label for="<?php echo $soru[ 'id' ]; ?>1"></label>
+											</div>
+										</td>
+										<td class="text-center">
+											<div class="icheck-success d-inline">
+												<input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>2"  class="Sec" value="2">
+												<label for="<?php echo $soru[ 'id' ]; ?>2"></label>
+											</div>
+										</td>
+										<td class="text-center">
+											<div class="icheck-success d-inline">
+												<input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>3"  class="Sec" value="3">
+												<label for="<?php echo $soru[ 'id' ]; ?>3"></label>
+											</div>
+										</td>
+										<td class="text-center">
+											<div class="icheck-success d-inline">
+												<input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>4"  class="Sec" value="4">
+												<label for="<?php echo $soru[ 'id' ]; ?>4"></label>
+											</div>
+										</td>
+										<td class="text-center">
+											<div class="icheck-success d-inline">
+												<input type="radio" required name="cevap[<?php echo $soru['id'] ?>]" id="<?php echo $soru[ 'id' ]; ?>5"  class="Sec" value="5">
+												<label for="<?php echo $soru[ 'id' ]; ?>5"></label>
+											</div>
+										</td>
+										
+									</tr>
+								<?php } ?>
+							</tbody>
+						</table>
+					</div>
                 </div>
                 <div class="card-footer">
                     <button type="submit" class=" float-right <?php echo $kaydet_buton_cls; ?>">Anketi Gönder</button>

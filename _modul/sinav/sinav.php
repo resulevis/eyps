@@ -27,9 +27,11 @@ LEFT JOIN
 WHERE 
 	s.id 						= ? AND
 	so.ogrenci_id 				= ? AND
-	s.sinav_baslangic_tarihi 	= ? AND
-	s.sinav_baslangic_saati 	<= ? AND
-	s.sinav_bitis_saati			> ? AND
+	(
+		s.sinav_baslangic_tarihi 	<= ? AND
+		s.sinav_baslangic_saati 	<= ?
+	) AND
+	s.sinav_bitis_tarihi		>= ? AND
 	so.sinav_bitti_mi 			= 0
 SQL;
 
@@ -46,6 +48,17 @@ SQL;
 
 $sinav_varmi 	= $vt->select( $SQL_sinav_varmi, array( $sinav_id, $_SESSION["kullanici_id"], date("Y-m-d"), date("H:m:s"), date("H:m:s") ) )[2][0];
 $sinav_sorulari = $vt->selectExam( $SQL_sinav_sorulari, $sinav_varmi["id"], $sinav_varmi["soru_sayisi"]  )[2];
+
+if( $sinav_varmi["soru_sayisi"] != count( $sinav_sorulari ) ){
+	echo "<div id='display-container' class='display-container d-flex flex-column hata-mesaj-kapsa'>
+			<div class='text-center okudum-anladim'>
+				<div class='text-center d-block  lead'>Sınav soruları eksik lütfen sınav gözetmeni ile iletişime geçiniz!!!</div>
+				<a href='index.php?modul=sinavlarListesi' class='btn btn-outline-dark mt-5 btn-lg'><b>Sınavlar Listesi</b></a>
+			</div>
+		</div>";
+		die;
+}
+
 
 if( count( $sinav_varmi ) < 1 ){
 	echo "<div id='display-container' class='display-container d-flex flex-column hata-mesaj-kapsa'>
@@ -69,7 +82,6 @@ if( !array_key_exists( "sorular", $_SESSION ) ){
 	$_SESSION[ "sinav_id" ] = $sinav_varmi[ "id" ];
 	$_SESSION["cevaplanan"] =array();
 }
-
 $soruGoster = 0;
 if( $_SESSION["soru_id"] > 0 ){
 	$soruGoster = 1;
@@ -85,7 +97,7 @@ $total_minutes += ($diff->h * 60 * 60);
 $total_minutes += ($diff->i * 60); 
 $total_minutes += $diff->s; 
 
-if( !array_key_exists( "okudum_anladım",$_SESSION ) ){
+if( !array_key_exists( "okudum_anladim",$_SESSION ) ){
 	$total_minutes = 1;
 }
 ?>
@@ -96,10 +108,11 @@ if( !array_key_exists( "okudum_anladım",$_SESSION ) ){
 </div>
 <div id='display-container' class='display-container d-flex flex-column'>
 	<?php 
+	
 		if( $soruGoster == 0 ){
 			echo "<div class='text-center d-block okudum-anladim'>
 						<div class='text-center d-block mt-5 lead'>$sinav_varmi[sinav_oncesi_aciklama]</div>
-						<button id='next-button'>Okudum, Anladım ve Onaylıyorum</button>
+						<button id='next-button' data-id='$sinav_id'>Okudum, Anladım ve Onaylıyorum</button>
 					</div>";
 		}else{
 			echo "<div class='soru-kapsa' id='soru-kapsa'></div>";
@@ -157,11 +170,12 @@ if( !array_key_exists( "okudum_anladım",$_SESSION ) ){
 	?>
 	
 	$('#next-button').on("click", function(e) { 
+		var sinav_id = $(this).data("id");
 		$(".okudum-anladim").remove();	
 		$(this).remove();
 		$("#display-container").append("<div class='soru-kapsa' id='soru-kapsa'></div>");
 		var data_url 	= './_modul/ajax/ajax_data.php';
-		$.post(data_url, { islem : "sinavBaslat" }, function (response) {
+		$.post(data_url, { islem : "sinavBaslat",sinav_id: sinav_id}, function (response) {
 			location.reload();	
 		});	
 		soruGetir(1,0);
@@ -291,7 +305,7 @@ function startTimer() {
       	onTimesUp();
 	  	var data_url 	= './_modul/ajax/ajax_data.php';
 		<?php
-			if( array_key_exists( "okudum_anladım",$_SESSION ) ){
+			if( array_key_exists( "okudum_anladim",$_SESSION ) ){
 				echo "$.post(data_url, { islem : 'sinavBitir' }, function (response) {
 					var sonuc = JSON.parse(response);
 					if(sonuc.durum == 1){
@@ -335,5 +349,24 @@ function setCircleDasharray() {
   const circleDasharray = (calculateTimeFraction() * FULL_DASH_ARRAY).toFixed(0);
   document.getElementById("base-timer-path-remaining").setAttribute("stroke-dasharray", circleDasharray);
 }
+
+//Sınav Bitirene Kadar Son Gorulme saati deiştirilecek
+<?php
+	if( array_key_exists( "okudum_anladim",$_SESSION ) ){
+		echo "
+		setInterval(function() {
+			var data_url 	= './_modul/ajax/ajax_data.php';
+			if (navigator.onLine) {
+				$.post(data_url, { islem : 'sonGorulme',sinav_id: $sinav_id }, function (response) {
+					
+				});
+			} else {
+				alert('İnternet Bağlantınız Kesildi Yonetici İle İletişime Geçiniz!!!');
+			}
+			}, 10000);
+		";
+	}
+?>
+
 
 </script>
