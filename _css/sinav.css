@@ -121,6 +121,16 @@
 .soru-kapsa .isaretli-secenek{
   background: linear-gradient(133deg,#e4e4e4,#ffffff00);
 }
+.soru-kapsa .kirmizi-isaretli-secenek{
+  background: linear-gradient(133deg,#fd7b7b,#ffffff00);
+}
+.soru-kapsa .yesil-isaretli-secenek{
+  background: linear-gradient(133deg,#a1ff99,#ffffff00);
+}
+#sinavCevapDetayKapsa .soru-kapsa{
+  background-color: #ebebeb;
+}
+
 .sagBilgi{
   width: 25%;
   right: 0;

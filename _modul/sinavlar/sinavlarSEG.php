@@ -1,11 +1,10 @@
 <?php
 include "../../_cekirdek/fonksiyonlar.php";
-error_reporting( E_ALL );
+
 $vt		= new VeriTabani();
 $fn		= new Fonksiyonlar();
-
-$islem		= array_key_exists( 'islem', $_REQUEST )	? $_REQUEST[ 'islem' ]	: 'ekle';
-$sinav_id	= array_key_exists( 'id', $_REQUEST )		? $_REQUEST[ 'id' ]		: 0;
+$islem		= array_key_exists( 'islem', $_REQUEST )	? $_REQUEST[ 'islem' ]		: 'ekle';
+$sinav_id	= array_key_exists( 'sinav_id', $_REQUEST )	? $_REQUEST[ 'sinav_id' ]	: 0;
 
 $SQL_ekle = <<< SQL
 INSERT INTO 
@@ -141,6 +140,7 @@ switch( $islem ) {
 	case 'guncelle':
 		//Güncellenecek olan tarife giriş yapılan firmaya mı ait oldugu kontrol ediliyor Eger firmaya ait ise Güncellenecektir.
 		$tek_sinav_oku = $vt->select( $SQL_sinav_oku, array( $sinav_id ) ) [ 2 ];
+		print_r($tek_sinav_oku);
 		
 		if ( $tek_sinav_oku[0][ "sinav_baslangic_tarihi" ] > date( "Y-m-d" ) ){
 			$___islem_sonuc = array( 'hata' => true, 'mesaj' => 'Gemiş Sınav Üzerinden İşlem Yapılamaz', 'id' => 0 );

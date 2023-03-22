@@ -141,7 +141,7 @@ LEFT JOIN
 LEFT JOIN 
 	tb_dersler AS d ON d.id = dd.ders_id
 WHERE 
-	d.id = 14
+	d.id = ?
 GROUP BY oe.id
 SQL;
 $donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];

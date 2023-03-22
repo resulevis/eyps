@@ -72,7 +72,7 @@ $islem		= array_key_exists( 'islem', $_REQUEST ) ? $_REQUEST[ 'islem' ] : 'ekle'
 $roller		= $vt->select( $SQL_roller );
 $moduller	= $vt->select( $SQL_moduller );
 
-$tum_subeler		= $vt->select( $SQL_tum_subeler );
+//$tum_subeler		= $vt->select( $SQL_tum_subeler,array());
 
 /*
 Aşağıda Fonkiyonlar sınıfında tanımlanmış iki fonksşyon kullanılmaktadır.
@@ -80,8 +80,8 @@ Aşağıda Fonkiyonlar sınıfında tanımlanmış iki fonksşyon kullanılmakta
 @$id rol id dir.
 @true sadece id dizini verir. false olursa tüm yetki dahilindeki tüm kayıtların tüm alanlarını verir.
 */
-$yetkili_sube_idler 	= $fn->yetkilisubeVer( $id, true );
-$yetkili_firma_idler 	= $fn->yetkiliFirmaVer( $id, true );
+//$yetkili_sube_idler 	= $fn->yetkilisubeVer( $id, true );
+//$yetkili_firma_idler 	= $fn->yetkiliFirmaVer( $id, true );
 
 ?>
 
@@ -310,20 +310,7 @@ $yetkili_firma_idler 	= $fn->yetkiliFirmaVer( $id, true );
 										<input type = "hidden" name = "rol_id" value = "<?php echo $id ?>">
 										<input type = "hidden" name = "islem" value = "<?php echo $islem; ?>">
 										<input type = "hidden" name = "aktif_tab_id" value = "rol_sube_yetkileri">
-										<?php foreach( $tum_subeler[ 2 ] as $td ) { ?>
-										<div class="form-group clearfix">
-											<div class="icheck-success d-inline">
-												<input type="checkbox"  
-												id="sube_isimleri<?php echo $td[ 'id' ] ?>"
-												name="chk_sube_idler[]" 
-												value="<?php echo $td[ 'id' ]; ?>" 
-												<?php if( in_array( $td[ 'id' ], $yetkili_sube_idler ) ) echo 'checked'; ?> >
-												<label for="sube_isimleri<?php echo $td[ 'id' ] ?>">
-													<?php echo $td[ 'adi' ]; ?>
-												</label>
-											</div>
-										</div>
-										<?php } ?>
+										
 								</div>										
 								<div class="card-footer">
 									<div class = "btn-toolbar">

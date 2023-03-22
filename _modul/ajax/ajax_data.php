@@ -372,7 +372,7 @@ WHERE
 	universite_id = ? 
 SQL;
 
-$SQL_soru_secenekleri = <<< SQL
+$i_toplui = <<< SQL
 SELECT
 	*
 FROM 
@@ -396,7 +396,7 @@ SELECT
 FROM
 	tb_sinav_ogrencileri
 WHERE
-	sinav_id 	= ?
+	sinav_id 	= ? AND
 	ogrenci_id 	= ?
 SQL;
 
@@ -415,7 +415,18 @@ SELECT
 	o.adi,
 	o.soyadi,
 	o.ogrenci_no,
-	so.ek_sure
+	so.ek_sure,
+	so.ogrenci_id,
+	(
+		SELECT
+			if( SUM( puan ) != '', SUM( puan ), 0 ) 
+		FROM
+			tb_sinav_cevaplari
+		WHERE
+			tb_sinav_cevaplari.sinav_id 	= so.sinav_id AND 
+			tb_sinav_cevaplari.ogrenci_id 	= so.ogrenci_id
+
+	) AS puan
 FROM
 	tb_sinav_ogrencileri AS so
 LEFT JOIN
@@ -508,11 +519,16 @@ SQL;
 $SQL_sinav_sorulari = <<< SQL
 SELECT 
 	sb.id 	AS id,
-	sb.soru AS soru
+	sb.soru AS soru,
+	st.coklu_secenek,
+	st.metin,
+	ss.puan
 FROM 
 	tb_sinav_sorulari AS ss
 LEFT JOIN 
 	tb_soru_bankasi AS sb ON sb.id = ss.soru_id
+LEFT JOIN 
+	tb_soru_turleri AS st ON st.id = sb.soru_turu_id
 WHERE 
 	ss.sinav_id = ?
 SQL;
@@ -520,11 +536,16 @@ SQL;
 $SQL_ogretim_elemani_sinav_sorulari = <<< SQL
 SELECT 
 	sb.id 	AS id,
-	sb.soru AS soru
+	sb.soru AS soru,
+	st.coklu_secenek,
+	st.metin,
+	ss.puan
 FROM 
 	tb_sinav_sorulari AS ss
 LEFT JOIN 
 	tb_soru_bankasi AS sb ON sb.id = ss.soru_id
+LEFT JOIN 
+	tb_soru_turleri AS st ON st.id = sb.soru_turu_id
 WHERE 
 	ss.sinav_id = ? AND
 	ss.ogretim_elemani_id = ? 
@@ -624,7 +645,32 @@ SET
 	sinav_id  		= ?,
 	soru_id  		= ?,
 	cevap_id 		= ?,
+	cevap_metin 	= ?,
+	puan 			= ?
+SQL;
+
+/*Klasik sorunun cevabını güncelle*/
+$SQL_sinav_cevap_guncelle = <<< SQL
+UPDATE
+	tb_sinav_cevaplari
+SET
 	cevap_metin 	= ?
+WHERE
+	ogrenci_id  	= ? AND
+	sinav_id  		= ? AND
+	soru_id			= ?
+SQL;
+
+/*Klasik sorunun punını güncelle*/
+$SQL_sinav_puan_guncelle = <<< SQL
+UPDATE
+	tb_sinav_cevaplari
+SET
+	puan 			= ?
+WHERE
+	ogrenci_id  	= ? AND
+	sinav_id  		= ? AND
+	soru_id			= ?
 SQL;
 
 $SQL_sinav_bitir = <<< SQL
@@ -647,6 +693,17 @@ WHERE
 	soru_id  		= ?
 SQL;
 
+$SQL_sinav_chackbox_cevaplari_sil = <<< SQL
+DELETE FROM
+	tb_sinav_cevaplari
+WHERE
+	ogrenci_id  	= ? AND
+	sinav_id  		= ? AND
+	soru_id  		= ? AND
+	cevap_id 		= ?
+SQL;
+
+
 $SQL_sinav_ogrencileri_sil = <<< SQL
 DELETE FROM
 	tb_sinav_ogrencileri
@@ -667,6 +724,16 @@ WHERE
 	ss.soru_id 					= ? AND
 	s.sinav_bitis_tarihi     	>= ? AND
 	s.sinav_bitis_saati			> ? 
+SQL;
+/*Öğrenci Puanı Toplamı*/
+$SQL_ogrenci_sinav_puani = <<< SQL
+SELECT 
+	SUM(puan) AS puan
+FROM 
+	tb_sinav_cevaplari
+WHERE
+	sinav_id 	= ? AND 
+	ogrenci_id 	= ? 
 SQL;
 
 /*suanki tarih ve saatten önce başlamış olan soru var ise soru üzerinde değişiklik yapılmayacaktır.  */
@@ -859,6 +926,93 @@ WHERE
 	ogrenci_id  	= ? AND
 	sinav_bitti_mi  = 0
 SQL;
+
+$SQL_dogru_cevap_getir = <<< SQL
+SELECT
+	ssc.id,
+	sb.puan,
+	ssc.dogru_secenek
+FROM 
+	tb_sinav_sorulari AS  ss
+LEFT JOIN 
+	tb_soru_secenekleri AS ssc ON ssc.soru_id = ss.soru_id
+LEFT JOIN 
+	tb_soru_bankasi  AS sb ON sb.id = ss.soru_id
+WHERE 
+	ss.sinav_id 		= ? AND 
+	ss.soru_id 			= ? AND 
+	ssc.id 				= ?
+SQL;
+
+$SQL_soru_secenekleri_toplu = <<< SQL
+SELECT
+	*
+FROM
+	tb_soru_secenekleri
+WHERE
+	soru_id IN 	
+		(
+			SELECT
+				soru_id
+			FROM 
+				tb_sinav_sorulari
+			WHERE 
+				sinav_id = ? AND
+				ogretim_elemani_id = ?
+		)
+SQL;
+
+$SQL_soru_secenekleri_toplu_admin = <<< SQL
+SELECT
+	*
+FROM
+	tb_soru_secenekleri
+WHERE
+	soru_id IN 	
+		(
+			SELECT
+				soru_id
+			FROM 
+				tb_sinav_sorulari
+			WHERE 
+				sinav_id = ?
+		)
+SQL;
+
+/*Öğrencinin sınava ait tüm cevaplarını çektik*/
+$SQL_ogrenci_sinav_tum_cevaplari = <<< SQL
+SELECT 
+	* 
+FROM
+	tb_sinav_cevaplari
+WHERE 
+	sinav_id 	= ? AND 
+	ogrenci_id 	= ?
+SQL;
+
+/*Sınav Sorularıma puan verme*/
+$SQL_sinav_soru_puan_hesapla = <<< SQL
+SELECT 
+	100 - SUM(puan) AS enfazla
+FROM
+	tb_sinav_sorulari
+WHERE 
+	sinav_id 	= ? AND 
+	soru_id 	!= ?
+SQL;
+
+/*Sınav soru puanını güncelleme*/
+$SQL_sinav_soru_puan_guncelle = <<< SQL
+UPDATE
+	tb_sinav_sorulari
+SET
+	puan 			= ?
+WHERE
+	sinav_id  		= ? AND
+	soru_id			= ?
+SQL;
+
+
 switch( $_POST[ 'islem' ] ) {
 	case 'dersYillariListe':
 		$ders_yillari = $vt->select( $SQL_ders_yillari_getir, array( $_SESSION['universite_id'] ) )[ 2 ];
@@ -1278,7 +1432,7 @@ switch( $_POST[ 'islem' ] ) {
 			$tur = 'metin';
 		}	
 
-		$soruSecenekleri = $vt->select( $SQL_soru_secenekleri, array( $soruGetir[ "id" ] ) )[2];
+		$soruSecenekleri = $vt->select( $i_toplui, array( $soruGetir[ "id" ] ) )[2];
 		/*Onceden soruyu alan öğrenci var ise soru üzerinde değişikliğe izin verilmeyecek ama öğrenciye atanan soru yok ise degişişkliğe izin verilecek*/
 		$secenekler ='';
 		$soruCevaplari = array("","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","R","S");
@@ -1478,7 +1632,11 @@ switch( $_POST[ 'islem' ] ) {
 		            			<div class='col-sm-11'>
 		            				$soru[soru]
 		            			</div>
-		            			<div class='col-sm-1'>
+		            			<div class='col-sm-1 p-0 d-flex flex-column'>
+									<div class='col p-0 m-0'>
+										<label for='soruPuan'>Puan</label>
+										<input type='number' steps='1' class='form-control' id='soruPuan' onkeyup='javascript:soruPuanGuncelle($soru[id], $_REQUEST[id], this);' value='$soru[puan]'> 
+									</div>
 		            				<a  modul='sinavlar' yetki_islem='sinav-soru-sil'  href='javascript:soruSil($soru[id],$_REQUEST[id]);' id='soruSil$soru[id]' class='btn btn-sm btn-outline-danger'><i class='fas fa-trash-alt'></i></a>
 		            			</div>
 		            		</div>";
@@ -1612,14 +1770,22 @@ switch( $_POST[ 'islem' ] ) {
 											</div>
 										</div>
 				            		</div>
-				            		<div class='col-sm-6 float-left'>
+				            		<div class='col-sm-5 float-left'>
 				            			<span id='ogrenciAdi'>$ogrenci[adi] $ogrenci[soyadi]</span>
 				            		</div>
-				            		<div class='col-sm-3 float-left'>
+				            		<div class='col-sm-2 float-left'>
 				            			<span>$ogrenci[ogrenci_no]</span>
 				            		</div>
-									<div class='col-sm-2 float-left'>
-				            			<a href='javascript:void(0);' class='btn btn-outline-success ekSure' data-toggle='modal' data-target='#ekSure' data-isim='$ogrenci[adi] $ogrenci[soyadi]' data-ogrenci_id='$ogrenci[id]'><i class='fas fa-plus'></i></a>
+									
+				            		<div class='col-sm-2 float-left'>
+										<span id='puan-$ogrenci[ogrenci_id]'>$ogrenci[puan]</span>
+				            		</div>
+									
+									<div class='col-sm-1 float-left'>
+				            			<a href='javascript:void(0);' class='btn btn-sm btn-outline-success ekSure' data-toggle='modal' data-target='#ekSure' data-isim='$ogrenci[adi] $ogrenci[soyadi]' data-ogrenci_id='$ogrenci[id]'><i class='fas fa-plus'></i></a>
+				            		</div>
+									<div class='col-sm-1 float-left'>
+				            			<a href='javascript:ogrenciSinavDetay($_REQUEST[id],$ogrenci[ogrenci_id]);' class='btn btn-sm btn-outline-info rounded-circle sinav-btn pt-2 ogrenciSinavDetay'><i class='fas fa-eye'></i></a>
 				            		</div>
 				            	</div>";
         }
@@ -1639,6 +1805,7 @@ switch( $_POST[ 'islem' ] ) {
 						<input type='hidden' id='ekSureSinavId'>
 						<label>Öğrenciye Vereceğiniz Ek Süre (Dakika olarak giriniz.)</label>
 						<input type='number' class='form-control' id='ekSureDeger'>
+						<div class='clearfix'></div>
 					</div>
 					<div class='modal-footer justify-content-between'>
 						<button type='button' class='btn btn-danger' data-dismiss='modal'>İptal</button>
@@ -1724,15 +1891,24 @@ switch( $_POST[ 'islem' ] ) {
 											</div>
 										</div>
 									</div>
-									<div class='col-sm-6 float-left font-weight-bold'>
+									<div class='col-sm-5 float-left font-weight-bold'>
 										<span>Ad Soyad</span>
 									</div>
-									<div class='col-sm-3 float-left font-weight-bold'>
+									<div class='col-sm-2 float-left font-weight-bold'>
 										<span>Kullanıcı adı</span>
 									</div>
-									<div class='col-sm-3 float-left font-weight-bold'>
+									
+									<div class='col-sm-2 float-left font-weight-bold'>
+										<span>Sınav Notu</span>
+									</div>
+									
+									<div class='col-sm-1 float-left font-weight-bold'>
 										<span>Ek Süre</span>
 									</div>
+									<div class='col-sm-1 float-left font-weight-bold'>
+										<span>Sınav Detay</span>
+									</div>
+									
 									
 								</div>
 								<div class='clearfix w-100'></div>
@@ -2179,7 +2355,7 @@ switch( $_POST[ 'islem' ] ) {
 				}
 
 				$soruCevaplari 		= array("","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","R","S");
-				$soruSecenekleri 	= $vt->select( $SQL_soru_secenekleri,array( $soru_id ) )[2];  
+				$soruSecenekleri 	= $vt->select( $i_toplui,array( $soru_id ) )[2];  
 				$secenekler 		= '';
 
 				$cevaplar 			= $vt->select( $SQL_sinav_cevap, array( $_SESSION["kullanici_id"],$_SESSION["sinav_id"],$soru_id ) )[2];
@@ -2187,21 +2363,42 @@ switch( $_POST[ 'islem' ] ) {
 				foreach( $cevaplar as $cevap ){
 					$cevapListesi[] = $cevap["cevap_id"];
  				}
-				
-				foreach ($soruSecenekleri as $secenek) {
-					$checked 		= in_array( $secenek[ "id" ], $cevapListesi) ? 'checked' : '';	
-					$isaretli_secenek = in_array( $secenek[ "id" ], $cevapListesi) ? 'isaretli-secenek' : '';	
-					$secenekler .= "<label for='soruSecenek$secenek[id]' id='secenek$secenek[id]'  class='secenek col-sm m-1 pt-3 pb-3 border-secondary btn text-left $isaretli_secenek'>
-										<div class='icheck-secondary d-inline'>
-											<input $checked type='$tur' name='soruSecenek' id='soruSecenek$secenek[id]' data-url='./_modul/ajax/ajax_data.php' onclick='javascript:secenekIsaretle($secenek[id], \"$tur\", $soru_id );' >
-											<label for='donemCard2'>$secenek[secenek]</label>
-										</div>
-									</label>";
+				if( count( $cevaplar ) > 0 ){
+					$cevap = $cevaplar[0]["cevap_metin"];
+				}else{
+					$cevap = "";
 				}
+				if( $tur == "metin" ){
+					$secenekler 	= "<div class='form-group'>
+										<textarea name='soru' id='klasik_soru' data-soru-id='$soru_id' class='form-control soru w-100' rows='7' placeholder='Cevabınız'>$cevap</textarea>
+									</div>
+									<script>
+										setInterval(function() {
+											var text = document.getElementById('klasik_soru').value;
+											var soru_id = $('#klasik_soru').data('soru-id');
+											$.post('./_modul/ajax/ajax_data.php', { islem : 'soruIsaretle',modul:'sinav',tur:'metin',soru_id: $soru_id, metin: text}, function (response) {
+												
+											});
+										}, 2000);
+									</script>";
+				}else if( $tur == "checkbox" OR $tur == "radio" ){
+					foreach ($soruSecenekleri as $secenek) {
+						$checked 		= in_array( $secenek[ "id" ], $cevapListesi) ? 'checked' : '';	
+						$isaretli_secenek = in_array( $secenek[ "id" ], $cevapListesi) ? 'isaretli-secenek' : '';	
+						$secenekler .= "<label for='soruSecenek$secenek[id]' id='secenek$secenek[id]'  class='secenek col-sm m-1 pt-3 pb-3 border-secondary btn text-left $isaretli_secenek'>
+											<div class='icheck-secondary d-inline'>
+												<input $checked type='$tur' name='soruSecenek' id='soruSecenek$secenek[id]' data-url='./_modul/ajax/ajax_data.php' onclick='javascript:secenekIsaretle($secenek[id], \"$tur\", $soru_id );' >
+												<label for='donemCard2'>$secenek[secenek]</label>
+											</div>
+										</label>";
+					}
+				}
+				
 				$resim 	= '';
 				if( $soruGetir[2][0]["soru_dosyasi"] != '' ){
+					//http://localhost/eyps/eyps/soruDosyalari/63c64aec56dc0.jpg
 					$resim = "<div class='text-center  mt-2'>
-								<img src='../soruDosyalari/".$soruGetir[2][0]["soru_dosyasi"]."' width='70%'>
+								<img src='./soruDosyalari/".$soruGetir[2][0]["soru_dosyasi"]."' width='70%'>
 							</div>";
 				}
 				$oncekiBtn 	= '';
@@ -2243,41 +2440,128 @@ switch( $_POST[ 'islem' ] ) {
 		
 	break;
 	case 'soruIsaretle':
-		/*islem:soruIsaretle
-		id: 25
-		modul: sinav
-		soru_id: 3*/
+		/*	islem:soruIsaretle
+			id:12
+			modul:sinav
+			soru_id: 3
+			tur: radio / checkbox / metin
+			checkboxDurum : true / false 
+		*/
 		$sonuc = array();
-		$soru_id 	= in_array($_REQUEST["soru_id"], $_SESSION["sorular"]) 	? $_REQUEST["soru_id"] 	: 0;
-		$cevap_id 	= $_REQUEST["id"];
-
+		$soru_id 		= in_array($_REQUEST["soru_id"], $_SESSION["sorular"]) 	? $_REQUEST["soru_id"] 	: 0;
+		$cevap_id 		= array_key_exists("id",$_REQUEST) ?  $_REQUEST["id"] : 0;
+		$metin_cevap 	= "";
+		$checkboxDurum 	= array_key_exists("checkboxDurum",$_REQUEST) ?  $_REQUEST["checkboxDurum"] : 0;
 		
-		if( $soru_id < 1 OR $cevap_id < 1 ){
+		if( ( $soru_id < 1 OR $cevap_id < 1 ) AND  $_REQUEST["tur"] != "metin" ){
 			$sonuc["hata"] = true;
 			$sonuc["mesaj"] = "Hatalı İşlem Yaptınız";
 			die("hata");
 		}else{
 			$vt->islemBaslat();
+			$puan = 0;
 			if( $_REQUEST["tur"] == "radio" ){
+				//Onceden bu soru işaretlenmiş mi diye kontrol edilir eger 
 				$cevap_varmi = $vt->select( $SQL_sinav_cevap, array( $_SESSION["kullanici_id"],$_SESSION["sinav_id"],$soru_id ) )[2];	
-			
-				$vt->delete( $SQL_sinav_cevaplari_sil, array( $_SESSION["kullanici_id"],$_SESSION["sinav_id"],$soru_id ) );
+				
+				if( count( $cevap_varmi ) > 0 ){
+					$vt->delete( $SQL_sinav_cevaplari_sil, array( $_SESSION["kullanici_id"],$_SESSION["sinav_id"], $soru_id ) );
+				}
+
+				//Gelen Soruyu Bul ve soruya ait puanı al ve gelen cevapla aynı ise puanı yazdır
+				$dogrucevap = $vt->select( $SQL_dogru_cevap_getir, array( $_SESSION["sinav_id"],$soru_id,$cevap_id) )[2][0];
+				if( $dogrucevap[ "dogru_secenek" ] == 1 ){
+					$puan = $dogrucevap[ "puan" ];
+				}
+
+				$data = array(
+					$_SESSION["kullanici_id"],
+					$_SESSION["sinav_id"],
+					$soru_id,
+					$cevap_id,
+					$metin_cevap,
+					$puan
+				);
+	
+				$sorgu_sonuc = $vt->insert( $SQL_sinav_cevap_ekle, $data );
+				if( $sorgu_sonuc[ 0 ] ) {
+					$sonuc = array( 'hata'=> true, 'mesaj' => $sorgu_sonuc[ 1 ] );
+					break;
+				}
+
+			}else if( $_REQUEST[ "tur" ] == "checkbox"){
+				//Soru Puanı ve soruya ait dogru cevapların sayısı bulunup bölünecek 
+				/*
+					islem: soruIsaretle
+					id: 63
+					modul: sinav
+					soru_id: 13
+					tur: checkbox
+				*/
+
+				//Onceden bu soru işaretlenmiş mi diye kontrol edilir eger 
+				$cevap_varmi = $vt->select( $SQL_sinav_cevap, array( $_SESSION["kullanici_id"],$_SESSION["sinav_id"],$soru_id ) )[2];	
+
+				/*Gelen CheckboxDurum degeri False ise Cevap Silincek Eger True ise cevap eklenecek*/ 
+				if( $checkboxDurum == "true" ){
+					//cevap ekleme 
+					
+					$data = array(
+						$_SESSION["kullanici_id"],
+						$_SESSION["sinav_id"],
+						$soru_id,
+						$cevap_id,
+						$metin_cevap,
+						$puan
+					);
+		
+					$sorgu_sonuc = $vt->insert( $SQL_sinav_cevap_ekle, $data );
+					if( $sorgu_sonuc[ 0 ] ) {
+						$sonuc = array( 'hata'=> true, 'mesaj' => $sorgu_sonuc[ 1 ] );
+						break;
+					}
+
+				}else{
+					$vt->delete( $SQL_sinav_chackbox_cevaplari_sil, array( $_SESSION["kullanici_id"],$_SESSION["sinav_id"],$soru_id,$cevap_id ) );
+				}
+
+			}else if( $_REQUEST[ "tur" ] == "metin" ){
+
+				$metin_cevap = $_REQUEST[ "metin" ];
+				$cevap_varmi = $vt->select( $SQL_sinav_cevap, array( $_SESSION["kullanici_id"],$_SESSION["sinav_id"],$soru_id ) )[2];
+				if( count( $cevap_varmi ) > 0 ){
+					/*Güncelleme İşlemi Yapılacak*/
+					$data = array(
+						$metin_cevap,
+						$_SESSION["kullanici_id"],
+						$_SESSION["sinav_id"],
+						$soru_id
+					);
+		
+					$sorgu_sonuc = $vt->update( $SQL_sinav_cevap_guncelle, $data );
+					if( $sorgu_sonuc[ 0 ] ) {
+						$sonuc = array( 'hata'=> true, 'mesaj' => "Başarılı" );
+						break;
+					}
+				}else{
+					/*Ekleme İşlemi Yapılacak*/
+					$data = array(
+						$_SESSION["kullanici_id"],
+						$_SESSION["sinav_id"],
+						$soru_id,
+						$cevap_id,
+						$metin_cevap,
+						$puan
+					);
+		
+					$sorgu_sonuc = $vt->insert( $SQL_sinav_cevap_ekle, $data );
+					if( $sorgu_sonuc[ 0 ] ) {
+						$sonuc = array( 'hata'=> true, 'mesaj' => $sorgu_sonuc[ 1 ] );
+						break;
+					}
+				}
 			}
 			
-
-			$data = array(
-				$_SESSION["kullanici_id"],
-				$_SESSION["sinav_id"],
-				$soru_id,
-				$cevap_id,
-				""
-			);
-
-			$sorgu_sonuc = $vt->insert( $SQL_sinav_cevap_ekle, $data );
-			if( $sorgu_sonuc[ 0 ] ) {
-				$sonuc = array( 'hata'=> true, 'mesaj' => $sorgu_sonuc[ 1 ] );
-				break;
-			}
 			$vt->islemBitir();
 			$id 							= array_search( $soru_id, $_SESSION["sorular"]);
 			$sonuc[ "btn_id" ] 				= $id;
@@ -2292,7 +2576,6 @@ switch( $_POST[ 'islem' ] ) {
 			$sinav_varmi 	= $vt->select( $SQL_sinav_sorgula, array( $sinav_id, $_SESSION["kullanici_id"], date("Y-m-d"), date("H:m:s"), date("H:m:s") ) )[2][0];
 			if( count( $sinav_varmi ) > 0 ){
 				$_SESSION["okudum_anladim"] = 'on';
-				$_SESSION["soru_id"] 		= 1;
 			}
 		}
 	break;
@@ -2725,23 +3008,6 @@ switch( $_POST[ 'islem' ] ) {
 		$sonuc = $bildirim_sayisi."~".$sonuc2;
 		echo $sonuc;
 	break;
-	case 'siparis_guzergahlari_ver':
-		$sonuc = "<option value = '' >Seçiniz</option>";
-		$siparis_guzergahlar	= $vt->select( $SQL_siparis_guzergahlar, array( $_REQUEST[ 'siparis_id' ] ) );
-		foreach( $siparis_guzergahlar[ 2 ] AS $satir ) {
-			if( ( !in_array( $satir[ 'cikis_depo_id' ], $fn->superKontrolluRolYetkiliDepoVer( $_SESSION[ 'rol_id' ], true ) ) ) or $satir[ 'sevkiyat_tamamlandi' ] == 1 )
-				continue;
-			$secili = '';
-			//foreach( $rol_modul_yetki_islem_turleri[ 2 ] AS $satir2 ) if( $satir[ 'id' ] == $satir2[ 'islem_turu_id' ] ) $secili = 'checked';
-			$guzergah		= $satir[ 'guzergah' ];
-			$guzergah_id	= $satir[ 'id' ];
-
-			$sonuc .= "<option value = '$guzergah_id' >$guzergah</option>";
-		}
-		//$sonuc .= "</select>";
-		echo $sonuc;
-	break;
-
 	case 'rol_modul_yetki_islem_oku':
 		$sonuc = '';
 		$yetki_islem_turleri_tumu		= $vt->select( $SQL_module_atanan_tum_yetki_islem_turleri, array( $_REQUEST[ 'modul_id' ] ) );
@@ -2808,5 +3074,154 @@ switch( $_POST[ 'islem' ] ) {
 		}
 		echo json_encode( $sonuc );
 	break;
+	case 'ogrenciSinavDetay':
+		$sinav_id 	= array_key_exists( "sinav_id", 	$_REQUEST) ? $_REQUEST[ "sinav_id" ] 	: 0;
+		/*Öğrenci İd öğrenciler tablosundaki id si ile eşittir*/
+		$ogrenci_id = array_key_exists( "ogrenci_id", 	$_REQUEST) ? $_REQUEST[ "ogrenci_id" ] 	: 0;
+		
+		/*Sınav olup Olmadığı kontrol edildi*/
+		$ogrenci_oku 		= $vt->select( $SQL_sinav_ogrenci_oku, array( $sinav_id, $ogrenci_id ) )[2];  
+		if ( count( $ogrenci_oku ) < 1 ) {
+			die;
+		}else{
+			/*Öğrenciye Ait Sınav cevaplarını cekip soru bazında arraya atadık*/
+			$sinavCevaplari = $vt->select( $SQL_ogrenci_sinav_tum_cevaplari, array( $sinav_id, $ogrenci_id ))[2];
+			$cevaplar 		= array();
+			foreach ($sinavCevaplari as $cevap) {
+				$cevaplar[ $cevap[ "soru_id" ] ][ "cevap_id" ] 		= $cevap[ "cevap_id" ];
+				$cevaplar[ $cevap[ "soru_id" ] ][ "cevap_metin" ] 	= $cevap[ "cevap_metin" ];
+				$cevaplar[ $cevap[ "soru_id" ] ][ "puan" ] 			= $cevap[ "puan" ];
+			}
+
+			/*Sisteme Girş yapan öğretmen ise sadece öğretmene ait sorular getirilecek*/
+			if( $_SESSION[ "kullanici_turu" ] == "ogretmen" AND $_SESSION[ "super" ] == 0 ){
+				$ogretimUyesiSorulari = $vt->select( $SQL_ogretim_elemani_sinav_sorulari, array( $sinav_id, $_SESSION[ "kullanici_id" ] ))[2];
+			}else if(  $_SESSION[ "kullanici_turu" ] == "admin" AND $_SESSION[ "super" ] == 1 ){
+				$ogretimUyesiSorulari = $vt->select( $SQL_sinav_sorulari, array( $sinav_id ))[2];
+			}
+			
+			/*Soruya iat secenekleri çektik*/
+			if( $_SESSION[ "kullanici_turu" ] == "ogretmen" AND $_SESSION[ "super" ] == 0 ){
+				$soruSecenekleri = $vt->select( $SQL_soru_secenekleri_toplu, array( $sinav_id, $_SESSION[ "kullanici_id" ] ))[2];
+			}else if(  $_SESSION[ "kullanici_turu" ] == "admin" AND $_SESSION[ "super" ] == 1 ){
+				$soruSecenekleri = $vt->select( $SQL_soru_secenekleri_toplu_admin, array( $sinav_id ))[2];
+			}
+			$sorusecenekleriArray = array();
+
+			/*Soruya ait seçenekleri soru id sine göre arrayda topladık*/
+			foreach ($soruSecenekleri as $secenek) {
+				$sorusecenekleriArray[ $secenek[ "soru_id" ] ][ $secenek[ "id" ] ]["soru"] 		= $secenek[ "secenek" ];
+				$sorusecenekleriArray[ $secenek[ "soru_id" ] ][ $secenek[ "id" ] ]["dogruMu"] 	= $secenek[ "dogru_secenek" ];
+				$sorusecenekleriArray[ $secenek[ "soru_id" ] ][ $secenek[ "id" ] ]["cevap_id"] 	= $secenek[ "id" ];
+			}
+			
+			$soruKapsa = "";
+			foreach ($ogretimUyesiSorulari as $soruGetir) {
+				
+				if ( $soruGetir[ 'coklu_secenek' ] == 0 AND $soruGetir[ 'metin' ] == 0 ){
+					$disabled 	= "disabled";
+					$tur 		= 'radio';
+				}else if( $soruGetir[ 'coklu_secenek' ] == 1 AND $soruGetir[ 'metin' ] == 0 ){
+					$disabled 	= "disabled";
+					$tur 		= 'checkbox';
+				}else if( $soruGetir[ 'coklu_secenek' ] == 0 AND $soruGetir[ 'metin' ] == 1 ){
+					$disabled 	= array_key_exists($soruGetir[ "id" ], $cevaplar) ? "" : "disabled";
+					$tur 		= 'metin';
+				}
+				/*Soru Cevaplanmıssa puanı getir cevaplanmamış ise 0 bırak*/
+				$puan  			= array_key_exists($soruGetir[ "id" ], $cevaplar) ? $cevaplar[ $soruGetir[ 'id' ] ][ 'puan' ] : 0;
+				$cevap_metin  	= array_key_exists($soruGetir[ "id" ], $cevaplar) ? $cevaplar[ $soruGetir[ 'id' ] ][ 'cevap_metin' ] : '';
+				$bosBirakildi 	= array_key_exists($soruGetir[ "id" ], $cevaplar) ? "" :"<div class='alert alert-danger'>Soru Boş Bırakılmış</div>";
+				$soruKapsa 		.= "<div class='soru-kapsa p-2 mt-1 rounded'>
+									<span class='h5 pb-0 pt-2 col-11 float-left'>$soruGetir[soru]</span>
+									<div class='col-1 float-left p-0'>
+										<label>Puan</label>
+										<input type='number' class='form-control' id='soru-$soruGetir[id]' value='$puan' $disabled onkeyup='puanVer($sinav_id,$ogrenci_id,$soruGetir[id],this);'>
+									</div>
+									<div class='clearfix'></div>
+								<div class='soru-secenekleri'>";
+				$soruKapsa 		.= $bosBirakildi;
+				if( $tur == "metin" ){
+					$soruKapsa .= "<span class='bg-secondary d-block w-100 p-2 rounded'>$cevap_metin</span>";
+				}else if( $tur == "checkbox" OR $tur == "radio" ){
+					$background = "";
+					foreach ($sorusecenekleriArray[ $soruGetir[ "id" ] ] as $secenek) {
+						$kirmizi 		= "";
+						if( array_key_exists($soruGetir[ "id" ], $cevaplar) ){
+							if( $cevaplar[ $soruGetir[ "id" ] ][ "cevap_id" ] == $secenek[ "cevap_id" ] ){
+								$kirmizi = "kirmizi-isaretli-secenek";
+							}else{
+								$kirmizi = "";
+							}
+						}
+						$yesil 		= $secenek[ "dogruMu" ] == 1 ? "yesil-isaretli-secenek" : "";
+						$soruKapsa 	.= "<label class='secenek col-sm border-secondary btn text-left $kirmizi $yesil '>$secenek[soru]</label>";
+					}
+				}
+				$soruKapsa .= "</div></div>";
+			}
+			$sonuc[ "durum" ] = 1;
+			$sonuc[ "mesaj" ] = "<div class='modal fade' id='sinavCevapModal'>
+									<div class='modal-dialog modal-xl'>
+										<div class='modal-content'>
+											<div class='modal-header'>
+												<h4 class='modal-title'>Sınav Detayı</h4>
+												<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+													<span aria-hidden='true'>&times;</span>
+												</button>
+											</div>
+											<div class='modal-body' id='sinavCevapSonuc'>
+												$soruKapsa
+											</div>
+										</div>
+									</div>
+								</div>";
+			echo json_encode($sonuc);
+		}
+	break;
+	case 'puanVer':
+		$___islem_sonuc = array(
+			"durum" => 1
+		);
+		$sinav_id 	= array_key_exists( "sinav_id", 	$_REQUEST) ? $_REQUEST[ "sinav_id" ] 	: 0;
+		$ogrenci_id = array_key_exists( "ogrenci_id", 	$_REQUEST) ? $_REQUEST[ "ogrenci_id" ] 	: 0;
+		$soru_id 	= array_key_exists( "soru_id", 		$_REQUEST) ? $_REQUEST[ "soru_id" ] 	: 0;
+		$puan 		= array_key_exists( "puan", 		$_REQUEST) ? $_REQUEST[ "puan" ] 		: 0;
+		
+
+		$cevap_varmi = $vt->select( $SQL_sinav_cevap, array( $ogrenci_id, $sinav_id, $soru_id ) )[2];			
+		if( count( $cevap_varmi ) > 0 ){
+			$sonuc = $vt->update( $SQL_sinav_puan_guncelle, array($puan, $ogrenci_id, $sinav_id, $soru_id));
+		}
+		if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'durum' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
+		$ogrenciPuani = $vt->select( $SQL_ogrenci_sinav_puani, array( $sinav_id, $ogrenci_id ) )[2][0];
+		$___islem_sonuc[ "puan" ] 	= $ogrenciPuani["puan"]; 
+		echo json_encode($___islem_sonuc);
+	break;
+	case 'sinavSoruPuanGuncelle':
+		$___islem_sonuc = array(
+			"durum" => 1,
+			"mesaj" => "Puan Güncellendi"
+		);
+
+		$sinav_id 	= array_key_exists( "sinavId", 		$_REQUEST) ? $_REQUEST[ "sinavId" ] 	: 0;
+		$soru_id 	= array_key_exists( "soruId", 		$_REQUEST) ? $_REQUEST[ "soruId" ] 		: 0;
+		$puan 		= array_key_exists( "puan", 		$_REQUEST) ? $_REQUEST[ "puan" ] 		: 0;
+		
+		$enFazlaVerilecekPuan = $vt->select( $SQL_sinav_soru_puan_hesapla, array( $sinav_id, $soru_id ) )[2][0]["enfazla"];
+
+		
+		/*Verilen puan verilecek puandan fazla ise verilmesine izin vermiyoruz aksi taktirde sınav soru puanı güncellenececk */
+		if( $puan > $enFazlaVerilecekPuan ){
+			$___islem_sonuc[ "durum" ] = 0;
+			$___islem_sonuc[ "mesaj" ] = "Yüksek puan girdiniz!<br>Verilecek en yüksek puan <strong>$enFazlaVerilecekPuan</strong>";
+		}else{
+			$sonuc = $vt->update( $SQL_sinav_soru_puan_guncelle, array($puan, $sinav_id, $soru_id));
+		}
+		echo json_encode($___islem_sonuc);
+		
+	break;
+	
+
 }
 ?>

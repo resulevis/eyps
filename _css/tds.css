@@ -162,3 +162,16 @@ div.dt-button-collection div.dropdown-menu {
 .gri-arkaplan .yesil{
 	background:#6effb7;
 }
+
+/*Sayı olan metin alanlarındaki control iconlarını pasif ediyoruz*/
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

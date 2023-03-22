@@ -102,7 +102,7 @@ WHERE
 SQL;
 
 
-$unvanlar							= $vt->select( $SQL_unvanlar, array( $_SESSION[ 'universite_id'] ) )[ 2 ];
+$unvanlar							= $vt->select( $SQL_unvanlar, array( ) )[ 2 ];
 $anabilim_dallari					= $vt->select( $SQL_anabilim_dallari, array( $_SESSION[ 'universite_id'] ) )[ 2 ];
 $fakulteler							= $vt->select( $SQL_fakulteler, array( $_SESSION[ 'universite_id'] ) )[ 2 ];
 @$tek_ogretim_elemani				= $vt->select( $SQL_tek_ogretim_elemani_oku, array( $ogretim_elemani_id ) )[ 2 ][ 0 ];		

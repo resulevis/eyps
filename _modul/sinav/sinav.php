@@ -182,6 +182,13 @@ if( !array_key_exists( "okudum_anladim",$_SESSION ) ){
 		
 		
 	});
+	/*
+		islem	: soruIsaretle
+		id		: 71
+		modul	: sinav
+		soru_id	: 14
+		tur		: checkbox
+	*/
 	/*SECİLEN CEVABA BOX SHADOW EKELENİYOR*/
 	function secenekIsaretle(secenek,tur,soru_id){
 		var soru_tur = tur;
@@ -195,7 +202,15 @@ if( !array_key_exists( "okudum_anladim",$_SESSION ) ){
 		var data_islem 	= 'soruIsaretle';
 		var	data_modul 	= 'sinav'; 
 		var data_url 	= './_modul/ajax/ajax_data.php';
-		$.post(data_url, { islem : data_islem, id : secenek, modul : data_modul,soru_id : soru_id,tur : tur }, function (response) {
+
+		/*Checkbox olan secenekler için issaretleme olup olmadığı kontrolü*/
+		if( soru_tur == "checkbox" ){
+			var checkboxDurum = document.getElementById("soruSecenek"+secenek).checked;
+			if( checkboxDurum == false ){
+				$("#secenek"+secenek).removeClass("isaretli-secenek");
+			}
+		}
+		$.post(data_url, { islem : data_islem, id : secenek, modul : data_modul,soru_id : soru_id,tur : tur,checkboxDurum : checkboxDurum }, function (response) {
 			var response = JSON.parse(response);
 			if( response.btn_id > 0 ){
 				$("#soruBtn"+response.btn_id).removeClass("btn-dark");

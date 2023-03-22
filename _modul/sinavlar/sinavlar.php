@@ -343,6 +343,7 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 	<div class="golgelik d-none" id="golgelik2">Kapat</div>						
 	<div class="sinavDuzenleSidebar d-none overflow-hidden" id="sinavDetay"></div>
 	<div class="golgelik d-none" id="golgelik">Kapat</div>
+	<div id="sinavCevapDetayKapsa" style="z-index:99999;"></div>
 	<script>
 		$(function () {
 			$('#baslangicTarihi').datetimepicker({
@@ -719,6 +720,19 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 				$('#ekleBtnSeciliOgrenci').prop('disabled', true);
 			}
 	    }
+		function soruPuanGuncelle(id, sinavId, puan){
+			var data_url 	= './_modul/ajax/ajax_data.php';
+			puan = puan.value;
+			
+			$.post(data_url, { islem : "sinavSoruPuanGuncelle", soruId : id, modul:"sinavlar",sinavId:sinavId,puan:puan }, function (response) {
+				var sonuc = JSON.parse(response);
+				if(sonuc.durum == 0){
+					mesajVer( sonuc.mesaj , 'kirmizi');
+				}
+			});
+			
+	    }
+		
 		function soruSil(id, sinavId){
 			var data_url 	= './_modul/ajax/ajax_data.php';
 			$.post(data_url, { islem : "sinavSoruSil", soruId : id, modul:"sinavlar",sinavId:sinavId }, function (response) {
@@ -732,5 +746,28 @@ if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 )
 			});
 			
 	    }
-		
+
+		function ogrenciSinavDetay(sinav_id,ogrenci_id){
+			var data_url 	= './_modul/ajax/ajax_data.php';
+			$.post(data_url, { islem : "ogrenciSinavDetay", sinav_id : sinav_id, modul:"sinavlar", ogrenci_id:ogrenci_id }, function (response) {
+				var sonuc = JSON.parse(response);
+				if(sonuc.durum == 1){
+					$("#sinavCevapDetayKapsa").empty();
+					$("#sinavCevapDetayKapsa").append(sonuc.mesaj);
+					$('#sinavCevapModal').modal('show');
+				}
+			});
+		}
+		function puanVer(sinav_id,ogrenci_id,soru_id){
+			var puan = document.getElementById("soru-"+soru_id).value;
+			var data_url 	= './_modul/ajax/ajax_data.php';
+			$.post(data_url, { islem : "puanVer", sinav_id : sinav_id, modul: "sinavlar", ogrenci_id: ogrenci_id, soru_id: soru_id, puan: puan }, function (response) {
+				var sonuc = JSON.parse(response);
+				if(sonuc.durum == 1){
+					$("#puan-"+ogrenci_id).empty();
+					$("#puan-"+ogrenci_id).append(sonuc.puan);
+				}
+			});
+
+		}
 	</script>

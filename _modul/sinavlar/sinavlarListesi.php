@@ -57,9 +57,9 @@ WHERE
 	so.ogrenci_id 		= ? AND 
 	s.aktif 			= 1
 SQL;
-$donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
+//$donemler 	 			= $vt->select( $SQL_donemler_getir, array( $_SESSION[ "universite_id" ], $_SESSION[ "aktif_yil" ], $_SESSION[ "program_id" ] ) )[2];
 @$_SESSION[ "donem_id" ]= $_SESSION[ "donem_id" ] ? $_SESSION[ "donem_id" ]  : $donemler[ 0 ][ "id" ];
-$komiteler 				= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ "aktif_yil" ], $_SESSION[ "donem_id" ], $_SESSION[ "program_id" ] ) )[2];
+//$komiteler 				= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ "aktif_yil" ], $_SESSION[ "donem_id" ], $_SESSION[ "program_id" ] ) )[2];
 
 if ( $_SESSION[ "kullanici_turu" ] == 'ogretmen' AND $_SESSION[ "super" ] == 0 ){
 	$sinavlar 			= $vt->select( $SQL_ogretim_elemani_sinavlar_getir, array(  $_SESSION[ "kullanici_id" ],$_SESSION[ "universite_id" ], $_SESSION[ "donem_id" ] ) )[2];

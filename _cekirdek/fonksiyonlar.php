@@ -403,12 +403,12 @@ SQL;
 	
 //////////////////////
 	/* Herhangi bir rol_id nin yetkili olduğu subelerı verir.*/
-	public function yetkilisubeVer( $rol_id, $sadece_idler = false ) {
+	/*public function yetkilisubeVer( $rol_id, $sadece_idler = false ) {
 		$sonuclar = $this->vt->select( self::SQL_yetkili_subeler_yetki_modulu,  array( $rol_id ) );
 		$dizi = array();
 		foreach( $sonuclar[ 2 ] as $sonuc ) $dizi[] = $sadece_idler ? $sonuc[ 'id' ] : $sonuc;
 		return $dizi;
-	}
+	}*/
 
 
 	/* Herhangi bir rol_id nin yetkili olduğu firmaları verir.*/

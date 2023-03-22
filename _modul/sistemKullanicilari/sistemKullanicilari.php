@@ -58,7 +58,8 @@ WHERE
 SQL;
 
 $sistem_kullanici_id	= array_key_exists( 'id', $_REQUEST ) ? $_REQUEST[ 'id' ] : 0;
-$roller								= $vt->select( $SQL_roller, array( $_SESSION[ 'rol_id' ] ) );
+//$roller	= $vt->select( $SQL_roller, array( $_SESSION[ 'rol_id' ] ) );
+$roller								= $vt->select( $SQL_roller, array( ) );
 $universiteler				= $vt->select( $SQL_universiteler, array(  ) );
 $sistem_kullanici			= $vt->selectSingle( $SQL_sistem_kullanici, array( $sistem_kullanici_id ) );
 $sistem_kullanicilari	= $vt->select( $SQL_sistem_kullanicilari, array( $_SESSION[ 'super' ] , $_SESSION[ 'kullanici_id' ]) );

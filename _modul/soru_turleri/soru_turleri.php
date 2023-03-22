@@ -40,7 +40,7 @@ WHERE
 	id 			= ?
 SQL;
 
-$soru_turleri			= $vt->select( $SQL_soru_turleri, array( $_SESSION[ "universite_id" ] ) )[ 2 ];
+$soru_turleri			= $vt->select( $SQL_soru_turleri, array(  ) )[ 2 ];
 @$tek_soru_turu			= $vt->select( $SQL_tek_soru_turu_oku, array( $soru_turu_id ) )[ 2 ][ 0 ];
 
 ?>
