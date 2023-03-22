@@ -265,7 +265,7 @@ $komiteler 			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$donem_i
 									<input  type="number" class="form-control col-sm-1 float-left " name ="soru_sayisi-'.$ders[ "id" ].'"  autocomplete="off" value="'.$ders[ "soru_sayisi" ].'">
 									
 									<a href="" class="btn btn-sm btn-danger m-1" modul= "komiteDersleri" yetki_islem="sil" data-href="_modul/komiteDersleri/komiteDersleriSEG.php?islem=sil&komite_ders_id='.$ders[ "id" ].'&ders_yili_id='.$ders_yili_id.'&program_id='.$program_id.'&donem_id='.$donem_id.'&komite_id='.$komite_id.'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
-								</div><hr>';
+								</div><hr class="w-100">';
 							}
 						?>
 

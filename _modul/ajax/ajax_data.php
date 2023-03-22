@@ -1153,7 +1153,7 @@ switch( $_POST[ 'islem' ] ) {
 						<input  type="number" class="form-control col-sm-2 float-left m-1" disabled name ="teorik_ders_saati-'.$ders[ "id" ].'" id ="teorik_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
 						<input  type="number" class="form-control col-sm-2 float-left m-1" disabled name ="uygulama_ders_saati-'.$ders[ "id" ].'"
 						id ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
-					</div><hr>';
+					</div><hr class="w-100">';
 			}
 		}else if( $_REQUEST['modul'] == "komiteDersleri" ){
 			$dersler  	= $vt->select( $SQL_donem_dersleri_getir, array( $_REQUEST[ "ders_yili_donem_id" ]  ) )[2];
@@ -1169,7 +1169,7 @@ switch( $_POST[ 'islem' ] ) {
 						<input  type="number" min="0" class="form-control col-sm-2 float-left m-1" disabled name ="uygulama_ders_saati-'.$ders[ "id" ].'"
 						id ="uygulama_ders_saati-'.$ders[ "id" ].'"  autocomplete="off">
 						<input  type="number" min="0" class="form-control col-sm-1 float-left m-1" disabled name ="soru_sayisi-'.$ders[ "id" ].'" id ="soru_sayisi-'.$ders[ "id" ].'"  autocomplete="off">
-					</div><hr>';
+					</div><hr class="w-100">';
 			}
 
 		}else if( $_REQUEST['modul'] == "sinavlar" ){
@@ -1188,7 +1188,7 @@ switch( $_POST[ 'islem' ] ) {
 			die();
 		}	
 		$sonuc =  '
-				<hr>
+				<hr class="w-100">
 				<div class="col-sm-12">
 					<div class="form-group " style="display: flex; align-items: center;">
 						<div class="custom-control custom-checkbox col-sm-'.($_REQUEST['modul'] == "komiteDersleri" ? '7': '8').' float-left">
@@ -1299,7 +1299,7 @@ switch( $_POST[ 'islem' ] ) {
 					<a href="" class="btn btn-sm btn-danger m-1" modul= "'.$_REQUEST[ "modul" ].'" yetki_islem="sil" data-href="_modul/'.$_REQUEST[ "modul" ].'/'.$_REQUEST[ "modul" ].'SEG.php?islem=sil&komite_ders_id='.$komite_ders_id.'&ogretim_uyesi_id='.$ogretim_elemani[ "id" ].'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
 				</div>
 			</div>
-			<hr class="m-1">';
+			<hr class="m-1 w-100">';
 			$say++;
 		}
 
@@ -1342,10 +1342,10 @@ switch( $_POST[ 'islem' ] ) {
 						<label for="'.$gorevli[ "id" ].'" class="custom-control-label">'.$gorevli[ "adi" ].'</label>
 					</div>
 					
-				</div><hr>';
+				</div><hr class="w-100">';
 		}
 		$sonuc =  '
-				<hr>
+				<hr class="w-100">
 				<h5 class="text-center alert alert-info p-1">Öğretim Görevlileri</h5>
 				<div class="col-sm-12">
 					'.$gorevlilerSonuc.'

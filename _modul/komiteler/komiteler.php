@@ -215,14 +215,14 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 							</select>
 						</div><br>
 						<?php  
+							$i = 1;
 							foreach ($komiteler as $komite) { ?>
-							<hr>
 							<div>
 								<input type="hidden" name="komite_id[]" value="<?php echo $komite[ 'id' ] ?>" required>
 								<div class=" col-sm-12 float-left p-0 m-0" >
 									<div class="card">
 										<div class="card-header bg-lightblue">
-											<b><?php echo $komite[ 'ders_kurulu_sira' ] ?>. Ders Kurulu</b> : <?php echo $komite[ 'adi' ] ?>
+											<b><?php echo $i; ?>. Ders Kurulu</b> : <?php echo $komite[ 'adi' ] ?>
 										</div>
 										<div class="card-body">
 											<div class="row">
@@ -256,7 +256,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 								</div>
 							</div>	
 							<div class="clearfix"></div>
-						<?php }  ?>
+						<?php $i++; }  ?>
 					</div>
 					
 				<?php } ?>
@@ -376,7 +376,7 @@ $komiteler			= $vt->select( $SQL_komiteler_getir, array( $ders_yili_id,$program_
 	});
 	function komiteEkle(){
 		var komite = 
-			'<div class="komite"> <hr>' +
+			'<div class="komite"> <hr class="w-100">' +
 				'<div class=" col-sm-11 float-left p-0 m-0" >'+
 					'<div class=" col-sm-4 float-left">'+
 						'<label  class="control-label">Komite Ders Kodu</label>' + 

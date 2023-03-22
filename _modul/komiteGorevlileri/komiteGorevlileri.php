@@ -69,6 +69,7 @@ RIGHT JOIN
 WHERE 
 	universite_id 		= ? AND
 	kg.komite_id 		= ?
+GROUP BY gk.id
 SQL;
 
 $SQL_komiteler_getir = <<< SQL
@@ -248,7 +249,7 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 							</div>
 							<div class="col-sm-1 float-left"><b>Sil</b></div>
 						</div>
-						<hr>
+						<hr class="w-100">
 						<?php
 						if ( count( $donem_gorevlileri ) < 1 ){
 							echo '<div class="alert alert-danger text-center">Öğretim görevlisi eklenmemiş</div>';
@@ -261,7 +262,7 @@ $komiteler  		= $vt->select( $SQL_komiteler_getir, array( $_SESSION[ 'aktif_yil'
 										<label for="'.$gorevli[ "id" ].'">'.$gorevli[ "adi" ].'</label>
 									</div>
 									<a href="" class="btn btn-sm btn-danger m-1" modul= "komiteGorevlileri" yetki_islem="sil" data-href="_modul/komiteGorevlileri/komiteGorevlileriSEG.php?islem=sil&donem_id='.$donem_id.'&komite_id='.$komite_id.'&gorev_kategori_id='.$gorev_kategori_id.'&komite_gorevli_id='.$gorevli[ "ogretim_elemani_id" ].'" data-toggle="modal" data-target="#sil_onay"> Sil</a>
-								</div><hr>';
+								</div><hr class="w-100">';
 							}
 						?>
 

@@ -127,11 +127,11 @@ switch( $islem ) {
 
 	break;
 	case 'guncelle':
-		//Güncellenecek olan tarife giriş yapılan firmaya mı ait oldugu kontrol ediliyor Eger firmaya ait ise Güncellenecektir.
-		$tek_soru_turu_oku = $vt->select( $SQL_soru_turu_oku, array( $soru_id ) ) [ 2 ];
-		$coklu_secenek = array_key_exists( "coklu_secenek", $_REQUEST ) ? 1 : 0; 
-		$metin 		   = array_key_exists( "metin", 		$_REQUEST ) ? 1 : 0; 
-		$degerler = array( $_REQUEST[ "adi" ], $coklu_secenek, $metin, $soru_id );
+
+		$tek_soru_turu_oku 	= $vt->select( $SQL_soru_turu_oku, array( $soru_id ) ) [ 2 ];
+		$coklu_secenek 		= array_key_exists( "coklu_secenek", $_REQUEST ) ? 1 : 0; 
+		$metin 		   		= array_key_exists( "metin", 		$_REQUEST ) ? 1 : 0; 
+		$degerler 			= array( $_REQUEST[ "soru" ], $coklu_secenek, $metin, $soru_id );
 		if (count( $tek_soru_turu_oku ) > 0) {
 			$sonuc = $vt->update( $SQL_guncelle, $degerler );
 			if( $sonuc[ 0 ] ) $___islem_sonuc = array( 'hata' => $sonuc[ 0 ], 'mesaj' => 'Kayıt güncellenirken bir hata oluştu ' . $sonuc[ 1 ] );
